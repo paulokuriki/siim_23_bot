@@ -17,13 +17,13 @@ def tel_parse_message(message):
         if message.get('message', None):
             chat_id = message.get('message', {}).get('chat', {}).get('id', '')
             txt = message.get('message', {}).get('text', '')
-            user_id = message.get('message', {}).get('from', {}).get('id', '')
+            user_id = str(message.get('message', {}).get('from', {}).get('id', ''))
             username = message.get('message', {}).get('from', {}).get('username', '')
             fullname = message.get('message', {}).get('from', {}).get('first_name', '') + ' ' + message.get('message', {}).get('from', {}).get('last_name', '')
         elif message.get('callback_query', None):
             chat_id = message.get('callback_query', {}).get('from', {}).get('id', '')
             txt = message.get('callback_query', {}).get('data', '')
-            user_id = message.get('callback_query', {}).get('from', {}).get('id', '')
+            user_id = str(message.get('callback_query', {}).get('from', {}).get('id', ''))
             username = message.get('callback_query', {}).get('from', {}).get('username', '')
             fullname = message.get('callback_query', {}).get('from', {}).get('first_name', '') + ' ' + message.get('callback_query',{}).get('from', {}).get('last_name', '')
 
