@@ -2,7 +2,6 @@
 
 # import necessary modules
 from flask import Flask, request, Response
-import json
 
 # import functions from other modules
 from telegram_aux import *
@@ -29,47 +28,47 @@ def index():
 
             # evaluate the user's message and respond accordingly
             if txt == "hi":
-                welcome_message(chat_id, txt, username, fullname)
+                welcome_message(chat_id=chat_id, txt=txt, user_id=user_id, username=username, fullname=fullname)
 
             elif txt in 'new_model':
-                select_batch_size(chat_id, txt, username, fullname)
+                select_batch_size(chat_id=chat_id, txt=txt, user_id=user_id, username=username, fullname=fullnamee)
 
             elif txt in hp.batch_sizes:
-                select_epochs(chat_id, txt, username, fullname)
+                select_epochs(chat_id=chat_id, txt=txt, user_id=user_id, username=username, fullname=fullname)
 
             elif txt in hp.epochs:
-                select_lr(chat_id, txt, username, fullname)
+                select_lr(chat_id=chat_id, txt=txt, user_id=user_id, username=username, fullname=fullname)
 
             elif txt in hp.learning_rates:
-                select_batch_norm(chat_id, txt, username, fullname)
+                select_batch_norm(chat_id=chat_id, txt=txt, user_id=user_id, username=username, fullname=fullname)
 
             elif txt in hp.batch_norm:
-                select_filters(chat_id, txt, username, fullname)
+                select_filters(chat_id=chat_id, txt=txt, user_id=user_id, username=username, fullname=fullname)
 
             elif txt in hp.filters:
-                select_dropout(chat_id, txt, username, fullname)
+                select_dropout(chat_id=chat_id, txt=txt, user_id=user_id, username=username, fullname=fullname)
 
             elif txt in hp.dropout:
-                select_image_size(chat_id, txt, username, fullname)
+                select_image_size(chat_id=chat_id, txt=txt, user_id=user_id, username=username, fullname=fullname)
 
             elif txt in hp.image_size:
-                confirm_training(chat_id, txt, username, fullname)
+                confirm_training(chat_id=chat_id, txt=txt, user_id=user_id, username=username, fullname=fullname)
 
             elif txt in hp.image_size:
-                confirm_training(chat_id, txt, username, fullname)
+                confirm_training(chat_id=chat_id, txt=txt, user_id=user_id, username=username, fullname=fullname)
 
             elif txt == "submit_training":
-                submit_model(chat_id, txt, username, fullname)
+                submit_model(chat_id=chat_id, txt=txt, user_id=user_id, username=username, fullname=fullname)
 
             elif txt == "list_competitors":
                 msg = 'Users:\n' + '\n'.join(db.list_competitors())
                 tel_send_message(chat_id, msg)
 
             elif txt == "show_leaderboard":
-                show_leaderboard(chat_id, txt, username, fullname)
+                show_leaderboard(chat_id=chat_id, txt=txt, user_id=user_id, username=username, fullname=fullname)
 
             elif txt == "show_status":
-                show_training_status(chat_id, txt, username, fullname)
+                show_training_status(chat_id=chat_id, txt=txt, user_id=user_id, username=username, fullname=fullname)
 
             elif txt == "image":
                 tel_send_image(chat_id)
@@ -88,7 +87,7 @@ def index():
             elif txt == "ic_B":
                 tel_send_message(chat_id, "You have clicked B")
             else:
-                welcome_message(chat_id, txt, username, fullname)
+                welcome_message(chat_id=chat_id, txt=txt, user_id=user_id, username=username, fullname=fullname)
 
         except Exception as e:
             print(e)
