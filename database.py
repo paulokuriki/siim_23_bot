@@ -4,10 +4,7 @@ import sqlalchemy
 from sqlalchemy import create_engine, select, insert
 
 # import tables from the db_schema module
-from db_schema import tb_pretrained, tb_competitors
-
-# get the database URL from an environment variable or use a default value
-DATABASE_URL = os.environ.get('DATABASE_URL', 'postgresql+psycopg2://postgres:postgres@localhost:5432/postgres')
+from db_schema import tb_pretrained, tb_competitors, DATABASE_URL
 
 # create a SQLAlchemy engine object using the DATABASE_URL
 engine = create_engine(DATABASE_URL)
