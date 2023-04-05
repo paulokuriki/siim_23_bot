@@ -6,7 +6,7 @@ def welcome_message(chat_id: str, txt: str = "", username: str = "", fullname: s
     tel_send_message(chat_id, f"Hello, {fullname}! Welcome to the SIIM 2023 AI Playground")
     tel_send_inlinebutton(chat_id, "Select your option:",
                           [{"text": "Train new model", "callback_data": "new_model"},
-                           {"text": "Check Status", "callback_data": "check_status"}])
+                           {"text": "Check Status", "callback_data": "show_status"}])
 
 
 def select_batch_size(chat_id: str, txt: str = "", username: str = "", fullname: str = ""):

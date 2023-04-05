@@ -61,10 +61,10 @@ def index():
                 tel_send_message(chat_id, msg)
 
             elif txt == "show_leaderboard":
-                show_leaderboard()
+                show_leaderboard(chat_id, txt, username, fullname)
 
             elif txt == "show_status":
-                show_training_status()
+                show_training_status(chat_id, txt, username, fullname)
 
             elif txt == "image":
                 tel_send_image(chat_id)
