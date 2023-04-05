@@ -72,7 +72,7 @@ def submit_model(chat_id: str, txt: str, username: str, fullname: str):
 def create_dict_options(list_options):
     list_dict = []
     for option in list_options:
-        text = option.split("_")[0]
+        text = option.split("_")[1]
         callback_data = option
         list_dict.append({"text": text, "callback_data": callback_data})
 
