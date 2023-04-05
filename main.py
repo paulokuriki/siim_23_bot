@@ -1,6 +1,7 @@
 # https://www.pragnakalp.com/create-telegram-bot-using-python-tutorial-with-examples/
 
 from flask import Flask, request, Response
+import json
 
 from telegram_aux import *
 from messages import *
@@ -92,6 +93,25 @@ def index():
     else:
         return "<h1>Welcome!</h1>"
 
+@app.route('/upload_json', methods=['POST'])
+def upload_json():
+    if request.method == 'POST':
+        try:
+            json_record = request.get_json()
+            result = db.insert_json(json_record)
+            if result == 'JSON inserted successfully.':
+                return result, 200
+            else:
+                return result, 500
+
+        except Exception as e:
+            return e, 500
+
+@app.route('/list_pretrained_metrics', methods=['GET'])
+def list_pretrained_metrics():
+
+    results = json.dumps(db.list_pretrained(), indent=2, default=str)
+    return results
 
 if __name__ == '__main__':
     app.run(threaded=True)
