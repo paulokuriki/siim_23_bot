@@ -42,7 +42,7 @@ def select_dropout(chat_id: str, txt: str, username: str, fullname: str):
 
 def select_image_size(chat_id: str, txt: str, username: str, fullname: str):
     tel_send_message(chat_id, f"For last, but not the least, select the image size to input in your model.")
-    tel_send_inlinebutton(chat_id, "Dropout:", create_dict_options(hp.image_size))
+    tel_send_inlinebutton(chat_id, "Image Size:", create_dict_options(hp.image_size))
 
 
 def confirm_training(chat_id: str, txt: str, username: str, fullname: str):
