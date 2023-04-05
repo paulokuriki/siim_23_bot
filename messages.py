@@ -48,7 +48,7 @@ def select_image_size(chat_id: str, txt: str = "", username: str = "", fullname:
 def confirm_training(chat_id: str, txt: str = "", username: str = "", fullname: str = ""):
     tel_send_message(chat_id,
                      f"Nice work, {fullname}! If you are ready to train you model, click on the TRAIN button below.")
-    tel_send_message(chat_id, "The system will estimated training time.")
+    tel_send_message(chat_id, "The system will estimate the training time.")
     tel_send_message(chat_id, "If you want to cancel and define a new model, click on the button CANCEL.")
     tel_send_inlinebutton(chat_id, "Select your option:",
                           [{"text": "TRAIN", "callback_data": "submit_training"},
