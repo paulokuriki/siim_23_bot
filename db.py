@@ -11,6 +11,7 @@ engine = create_engine(DATABASE_URL)
 def insert_competitor(username: str = '', fullname: str = ''):
 
     stmt = insert(tb_competitors).values(username=username, fullname=fullname)
+    print(stmt)
 
     try:
         with engine.connect() as conn:
@@ -48,5 +49,3 @@ def list_pretrained(id: str = None):
         results = conn.execute(sql).fetchall()
 
     return results
-
-print(list_competitors(username='z'))
