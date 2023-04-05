@@ -16,7 +16,8 @@ metadata_obj = MetaData()
 
 # create a SQLAlchemy Table object for the competitors table with columns for the username and fullname
 tb_competitors = Table("competitors", metadata_obj,
-                       Column("username", text, primary_key=True),
+                       Column("user_id", text, primary_key=True),
+                       Column("username", text),
                        Column("fullname", text))
 
 # create a SQLAlchemy Table object for the pretrained_results table with columns for various model training parameters
@@ -51,7 +52,7 @@ tb_pretrained = Table("pretrained_results", metadata_obj,
 tb_submissions = Table("submissions", metadata_obj,
                        Column("id", smallint, primary_key=True),
                        Column("datetime_submission", TimeStamp),
-                       Column("username", text, ForeignKey("competitors.username"), nullable=False),
+                       Column("user_id", text, ForeignKey("competitors.user_id"), nullable=False),
                        Column("batch_size", smallint),
                        Column("epochs", smallint),
                        Column("learning_rate", real),

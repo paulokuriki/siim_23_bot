@@ -12,4 +12,3 @@ filters = ['filters_5', 'filters_10', 'filters_15', 'filters_20']
 dropout = ['drop_none', 'drop_0.1', 'drop_0.2', 'drop_0.3', 'drop_0.5', 'drop_0.75', 'drop_0.9']
 
 image_size = ['imgsize_16', 'imgsize_32', 'imgsize_64', 'imgsize_128', 'imgsize_256', 'imgsize_512']
-
