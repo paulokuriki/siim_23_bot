@@ -4,7 +4,8 @@ from flask import Flask, request, Response
 
 from telegram_aux import *
 from messages import *
-import db
+import database as db
+import hyperparameters as hp
 
 app = Flask(__name__)
 
@@ -18,28 +19,42 @@ def index():
             chat_id, txt, username, fullname = tel_parse_message(msg)
 
             # register the competitor in the database, if necessary
-            if db.list_competitors(username=username) == []:
+            if not db.list_competitors(username=username):
                 db.insert_competitor(username=username, fullname=fullname)
 
+            # evaluate the user's message
             if txt == "hi":
                 welcome_message(chat_id, txt, username, fullname)
 
-            elif txt == "new_model":
-                create_new_model()
+            elif txt in 'new_model':
+                select_batch_size(chat_id, txt, username, fullname)
 
-            elif txt in ['efficient_net', 'res_net']:
-                tel_send_message(chat_id, f"Model selected: {txt}.")
-                tel_send_inlinebutton(chat_id, "Select the number of epochs:",
-                                      [{"text": "1", "callback_data": "1_epoch"},
-                                       {"text": "3", "callback_data": "3_epochs"},
-                                       {"text": "10", "callback_data": "10_epochs"}])
+            elif txt in hp.batch_sizes:
+                select_epochs(chat_id, txt, username, fullname)
 
-            elif txt in ['1_epoch', '3_epochs', '10_epochs']:
-                tel_send_message(chat_id, f"Training your model for: {txt}.")
+            elif txt in hp.epochs:
+                select_lr(chat_id, txt, username, fullname)
 
-            elif txt == "check_status":
-                tel_send_message(chat_id,
-                                 f"{username}, here is your model's status: Train Loss: 6.3  Val Loss: 8.6 ROC AUC: 0.89")
+            elif txt in hp.learning_rates:
+                select_batch_norm(chat_id, txt, username, fullname)
+
+            elif txt in hp.batch_norm:
+                select_filters(chat_id, txt, username, fullname)
+
+            elif txt in hp.filters:
+                select_dropout(chat_id, txt, username, fullname)
+
+            elif txt in hp.dropout:
+                select_image_size(chat_id, txt, username, fullname)
+
+            elif txt in hp.image_size:
+                confirm_training(chat_id, txt, username, fullname)
+
+            elif txt in hp.image_size:
+                confirm_training(chat_id, txt, username, fullname)
+
+            elif txt == "submit_training":
+                submit_model(chat_id, txt, username, fullname)
 
             elif txt == "list_competitors":
                 msg = 'Users:\n' + '\n'.join(db.list_competitors())
@@ -62,9 +77,8 @@ def index():
             elif txt == "ic_B":
                 tel_send_message(chat_id, "You have clicked B")
             else:
-                tel_send_message(chat_id,
-                                 'Hi Felipe and Tim. Welcome to the AI Playground.\n'
-                                 'Say HI to start.')
+                welcome_message(chat_id, txt, username, fullname)
+
         except:
             print("fromindex-->")
 
