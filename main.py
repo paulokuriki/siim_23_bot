@@ -60,6 +60,12 @@ def index():
                 msg = 'Users:\n' + '\n'.join(db.list_competitors())
                 tel_send_message(chat_id, msg)
 
+            elif txt == "show_leaderboard":
+                show_leaderboard()
+
+            elif txt == "show_status":
+                show_training_status()
+
             elif txt == "image":
                 tel_send_image(chat_id)
             elif txt == "poll":
