@@ -124,6 +124,16 @@ def list_pretrained_metrics():
     # return the results as a JSON object
     return results
 
+
+# route for listing pretrained model metrics
+@app.route('/list_competitors', methods=['GET'])
+def list_competitors():
+    # get the pretrained metrics from the database using a function from database.py
+    results = json.dumps(db.list_competitors())
+    # return the results as a JSON object
+    return results
+
+
 # start the Flask app if this file is being run as the main program
 if __name__ == '__main__':
     app.run(threaded=True)
