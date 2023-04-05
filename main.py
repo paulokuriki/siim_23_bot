@@ -90,8 +90,8 @@ def index():
             else:
                 welcome_message(chat_id, txt, username, fullname)
 
-        except:
-            print("fromindex-->")
+        except Exception as e:
+            print(e)
 
         return Response('ok', status=200)
     else:
