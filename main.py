@@ -12,6 +12,7 @@ import hyperparameters as hp
 # create Flask app object
 app = Flask(__name__)
 
+
 # route for the root directory; handles Telegram messages
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -31,7 +32,7 @@ def index():
                 welcome_message(chat_id=chat_id, txt=txt, user_id=user_id, username=username, fullname=fullname)
 
             elif txt in 'new_model':
-                select_batch_size(chat_id=chat_id, txt=txt, user_id=user_id, username=username, fullname=fullnamee)
+                select_batch_size(chat_id=chat_id, txt=txt, user_id=user_id, username=username, fullname=fullname)
 
             elif txt in hp.batch_sizes:
                 select_epochs(chat_id=chat_id, txt=txt, user_id=user_id, username=username, fullname=fullname)
@@ -94,7 +95,9 @@ def index():
 
         return Response('ok', status=200)
     else:
-        return "<h1>Welcome to the SIIM AI Playground API!</h1><p>Open Telegram and look for the bot called @siim_23_bot to start to play."
+        return "<h1>Welcome to the SIIM AI Playground API!</h1>" \
+               "<p>Open Telegram and look for the bot called @siim_23_bot to start to play."
+
 
 # route for uploading JSON records to the database
 @app.route('/upload_json', methods=['POST'])
@@ -114,6 +117,7 @@ def upload_json():
         except Exception as e:
             # return an error response if the insertion fails
             return e, 500
+
 
 # route for listing pretrained model metrics
 @app.route('/list_pretrained_metrics', methods=['GET'])
