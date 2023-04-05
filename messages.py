@@ -1,45 +1,45 @@
 from telegram_aux import tel_send_message, tel_send_inlinebutton
 import hyperparameters as hp
 
-
+# Sends a welcome message to the user and provides options for training a new model or checking status
 def welcome_message(chat_id: str, txt: str = "", username: str = "", fullname: str = ""):
     tel_send_message(chat_id, f"Hello, {fullname}! Welcome to the SIIM 2023 AI Playground")
     tel_send_inlinebutton(chat_id, "Select your option:",
                           [{"text": "Train new model", "callback_data": "new_model"},
                            {"text": "Check Status", "callback_data": "show_status"}])
 
-
+# Sends options for selecting batch size to the user
 def select_batch_size(chat_id: str, txt: str = "", username: str = "", fullname: str = ""):
     tel_send_message(chat_id, "It's time to have fun. Let's train your new model.")
     tel_send_message(chat_id, "First, you have to select a batch size.")
     tel_send_inlinebutton(chat_id, "Batch Size:", create_dict_options(hp.batch_sizes))
 
-
+# Sends options for selecting number of epochs to the user
 def select_epochs(chat_id: str, txt: str = "", username: str = "", fullname: str = ""):
     tel_send_message(chat_id, f"Now, select the number os epochs to be trained.")
     tel_send_inlinebutton(chat_id, "Epochs:", create_dict_options(hp.epochs))
 
-
+# Sends options for selecting learning rate to the user
 def select_lr(chat_id: str, txt: str = "", username: str = "", fullname: str = ""):
     tel_send_message(chat_id, "Great, now let's select the learning rate.")
     tel_send_inlinebutton(chat_id, "Learning Rates:", create_dict_options(hp.learning_rates))
 
-
+# Sends options for selecting whether or not to use batch normalization to the user
 def select_batch_norm(chat_id: str, txt: str = "", username: str = "", fullname: str = ""):
     tel_send_message(chat_id, f"It's time to decide if you want to use batch normalization.")
     tel_send_inlinebutton(chat_id, "Batch Norm:", create_dict_options(hp.batch_norm))
 
-
+# Sends options for selecting number of filters to the user
 def select_filters(chat_id: str, txt: str = "", username: str = "", fullname: str = ""):
     tel_send_message(chat_id, "Awesome. Now, a important hyperparameter: the number of filters.")
     tel_send_inlinebutton(chat_id, "Number of Filters:", create_dict_options(hp.filters))
 
-
+# Sends options for selecting whether or not to use dropout to the user
 def select_dropout(chat_id: str, txt: str = "", username: str = "", fullname: str = ""):
     tel_send_message(chat_id, f"Optionally, you can opt to apply dropout to your model.")
     tel_send_inlinebutton(chat_id, "Dropout:", create_dict_options(hp.dropout))
 
-
+# Sends options for selecting image size to the user
 def select_image_size(chat_id: str, txt: str = "", username: str = "", fullname: str = ""):
     tel_send_message(chat_id, "For last, but not the least, select the image size to input in your model.")
     tel_send_inlinebutton(chat_id, "Image Size:", create_dict_options(hp.image_size))

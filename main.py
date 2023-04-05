@@ -1,29 +1,33 @@
 # https://www.pragnakalp.com/create-telegram-bot-using-python-tutorial-with-examples/
 
+# import necessary modules
 from flask import Flask, request, Response
 import json
 
+# import functions from other modules
 from telegram_aux import *
 from messages import *
 import database as db
 import hyperparameters as hp
 
+# create Flask app object
 app = Flask(__name__)
 
-
-# Reading the response from the user and responding to it accordingly
+# route for the root directory; handles Telegram messages
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
+        # get the message from the POST request
         msg = request.get_json()
         try:
+            # parse the message using functions from telegram_aux.py
             chat_id, txt, username, fullname = tel_parse_message(msg)
 
             # register the competitor in the database, if necessary
             if not db.list_competitors(username=username):
                 db.insert_competitor(username=username, fullname=fullname)
 
-            # evaluate the user's message
+            # evaluate the user's message and respond accordingly
             if txt == "hi":
                 welcome_message(chat_id, txt, username, fullname)
 
@@ -93,25 +97,33 @@ def index():
     else:
         return "<h1>Welcome!</h1>"
 
+# route for uploading JSON records to the database
 @app.route('/upload_json', methods=['POST'])
 def upload_json():
     if request.method == 'POST':
         try:
+            # get the JSON record from the POST request
             json_record = request.get_json()
+            # insert the record into the database using a function from database.py
             result = db.insert_json(json_record)
+            # return an appropriate response based on the result of the insertion
             if result == 'JSON inserted successfully.':
                 return result, 200
             else:
                 return result, 500
 
         except Exception as e:
+            # return an error response if the insertion fails
             return e, 500
 
+# route for listing pretrained model metrics
 @app.route('/list_pretrained_metrics', methods=['GET'])
 def list_pretrained_metrics():
-
+    # get the pretrained metrics from the database using a function from database.py
     results = json.dumps(db.list_pretrained(), indent=2, default=str)
+    # return the results as a JSON object
     return results
 
+# start the Flask app if this file is being run as the main program
 if __name__ == '__main__':
     app.run(threaded=True)
