@@ -95,7 +95,7 @@ def index():
 
         return Response('ok', status=200)
     else:
-        return "<h1>Welcome!</h1>"
+        return "<h1>Welcome to the SIIM AI Playground API!</h1><p>Open Telegram and look for the bot called @siim_23_bot to start to play."
 
 # route for uploading JSON records to the database
 @app.route('/upload_json', methods=['POST'])
