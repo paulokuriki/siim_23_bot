@@ -128,7 +128,7 @@ def list_pretrained_metrics():
 @app.route('/list_competitors', methods=['GET'])
 def list_competitors():
     # get the pretrained metrics from the database using a function from database.py
-    results = json.dumps(db.list_competitors())
+    results = json.dumps(db.list_competitors(), indent=2, default=str)
     # return the results as a JSON object
     return results
 

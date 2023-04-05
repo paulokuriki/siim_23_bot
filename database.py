@@ -46,7 +46,7 @@ def list_competitors(user_id: str = ''):
         results = conn.execute(sql).fetchall()
 
     # extract the first column of each result (i.e., the username) and return them in a list
-    results = [r[0] for r in results]
+    results = [tuple(row) for row in results]
 
     return results
 
