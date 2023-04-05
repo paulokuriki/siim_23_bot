@@ -11,8 +11,9 @@ def welcome_message(chat_id: str, txt: str, username: str, fullname: str):
 
 
 def select_batch_size(chat_id: str, txt: str, username: str, fullname: str):
-    tel_send_message(chat_id, f"Let's train your model. First, select the batch size.")
-    tel_send_inlinebutton(chat_id, "Batch Size:", create_dict_options(hp.batch_sizes))
+    tel_send_message(chat_id, "It's time to have fun. Let's train your new model.")
+    tel_send_message(chat_id, "First, you have to select a batch size.")
+    tel_send_inlinebutton(chat_id, "", create_dict_options(hp.batch_sizes))
 
 
 def select_epochs(chat_id: str, txt: str, username: str, fullname: str):
@@ -26,7 +27,7 @@ def select_lr(chat_id: str, txt: str, username: str, fullname: str):
 
 
 def select_batch_norm(chat_id: str, txt: str, username: str, fullname: str):
-    tel_send_message(chat_id, f"It's time to decide if you want to user batch normalization.")
+    tel_send_message(chat_id, f"It's time to decide if you want to use batch normalization.")
     tel_send_inlinebutton(chat_id, "Batch Norm:", create_dict_options(hp.batch_norm))
 
 
@@ -49,24 +50,22 @@ def confirm_training(chat_id: str, txt: str, username: str, fullname: str):
     tel_send_message(chat_id,
                      f"Nice work, {fullname}! If you are ready to train you model, click on the TRAIN button below.")
     tel_send_message(chat_id, "The system will estimated training time.")
-    tel_send_message(chat_id, "If you want to cancel and define a new model, click on the button Cancel.")
+    tel_send_message(chat_id, "If you want to cancel and define a new model, click on the button CANCEL.")
     tel_send_inlinebutton(chat_id, "Select your option:",
-                          [{"text": "Train new model", "callback_data": "submit_training"},
-                           {"text": "Cancel and Restart", "callback_data": "new_model"}])
+                          [{"text": "TRAIN", "callback_data": "submit_training"},
+                           {"text": "CANCEL", "callback_data": "new_model"}])
 
 
 def submit_model(chat_id: str, txt: str, username: str, fullname: str):
-    tel_send_message(chat_id, f"Your model was submitted to the queue. ")
+    tel_send_message(chat_id, f"Your model was submitted to the training queue. ")
     tel_send_message(chat_id, "The estimated training time is <function calculate_estimated_time()>")
     tel_send_message(chat_id, "Time remaining: <function calculate_remaining_time()>")
-    tel_send_message(chat_id,
-                     "If you want to cancel the training process and define a new model, click on the button Cancel.")
-    tel_send_message(chat_id, " Otherwise, wait the time to finish the training.")
-    tel_send_message(chat_id,
-                     "When the training is finished, you will receive a message with you metrics results and your position on the leaderboard.")
+    tel_send_message(chat_id,"If you want to cancel the training process and define a new model, click on the CANCEL button.")
+    tel_send_message(chat_id, "Otherwise, WAIT for the time to finish your model's training session.")
+    tel_send_message(chat_id, "You'll receive a message with metrics results and your position on the leaderboard.")
     tel_send_inlinebutton(chat_id, "Select your option:",
-                          [{"text": "Wait training", "callback_data": ""},
-                           {"text": "Cancel and Restart", "callback_data": "new_model"}])
+                          [{"text": "WAIT", "callback_data": ""},
+                           {"text": "CANCEL", "callback_data": "new_model"}])
 
 
 def create_dict_options(list_options):
