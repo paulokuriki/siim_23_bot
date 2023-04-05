@@ -10,9 +10,9 @@ from db_schema import tb_pretrained, tb_competitors, DATABASE_URL
 engine = create_engine(DATABASE_URL)
 
 
-def insert_competitor(username: str = '', fullname: str = ''):
+def insert_competitor(user_id: str, username: str = '', fullname: str = ''):
     # create an insert statement for the tb_competitors table with the given username and fullname
-    stmt = insert(tb_competitors).values(username=username, fullname=fullname)
+    stmt = insert(tb_competitors).values(user_id=user_id, username=username, fullname=fullname)
 
     try:
         # execute the insert statement within a transaction and commit it
@@ -33,10 +33,10 @@ def insert_competitor(username: str = '', fullname: str = ''):
     return
 
 
-def list_competitors(username: str = ''):
-    if username:
+def list_competitors(user_id: str = ''):
+    if user_id:
         # create a select statement for the tb_competitors table that retrieves the row(s) with the given username
-        sql = select(tb_competitors).where(tb_competitors.c.username == username)
+        sql = select(tb_competitors).where(tb_competitors.c.user_id == user_id)
     else:
         # create a select statement for the tb_competitors table that retrieves all rows
         sql = select(tb_competitors)

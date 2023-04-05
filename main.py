@@ -21,11 +21,11 @@ def index():
         msg = request.get_json()
         try:
             # parse the message using functions from telegram_aux.py
-            chat_id, txt, username, fullname = tel_parse_message(msg)
+            chat_id, txt, user_id, username, fullname = tel_parse_message(msg)
 
             # register the competitor in the database, if necessary
-            if not db.list_competitors(username=username):
-                db.insert_competitor(username=username, fullname=fullname)
+            if not db.list_competitors(user_id=user_id):
+                db.insert_competitor(user_id=user_id, username=username, fullname=fullname)
 
             # evaluate the user's message and respond accordingly
             if txt == "hi":
