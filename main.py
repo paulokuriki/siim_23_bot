@@ -3,7 +3,7 @@
 from flask import Flask, request, Response
 
 from telegram_aux import *
-from database import *
+import db
 
 # token that we get from the BotFather
 TOKEN = os.environ.get('TELEGRAM_TOKEN', '')
@@ -16,30 +16,42 @@ def index():
     if request.method == 'POST':
         msg = request.get_json()
         try:
-            chat_id, txt, username = tel_parse_message(msg)
+            chat_id, txt, username, fullname = tel_parse_message(msg)
+
+            # inserts the competitor if necessary
+            if db.list_competitor(username=username) == []:
+                db.insert_competitor(username=username, fullname=fullname)
+
             if txt.lower() == "hi":
                 tel_send_message(chat_id, f"Hello, {username}! Welcome to the SIIM 2023 AI Playground")
                 tel_send_inlinebutton(chat_id, "Select your option:",
                                       [{"text": "Create new model", "callback_data": "new_model"},
                                        {"text": "Check Status", "callback_data": "check_status"},
-                                       {"text": "List Users", "callback_data": "list_users"}])
+                                       {"text": "List Competitors", "callback_data": "list_competitors"}])
+
             elif txt == "new_model":
                 tel_send_message(chat_id, f"Creating a new model for user {username}.")
                 tel_send_inlinebutton(chat_id, "Select your architecture:",
                                       [{"text": "EfficientNet", "callback_data": "efficient_net"},
                                        {"text": "ResNet", "callback_data": "res_net"}])
+
             elif txt in ['efficient_net', 'res_net']:
                 tel_send_message(chat_id, f"Model selected: {txt}.")
                 tel_send_inlinebutton(chat_id, "Select the number of epochs:",
                                       [{"text": "1", "callback_data": "1_epoch"},
                                        {"text": "3", "callback_data": "3_epochs"},
                                        {"text": "10", "callback_data": "10_epochs"}])
+
             elif txt in ['1_epoch', '3_epochs', '10_epochs']:
                 tel_send_message(chat_id, f"Training your model for: {txt}.")
+
             elif txt == "check_status":
                 tel_send_message(chat_id, f"{username}, here is your model's status: Train Loss: 6.3  Val Loss: 8.6 ROC AUC: 0.89")
-            elif txt == "list_users":
-                tel_send_message(chat_id, '\n'.join(list_usernames()))
+
+            elif txt == "list_competitors":
+                msg = 'Users:\n' + '\n'.join(db.list_competitor())
+                tel_send_message(chat_id, msg)
+
             elif txt == "image":
                 tel_send_image(chat_id)
             elif txt == "poll":
@@ -66,8 +78,6 @@ def index():
         return Response('ok', status=200)
     else:
         return "<h1>Welcome!</h1>"
-
-
 
 
 if __name__ == '__main__':

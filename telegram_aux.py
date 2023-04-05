@@ -15,18 +15,21 @@ def tel_parse_message(message):
             chat_id = message['message']['chat']['id']
             txt = message['message']['text']
             username = message['message']['from']['username']
+            fullname = message['message']['from']['first_name'] + ' ' +  message['message']['from']['last_name']
         elif message.get('callback_query', None):
             chat_id = message['callback_query']['from']['id']
             txt = message['callback_query']['data']
             username = message['callback_query']['from']['username']
+            fullname = message['callback_query']['from']['first_name'] + ' ' + message['callback_query']['from']['last_name']
         else:
-            return '', '', ''
+            return '', '', '', ''
 
         print("chat_id-->", chat_id)
         print("txt-->", txt)
         print("username-->", username)
+        print("fullname-->", fullname)
 
-        return chat_id, txt, username
+        return chat_id, txt, username, fullname
     except:
         print("No text found-->>")
 
