@@ -25,7 +25,6 @@ def tel_parse_message(message):
             username = message['callback_query']['from']['username']
             fullname = message['callback_query']['from']['first_name'] + ' ' + message['callback_query']['from'][
                 'last_name']
-        else:
 
         txt = txt.lower().strip()
 
