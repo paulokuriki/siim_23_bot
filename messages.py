@@ -57,8 +57,8 @@ def confirm_training(chat_id: str, txt: str = "", username: str = "", fullname: 
 
 def submit_model(chat_id: str, txt: str = "", username: str = "", fullname: str = ""):
     tel_send_message(chat_id, "Your model was submitted to the training queue. ")
-    tel_send_message(chat_id, "The estimated training time is <function calculate_estimated_time()>")
-    tel_send_message(chat_id, "Time remaining: <function calculate_remaining_time()>")
+    tel_send_message(chat_id, "The estimated training time is <TODO function calculate_estimated_time()>")
+    tel_send_message(chat_id, "Time remaining: <TODO function calculate_remaining_time()>")
     tel_send_message(chat_id,
                      "If you want to cancel the training process and define a new model, click on the CANCEL button.")
     tel_send_message(chat_id, "Otherwise, WAIT for the time to finish your model's training session.")
@@ -72,11 +72,11 @@ def submit_model(chat_id: str, txt: str = "", username: str = "", fullname: str 
 def show_training_status(chat_id: str, txt: str = "", username: str = "", fullname: str = ""):
     tel_send_message(chat_id, "*TRAINING STATUS:*")
     tel_send_message(chat_id, "The estimated training time is <function calculate_estimated_time()>")
-    tel_send_message(chat_id, "Time remaining: <function calculate_remaining_time()>")
+    tel_send_message(chat_id, "Time remaining: <TODO function calculate_remaining_time()>")
     tel_send_message(chat_id,
                      "If you want to cancel the training process and define a new model, click on the CANCEL button.")
-    tel_send_message(chat_id, "Otherwise, WAIT for the time to finish your model's training session.")
-    tel_send_message(chat_id, "You'll receive a message with metrics results and your position on the leaderboard.")
+    tel_send_message(chat_id, "Otherwise, you can check the training session STATUS at any time.")
+    tel_send_message(chat_id, "You'll receive a message with the metrics results and your position on the leaderboard as soon as the model's training is finished.")
     tel_send_inlinebutton(chat_id, "Select your option:",
                           [{"text": "CANCEL", "callback_data": "new_model"},
                            {"text": "STATUS", "callback_data": "show_status"},
@@ -85,7 +85,7 @@ def show_training_status(chat_id: str, txt: str = "", username: str = "", fullna
 
 def show_leaderboard(chat_id: str, txt: str = "", username: str = "", fullname: str = ""):
     tel_send_message(chat_id, "LEADERBOARD")
-    tel_send_message(chat_id, "<function show_leaderboard()>")
+    tel_send_message(chat_id, "<TODO function show_leaderboard()>")
 
 
 def create_dict_options(list_options):
