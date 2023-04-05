@@ -11,6 +11,8 @@ def tel_parse_message(message):
     print("message-->", message)
     try:
 
+        chat_id = txt = username = fullname = ''
+
         if message.get('message', None):
             chat_id = message['message']['chat']['id']
             txt = message['message']['text']
@@ -22,7 +24,8 @@ def tel_parse_message(message):
             username = message['callback_query']['from']['username']
             fullname = message['callback_query']['from']['first_name'] + ' ' + message['callback_query']['from']['last_name']
         else:
-            return '', '', '', ''
+
+        txt = txt.lower().strip()
 
         print("chat_id-->", chat_id)
         print("txt-->", txt)

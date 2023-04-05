@@ -3,10 +3,8 @@
 from flask import Flask, request, Response
 
 from telegram_aux import *
+from messages import *
 import db
-
-# token that we get from the BotFather
-TOKEN = os.environ.get('TELEGRAM_TOKEN', '')
 
 app = Flask(__name__)
 
@@ -18,24 +16,15 @@ def index():
         try:
             chat_id, txt, username, fullname = tel_parse_message(msg)
 
-            # inserts the competitor if necessary
-            print('searching for the competitor in the database')
+            # register the competitor in the database, if necessary
             if db.list_competitors(username=username) == []:
-                print('competitor not found in the database')
                 db.insert_competitor(username=username, fullname=fullname)
 
-            if txt.lower() == "hi":
-                tel_send_message(chat_id, f"Hello, {username}! Welcome to the SIIM 2023 AI Playground")
-                tel_send_inlinebutton(chat_id, "Select your option:",
-                                      [{"text": "Create new model", "callback_data": "new_model"},
-                                       {"text": "Check Status", "callback_data": "check_status"},
-                                       {"text": "List Competitors", "callback_data": "list_competitors"}])
+            if txt == "hi":
+                welcome_message(chat_id, txt, username, fullname)
 
             elif txt == "new_model":
-                tel_send_message(chat_id, f"Creating a new model for user {username}.")
-                tel_send_inlinebutton(chat_id, "Select your architecture:",
-                                      [{"text": "EfficientNet", "callback_data": "efficient_net"},
-                                       {"text": "ResNet", "callback_data": "res_net"}])
+                create_new_model()
 
             elif txt in ['efficient_net', 'res_net']:
                 tel_send_message(chat_id, f"Model selected: {txt}.")
