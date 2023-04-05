@@ -4,6 +4,9 @@ from sqlalchemy import create_engine, MetaData, ForeignKey
 from sqlalchemy import Table, Column
 from sqlalchemy import DateTime as TimeStamp, SmallInteger as smallint, Text as text, REAL as real, BOOLEAN as boolean
 
+DATABASE_URL = os.environ.get('DATABASE_URL', 'postgresql+psycopg2://postgres:postgres@localhost:5432/postgres')
+engine = create_engine(DATABASE_URL)
+
 metadata_obj = MetaData()
 
 tb_competitors = Table("competitors", metadata_obj,
@@ -54,8 +57,6 @@ tb_submissions = Table("submissions", metadata_obj,
                        Column("training_status", text),
                        )
 
-DATABASE_URL = os.environ.get('DATABASE_URL', '')
 
-engine = create_engine(DATABASE_URL)
-
+# creates the tables in case they don't exist
 metadata_obj.create_all(engine)

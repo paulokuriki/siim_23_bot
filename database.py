@@ -1,13 +1,11 @@
 import os
-import json
 
 import sqlalchemy
 from sqlalchemy import create_engine, select, insert
-from sqlalchemy.orm import Session
 
 from db_schema import tb_pretrained, tb_competitors
 
-DATABASE_URL = os.environ.get('DATABASE_URL', '')
+DATABASE_URL = os.environ.get('DATABASE_URL', 'postgresql+psycopg2://postgres:postgres@localhost:5432/postgres')
 
 engine = create_engine(DATABASE_URL)
 
