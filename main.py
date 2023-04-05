@@ -19,8 +19,9 @@ def index():
             chat_id, txt, username, fullname = tel_parse_message(msg)
 
             # inserts the competitor if necessary
-            if db.list_competitor(username=username) == []:
-                print('competitor not found in the databse')
+            print('searching for the competitor in the database')
+            if db.list_competitors(username=username) == []:
+                print('competitor not found in the database')
                 db.insert_competitor(username=username, fullname=fullname)
 
             if txt.lower() == "hi":
@@ -50,7 +51,7 @@ def index():
                 tel_send_message(chat_id, f"{username}, here is your model's status: Train Loss: 6.3  Val Loss: 8.6 ROC AUC: 0.89")
 
             elif txt == "list_competitors":
-                msg = 'Users:\n' + '\n'.join(db.list_competitor())
+                msg = 'Users:\n' + '\n'.join(db.list_competitors())
                 tel_send_message(chat_id, msg)
 
             elif txt == "image":

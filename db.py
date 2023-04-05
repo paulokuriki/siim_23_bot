@@ -7,7 +7,6 @@ DATABASE_URL = os.environ.get('DATABASE_URL', '')
 
 engine = create_engine(DATABASE_URL)
 
-
 def insert_competitor(username: str = '', fullname: str = ''):
 
     stmt = insert(tb_competitors).values(username=username, fullname=fullname)
@@ -18,12 +17,15 @@ def insert_competitor(username: str = '', fullname: str = ''):
             conn.execute(stmt)
             conn.commit()
             return True
+
     except sqlalchemy.exc.IntegrityError as e:
         # (psycopg2.errors.UniqueViolation) duplicate key value violates unique constraint "users_pkey"
         # DETAIL:  Key (username) already exists.
         pass
     except Exception as e:
         print(e)
+
+    return
 
 
 def list_competitors(username: str = ''):
