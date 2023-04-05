@@ -6,6 +6,7 @@ import requests
 # token that we get from the BotFather
 TOKEN = os.environ.get('TELEGRAM_TOKEN', '')
 
+
 # Reading the JSON format when we send the text message and extracting the chat id of the user and the text that user send to the bot
 def tel_parse_message(message):
     print("message-->", message)
@@ -17,12 +18,13 @@ def tel_parse_message(message):
             chat_id = message['message']['chat']['id']
             txt = message['message']['text']
             username = message['message']['from']['username']
-            fullname = message['message']['from']['first_name'] + ' ' +  message['message']['from']['last_name']
+            fullname = message['message']['from']['first_name'] + ' ' + message['message']['from']['last_name']
         elif message.get('callback_query', None):
             chat_id = message['callback_query']['from']['id']
             txt = message['callback_query']['data']
             username = message['callback_query']['from']['username']
-            fullname = message['callback_query']['from']['first_name'] + ' ' + message['callback_query']['from']['last_name']
+            fullname = message['callback_query']['from']['first_name'] + ' ' + message['callback_query']['from'][
+                'last_name']
         else:
 
         txt = txt.lower().strip()

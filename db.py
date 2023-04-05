@@ -7,8 +7,8 @@ DATABASE_URL = os.environ.get('DATABASE_URL', '')
 
 engine = create_engine(DATABASE_URL)
 
-def insert_competitor(username: str = '', fullname: str = ''):
 
+def insert_competitor(username: str = '', fullname: str = ''):
     stmt = insert(tb_competitors).values(username=username, fullname=fullname)
     print(stmt)
 
@@ -35,11 +35,12 @@ def list_competitors(username: str = ''):
         sql = select(tb_competitors)
 
     with engine.connect() as conn:
-        results = conn.execute(sql) .fetchall()
+        results = conn.execute(sql).fetchall()
 
     results = [r[0] for r in results]
 
     return results
+
 
 def list_pretrained(id: str = None):
     if id:

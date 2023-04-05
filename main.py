@@ -1,4 +1,4 @@
-#https://www.pragnakalp.com/create-telegram-bot-using-python-tutorial-with-examples/
+# https://www.pragnakalp.com/create-telegram-bot-using-python-tutorial-with-examples/
 
 from flask import Flask, request, Response
 
@@ -7,6 +7,7 @@ from messages import *
 import db
 
 app = Flask(__name__)
+
 
 # Reading the response from the user and responding to it accordingly
 @app.route('/', methods=['GET', 'POST'])
@@ -37,7 +38,8 @@ def index():
                 tel_send_message(chat_id, f"Training your model for: {txt}.")
 
             elif txt == "check_status":
-                tel_send_message(chat_id, f"{username}, here is your model's status: Train Loss: 6.3  Val Loss: 8.6 ROC AUC: 0.89")
+                tel_send_message(chat_id,
+                                 f"{username}, here is your model's status: Train Loss: 6.3  Val Loss: 8.6 ROC AUC: 0.89")
 
             elif txt == "list_competitors":
                 msg = 'Users:\n' + '\n'.join(db.list_competitors())
