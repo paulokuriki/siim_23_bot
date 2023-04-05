@@ -39,7 +39,7 @@ def index():
             elif txt == "check_status":
                 tel_send_message(chat_id, f"{username}, here is your model's status: Train Loss: 6.3  Val Loss: 8.6 ROC AUC: 0.89")
             elif txt == "list_users":
-                tel_send_message(chat_id, list_users())
+                tel_send_message(chat_id, '\n'.join(list_usernames()))
             elif txt == "image":
                 tel_send_image(chat_id)
             elif txt == "poll":

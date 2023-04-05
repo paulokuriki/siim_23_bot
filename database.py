@@ -34,7 +34,7 @@ DATABASE_URL = os.environ.get('DATABASE_URL', '')
 engine = create_engine(DATABASE_URL)
 conn = engine.connect()
 
-def list_users(id: str = None):
+def list_usernames(id: str = None):
 
     if id:
         sql = select(competitors.c.id).where(competitors.c.id == id)
@@ -42,6 +42,7 @@ def list_users(id: str = None):
         sql = select(competitors.c.id)
 
     results = conn.execute(sql) .fetchall()
+    results = [r[0] for r in results]
 
     return results
 
@@ -55,3 +56,5 @@ def list_pretrained(id: str = None):
     results = conn.execute(sql).fetchall()
 
     return results
+
+print('\n'.join(list_usernames()))
