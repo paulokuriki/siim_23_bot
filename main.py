@@ -19,8 +19,8 @@ def index():
             chat_id, txt, username, fullname = tel_parse_message(msg)
 
             # inserts the competitor if necessary
-            if db.list_competitor(username=username) == []:
-                db.insert_competitor(username=username, fullname=fullname)
+            #if db.list_competitor(username=username) == []:
+            #    db.insert_competitor(username=username, fullname=fullname)
 
             if txt.lower() == "hi":
                 tel_send_message(chat_id, f"Hello, {username}! Welcome to the SIIM 2023 AI Playground")
