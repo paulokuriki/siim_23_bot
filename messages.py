@@ -16,7 +16,7 @@ def select_batch_size(chat_id: str, txt: str = "", user_id: str = "", username: 
 
 # Sends options for selecting number of epochs to the user
 def select_epochs(chat_id: str, txt: str = "", user_id: str = "", username: str = "", fullname: str = ""):
-    tel_send_message(chat_id, f"Now, select the number os epochs to be trained.")
+    tel_send_message(chat_id, f"Now, select the number of epochs to be trained.")
     tel_send_inlinebutton(chat_id, "Epochs:", create_dict_options(hp.epochs))
 
 # Sends options for selecting learning rate to the user

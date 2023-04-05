@@ -62,7 +62,8 @@ def index():
                 submit_model(chat_id=chat_id, txt=txt, user_id=user_id, username=username, fullname=fullname)
 
             elif txt == "list_competitors":
-                msg = 'Users:\n' + '\n'.join(db.list_competitors())
+                results = json.dumps(db.list_competitors(), indent=2, default=str)
+                msg = 'Users:\n' + results
                 tel_send_message(chat_id, msg)
 
             elif txt == "show_leaderboard":
