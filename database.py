@@ -1,5 +1,5 @@
 import os
-from sqlalchemy import create_engine,  select, text
+from sqlalchemy import create_engine, select
 from sqlalchemy import MetaData
 from sqlalchemy import Table, Column
 from sqlalchemy import DateTime as TimeStamp, SmallInteger as smallint, Text as text, REAL as real, BOOLEAN as boolean
@@ -56,5 +56,3 @@ def list_pretrained(id: str = None):
     results = conn.execute(sql).fetchall()
 
     return results
-
-print('\n'.join(list_usernames()))
