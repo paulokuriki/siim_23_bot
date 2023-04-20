@@ -159,7 +159,7 @@ def generate_random_number(base_number, std_dev, max_percentage_from_std_dev: fl
     import random
 
     rand_multiplier = random.uniform(0, max_percentage_from_std_dev)
-    new_std_dev = std_dev * rand_multiplier
+    new_std_dev = float(std_dev) * float(rand_multiplier)
 
     add_or_subtract = random.randint(0, 1)
     if add_or_subtract == 0:
