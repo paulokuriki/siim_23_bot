@@ -148,8 +148,9 @@ def show_leaderboard(chat_id: str, txt: str = "", user_id: str = "", username: s
 
 def create_dict_options(list_options):
     list_dict = []
+
     for option in list_options:
-        text = option.split("_")[1]
+        text = option.split(hp.sep)[1]
         callback_data = option
         list_dict.append({"text": text, "callback_data": callback_data})
 
@@ -160,9 +161,9 @@ def extract_dict_options(txt):
     key = ''
     value = ''
 
-    if len(txt.split("_")) == 2:
-        key = txt.split("_")[0]
-        value = txt.split("_")[1]
+    if len(txt.split(hp.sep)) == 2:
+        key = txt.split(hp.sep)[0]
+        value = txt.split(hp.sep)[1]
 
     return key, value
 

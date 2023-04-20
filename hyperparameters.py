@@ -1,13 +1,16 @@
-batch_sizes = ['Batch Size_2', 'Batch Size_8', 'Batch Size_32']
+# Separator used to separate HP name and value
+sep = '|'
 
-epochs = ['Epochs_5', 'Epochs_10', 'Epochs_30']
+batch_sizes = ['Batch Size|2', 'Batch Size|8', 'Batch Size|32']
 
-learning_rates = ['Learning Rate_0.001', 'Learning Rate_0.0001', 'Learning Rate_0.00001']
+epochs = ['Epochs|5', 'Epochs|10', 'Epochs|30']
 
-batch_norm = ['Batch Norm_True', 'Batch Norm_False']
+learning_rates = ['Learning Rate|0.001', 'Learning Rate|0.0001', 'Learning Rate|0.00001']
 
-filters = ['Filters_8', 'Filters_32']
+batch_norm = ['Batch Norm|True', 'Batch Norm|False']
 
-dropout = ['Dropout_None', 'Dropout_0.2']
+filters = ['Filters|8', 'Filters|32']
 
-image_size = ['Image Size_64', 'Image Size_128', 'Image Size_256']
+dropout = ['Dropout|None', 'Dropout|0.2']
+
+image_size = ['Image Size|64', 'Image Size|128', 'Image Size|256']
