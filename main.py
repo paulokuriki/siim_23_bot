@@ -35,7 +35,7 @@ def index():
         db.save_dict(dict_user_hp, user_id)
 
         # TODO remove.
-        tel_send_message(chat_id, json.dumps(dict_user_hp, indent=2) + f'\n>>>{acummulator}')
+        tel_send_message(chat_id, json.dumps(dict_user_hp, indent=2))
 
         # register the competitor in the database, if necessary
         if not db.list_competitors(dict_msg):
@@ -43,11 +43,13 @@ def index():
 
         # evaluate the user's message and respond accordingly
         if txt == "hi".strip().lower():
-            dict_users_hp[user_id] = {}
+            dict_user_hp = {}
+            db.save_dict(dict_user_hp, user_id)
             welcome_message(dict_msg)
 
         elif txt in 'new_model':
-            dict_users_hp[user_id] = {}
+            dict_user_hp = {}
+            db.save_dict(dict_user_hp, user_id)
             select_batch_size(dict_msg)
 
         elif txt in hp.batch_sizes:
