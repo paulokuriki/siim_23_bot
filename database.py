@@ -1,5 +1,6 @@
 import sqlalchemy
 from sqlalchemy import create_engine, select, insert
+from sqlalchemy import func
 
 # import tables from the db_schema module
 from db_schema import tb_pretrained, tb_competitors, DATABASE_URL
@@ -42,7 +43,6 @@ def list_competitors(dict_msg: dict = {}):
     else:
         # create a select statement for the tb_competitors table that retrieves the row(s) with the given username
         sql = select(tb_competitors).where(tb_competitors.c.user_id == dict_msg.get('user_id', ''))
-
 
     # execute the select statement within a transaction and retrieve all results
     with engine.connect() as conn:
@@ -92,3 +92,69 @@ def insert_json(json_record: dict):
         print(e)
 
     return
+
+
+def return_metrics(dict_users_hp: dict = {}, user_id: str = '') -> dict:
+    dict_user = dict_users_hp.get(user_id, {})
+
+    if dict_user.get('batch_norm', '') == 'True':
+        bn = True
+    else:
+        bn = False
+
+    sql = select(func.avg(tb_pretrained.c.training_secs).label('avg_training_secs'),
+                 func.stddev(tb_pretrained.c.training_secs).label('stddev_training_secs'),
+                 func.avg(tb_pretrained.c.metrics_train_set).label('avg_metrics_train_set'),
+                 func.stddev(tb_pretrained.c.metrics_train_set).label('stddev_metrics_train_set'),
+                 func.avg(tb_pretrained.c.metrics_val_set).label('avg_metrics_val_set'),
+                 func.stddev(tb_pretrained.c.metrics_val_set).label('stddev_metrics_val_set'),
+                 func.avg(tb_pretrained.c.metrics_test_set).label('avg_metrics_test_set'),
+                 func.stddev(tb_pretrained.c.metrics_test_set).label('stddev_metrics_test_set')). \
+        where(tb_pretrained.c.batch_size == dict_user.get('batch_size', 0),
+              tb_pretrained.c.epochs == dict_user.get('epochs', 0),
+              tb_pretrained.c.learning_rate == dict_user.get('learning_rate', 0),
+              tb_pretrained.c.batch_norm == bn,
+              tb_pretrained.c.filters == dict_user.get('filters', 0),
+              tb_pretrained.c.dropout == dict_user.get('dropout', 0),
+              tb_pretrained.c.image_size == dict_user.get('image_size', 0),
+              )
+
+    print(sql)
+
+    # execute the select statement within a transaction and retrieve all results
+    with engine.connect() as conn:
+        results = conn.execute(sql).fetchall()
+
+    print(results)
+
+    if len(results) == 1:
+        result = results[0]
+    else:
+        result = [0, 0, 0, 0, 0, 0, 0, 0]
+
+    dict_result = {
+        'avg_training_secs': result[0],
+        'stddev_training_secs': result[1],
+        'avg_metrics_train_set': result[2],
+        'stddev_metrics_train_set': result[3],
+        'avg_metrics_val_set': result[4],
+        'stddev_metrics_val_set': result[5],
+        'avg_metrics_test_set': result[6],
+    }
+
+    return dict_result
+
+
+def generate_random_number_from_stddev(base_number, std_dev, max_diff):
+    import random
+
+    rand_multiplier = random.randint(0, max_diff)
+    new_std_dev = std_dev * rand_multiplier
+
+    add_or_subtract = random.randint(0, 1)
+    if add_or_subtract == 0:
+        random_number = base_number + new_std_dev
+    else:
+        random_number = base_number - new_std_dev
+
+    return random_number

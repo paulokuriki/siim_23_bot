@@ -1,4 +1,5 @@
 import hyperparameters as hp
+import database as db
 from telegram_aux import tel_send_message, tel_send_inlinebutton
 
 
@@ -112,9 +113,23 @@ def confirm_training(dict_msg: dict = {}, dict_users_hp: dict = {}):
 
 def submit_model(dict_msg: dict = {}, dict_users_hp: dict = {}):
     chat_id = dict_msg.get('chat_id', '')
+    user_id = dict_msg.get('user_id', '')
 
-    tel_send_message(chat_id, "Your model was submitted to the training queue. ")
-    tel_send_message(chat_id, "The estimated training time is <TODO function calculate_estimated_time()>")
+    metrics = db.return_metrics(dict_users_hp, user_id)
+
+    avg_training_secs = metrics['avg_training_secs']
+    stddev_training_secs = metrics['stddev_training_secs']
+
+    avg_metrics_train_set = metrics['avg_metrics_train_set']
+    stddev_metrics_train_set = metrics['stddev_metrics_train_set']
+    avg_metrics_val_set = metrics['avg_metrics_val_set']
+    stddev_metrics_val_set = metrics['stddev_metrics_val_set']
+    avg_metrics_test_set = metrics['avg_metrics_test_set']
+
+    estimated_time = db.generate_random_number_from_stddev(avg_training_secs, stddev_training_secs)
+
+    tel_send_message(chat_id, "Your model was submitted to the training queue.")
+    tel_send_message(chat_id, f"The estimated training time is {estimated_time} secs")
     tel_send_message(chat_id, "Time remaining: <TODO function calculate_remaining_time()>")
     tel_send_message(chat_id,
                      "If you want to cancel the training process and define a new model, click on the CANCEL button.")
