@@ -149,6 +149,7 @@ def return_metrics(dict_user_hp: dict = {}, user_id: str = '') -> dict:
         'avg_metrics_val_set': result[4],
         'stddev_metrics_val_set': result[5],
         'avg_metrics_test_set': result[6],
+        'stddev_metrics_test_set': result[7]
     }
 
     return dict_result
