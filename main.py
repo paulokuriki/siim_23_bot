@@ -12,7 +12,7 @@ import hyperparameters as hp
 # create Flask app object
 app = Flask(__name__)
 
-dict_user_hp = {}
+dict_users_hp = {}
 
 # route for the root directory; handles Telegram messages
 @app.route('/', methods=['GET', 'POST'])
