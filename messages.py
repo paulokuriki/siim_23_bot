@@ -144,7 +144,7 @@ def show_training_status(dict_msg: dict = {}, dict_user_hp: dict = {}):
             send_telegram_training_results(df.id)
         else:
             estimated_time = calc_timestamp_diff_in_secs(str(df.datetime_submission), str(df.datetime_results_available))
-            time_remaining = calc_timestamp_diff_in_secs(str(datetime.datetime.now(), str(df.datetime_results_available))
+            time_remaining = calc_timestamp_diff_in_secs(str(datetime.datetime.now()), str(df.datetime_results_available))
 
             tel_send_message(chat_id, "*TRAINING STATUS:*")
             tel_send_message(chat_id, f"The estimated training time is {estimated_time}")
@@ -212,8 +212,7 @@ def calc_timestamp_diff_in_secs(timestamp1, timestamp2):
 
 def send_telegram_training_results(submission_id, user_id):
 
-
-
+    df = db.check_training_status(user_id)
 
     if len(df) == 0:
         tel_send_message(chat_id, "You didn't submit any model to training yet.")

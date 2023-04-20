@@ -1,6 +1,7 @@
 import datetime
 import json
 import pandas as pd
+from pandas import DataFrame
 
 import sqlalchemy
 from sqlalchemy import NUMERIC
@@ -260,7 +261,7 @@ def make_submission(dict_user_hp, user_id): #, random_estimated_time, random_met
         return 0
 
 
-def check_training_status(user_id):
+def check_training_status(user_id) -> DataFrame:
 
     # create a select statement from the tb_submissions
     sql = select(tb_submissions).where(tb_submissions.c.user_id == user_id).order_by(tb_submissions.c.user_id.desc())
