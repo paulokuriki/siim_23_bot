@@ -1,12 +1,14 @@
 import os
 
-from sqlalchemy import create_engine, MetaData, ForeignKey
+from sqlalchemy import DateTime as TimeStamp, SmallInteger as smallint, Text as text, REAL as real, BOOLEAN as boolean
 from sqlalchemy import Table, Column
-from sqlalchemy import DateTime as TimeStamp, SmallInteger as smallint, Text as text, REAL as real, BOOLEAN as boolean, NUMERIC
+from sqlalchemy import create_engine, MetaData, ForeignKey
 
 # get the database URL from an environment variable or use a default value
 # The URI should start with postgresql:// instead of postgres://. SQLAlchemy used to accept both, but has removed support for the postgres name.
-DATABASE_URL = os.environ.get('DATABASE_URL', 'postgresql+psycopg2://postgres:postgres@localhost:5432/postgres').replace("postgres://", "postgresql://")
+DATABASE_URL = os.environ.get('DATABASE_URL',
+                              'postgresql+psycopg2://postgres:postgres@localhost:5432/postgres').replace("postgres://",
+                                                                                                         "postgresql://")
 
 # create a SQLAlchemy engine object using the DATABASE_URL
 engine = create_engine(DATABASE_URL)
