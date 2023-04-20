@@ -3,14 +3,15 @@
 # import necessary modules
 from flask import Flask, request, Response
 
-# import functions from other modules
-from telegram_aux import *
-from messages import *
 import database as db
 import hyperparameters as hp
+from messages import *
+# import functions from other modules
+from telegram_aux import *
 
 # create Flask app object
 app = Flask(__name__)
+
 
 # route for the root directory; handles Telegram messages
 @app.route('/', methods=['GET', 'POST'])
@@ -21,7 +22,7 @@ def index():
         # get the message from the POST request
         msg = request.get_json()
 
-        #try:
+        # try:
         # parse the message to a structured dictionary
         dict_msg = tel_parse_message(msg)
 
@@ -89,7 +90,7 @@ def index():
         else:
             welcome_message(dict_msg)
 
-        #except Exception as e:
+        # except Exception as e:
         #    print(e)
 
         return Response('ok', status=200)
