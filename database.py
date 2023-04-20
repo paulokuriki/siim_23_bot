@@ -163,9 +163,9 @@ def generate_random_number(base_number, std_dev, max_percentage_from_std_dev: fl
 
     add_or_subtract = random.randint(0, 1)
     if add_or_subtract == 0:
-        random_number = base_number + new_std_dev
+        random_number = float(base_number) + new_std_dev
     else:
-        random_number = base_number - new_std_dev
+        random_number = float(base_number) - new_std_dev
 
     return random_number
 
