@@ -31,6 +31,7 @@ def index():
 
         user_id = dict_msg.get('user_id', '')
         txt = dict_msg.get('txt', '')
+        chat_id = dict_msg.get('chat_id', '')
 
         # update the dict_users_hp with the previous message
         dict_users_hp = update_dict_user_hps(dict_users_hp, dict_msg)
