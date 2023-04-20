@@ -13,12 +13,15 @@ import hyperparameters as hp
 app = Flask(__name__)
 
 dict_users_hp = {}
+acummulator = 0
 
 # route for the root directory; handles Telegram messages
 @app.route('/', methods=['GET', 'POST'])
 def index():
     # Declare dict_users_hp as a global variable to modify it within the function
     global dict_users_hp
+    global acummulator
+    acummulator += 1
 
     if request.method == 'POST':
 
@@ -37,7 +40,7 @@ def index():
         dict_users_hp = update_dict_user_hps(dict_users_hp, dict_msg)
 
         # TODO remove.
-        tel_send_message(chat_id, json.dumps(dict_users_hp, indent=2))
+        tel_send_message(chat_id, json.dumps(dict_users_hp, indent=2) + f'\n>>>{acummulator}')
 
         # register the competitor in the database, if necessary
         if not db.list_competitors(dict_msg):
