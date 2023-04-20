@@ -25,65 +25,65 @@ def index():
         # get the message from the POST request
         msg = request.get_json()
 
-        try:
-            # parse the message to a structured dictionary
-            dict_msg = tel_parse_message(msg)
+        #try:
+        # parse the message to a structured dictionary
+        dict_msg = tel_parse_message(msg)
 
-            txt = dict_msg.get('txt', '')
+        txt = dict_msg.get('txt', '')
 
-            # update the dict_users_hp with the previous message
-            dict_users_hp = update_dict_user_hps(dict_users_hp, dict_msg)
+        # update the dict_users_hp with the previous message
+        dict_users_hp = update_dict_user_hps(dict_users_hp, dict_msg)
 
-            # register the competitor in the database, if necessary
-            if not db.list_competitors(dict_msg):
-                db.insert_competitor(dict_msg)
+        # register the competitor in the database, if necessary
+        if not db.list_competitors(dict_msg):
+            db.insert_competitor(dict_msg)
 
-            # evaluate the user's message and respond accordingly
-            if txt == "hi":
-                welcome_message(dict_msg)
+        # evaluate the user's message and respond accordingly
+        if txt == "hi":
+            welcome_message(dict_msg)
 
-            elif txt in 'new_model':
-                select_batch_size(dict_msg)
+        elif txt in 'new_model':
+            select_batch_size(dict_msg)
 
-            elif txt in hp.batch_sizes:
-                select_epochs(dict_msg)
+        elif txt in hp.batch_sizes:
+            select_epochs(dict_msg)
 
-            elif txt in hp.epochs:
-                select_lr(dict_msg)
+        elif txt in hp.epochs:
+            select_lr(dict_msg)
 
-            elif txt in hp.learning_rates:
-                select_batch_norm(dict_msg)
+        elif txt in hp.learning_rates:
+            select_batch_norm(dict_msg)
 
-            elif txt in hp.batch_norm:
-                select_filters(dict_msg)
+        elif txt in hp.batch_norm:
+            select_filters(dict_msg)
 
-            elif txt in hp.filters:
-                select_dropout(dict_msg)
+        elif txt in hp.filters:
+            select_dropout(dict_msg)
 
-            elif txt in hp.dropout:
-                select_image_size(dict_msg)
+        elif txt in hp.dropout:
+            select_image_size(dict_msg)
 
-            elif txt in hp.image_size:
-                confirm_training(dict_msg, dict_users_hp)
+        elif txt in hp.image_size:
+            confirm_training(dict_msg, dict_users_hp)
 
-            elif txt == "submit_training":
-                submit_model(dict_msg, dict_users_hp)
+        elif txt == "submit_training":
+            submit_model(dict_msg, dict_users_hp)
 
-            elif txt == "list_competitors":
-                results = json.dumps(db.list_competitors(), indent=2, default=str)
-                msg = 'Users:\n' + results
-                tel_send_message(dict_msg, msg)
+        elif txt == "list_competitors":
+            results = json.dumps(db.list_competitors(), indent=2, default=str)
+            msg = 'Users:\n' + results
+            tel_send_message(dict_msg, msg)
 
-            elif txt == "show_leaderboard":
-                show_leaderboard(dict_msg)
+        elif txt == "show_leaderboard":
+            show_leaderboard(dict_msg)
 
-            elif txt == "show_status":
-                show_training_status(dict_msg)
-            else:
-                welcome_message(dict_msg)
+        elif txt == "show_status":
+            show_training_status(dict_msg)
+        else:
+            welcome_message(dict_msg)
 
-        except Exception as e:
-            print(e)
+        #except Exception as e:
+        #    print(e)
 
         return Response('ok', status=200)
     else:
