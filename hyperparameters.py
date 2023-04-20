@@ -1,13 +1,13 @@
-batch_sizes = ['bs_2', 'bs_8', 'bs_32']
+batch_sizes = ['Batch Size_2', 'Batch Size_8', 'Batch Size_32']
 
-epochs = ['epochs_5', 'epochs_10', 'epochs_30']
+epochs = ['Epochs_5', 'Epochs_10', 'Epochs_30']
 
-learning_rates = ['lr_0.001', 'lr_0.0001', 'lr_0.00001']
+learning_rates = ['Learning Rate_0.001', 'Learning Rate_0.0001', 'Learning Rate_0.00001']
 
-batch_norm = ['bn_True', 'bn_False']
+batch_norm = ['Batch Norm_True', 'Batch Norm_False']
 
-filters = ['filters_8', 'filters_32']
+filters = ['Filters_8', 'Filters_32']
 
-dropout = ['drop_None', 'drop_0.2']
+dropout = ['Dropout_None', 'Dropout_0.2']
 
-image_size = ['imgsize_64', 'imgsize_128', 'imgsize_256']
+image_size = ['Image Size_64', 'Image Size_128', 'Image Size_256']

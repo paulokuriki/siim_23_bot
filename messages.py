@@ -101,10 +101,10 @@ def confirm_training(dict_msg: dict = {}, dict_users_hp: dict = {}):
     txt_user_hps = parse_user_hps(dict_users_hp, user_id)
 
     tel_send_message(chat_id, f"Nice work, {fullname}! ")
-    tel_send_message(chat_id, f"Here are your selected hyperparameters:\n{txt_user_hps}")
-    tel_send_message(chat_id, "If you are ready to train you model, click on the TRAIN button below.")
+    tel_send_message(chat_id, f"Here are your selected hyperparameters:{txt_user_hps}")
+    tel_send_message(chat_id, "If you are happy with the selected hyperparameters, click on the TRAIN button below.")
     tel_send_message(chat_id, "The system will estimate the training time.")
-    tel_send_message(chat_id, "If you want to cancel and define a new model, click on the button CANCEL.")
+    tel_send_message(chat_id, "If you want to cancel and define a new model, click on the CANCEL button.")
     tel_send_inlinebutton(chat_id, "Select your option:",
                           [{"text": "TRAIN", "callback_data": "submit_training"},
                            {"text": "CANCEL", "callback_data": "new_model"}])
@@ -171,6 +171,6 @@ def parse_user_hps(dict_users_hp: dict = {}, user_id: str = '') -> str:
     txt = ''
 
     for key, value in dict_users_hp.get(user_id, {}).items():
-        txt = '\n'.join([txt, f'{key.upper()}: {value}'])
+        txt = '\n'.join([txt, f'{key}: {value}'])
 
     return txt
