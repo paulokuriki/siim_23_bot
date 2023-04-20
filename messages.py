@@ -10,14 +10,16 @@ def update_dict_user_hps(dict_users_hp: dict = {}, dict_msg: dict = {}) -> dict:
     # Call the extract_dict_options function to parse the txt field into a key-value pair
     key, value = extract_dict_options(txt)
 
-    # Get the dictionary associated with the user_id from the dict_users_hp dictionary, or create a new empty dictionary if the user_id is not found
-    dic_user = dict_users_hp.get(user_id, {})
+    # If key and value variables have 'values'
+    if key != '' and value != '':
+        # Get the dictionary associated with the user_id from the dict_users_hp dictionary, or create a new empty dictionary if the user_id is not found
+        dic_user = dict_users_hp.get(user_id, {})
 
-    # Update the user's dictionary with the new key-value pair
-    dic_user[key] = value
+        # Update the user's dictionary with the new key-value pair
+        dic_user[key] = value
 
-    # Update the main dictionary (dict_users_hp) with the modified user's dictionary
-    dict_users_hp[user_id] = dic_user
+        # Update the main dictionary (dict_users_hp) with the modified user's dictionary
+        dict_users_hp[user_id] = dic_user
 
     # Return the updated main dictionary (dict_users_hp)
     return dict_users_hp
@@ -179,10 +181,15 @@ def create_dict_options(list_options):
 
 
 def extract_dict_options(txt):
-    key = txt.split("_")[0]
-    value = txt.split("_")[1]
+    if txt.find("_") == 1:
+        key = txt.split("_")[0]
+        value = txt.split("_")[1]
+    else:
+        key = value = ''
 
     return key, value
+
+
 
 
 
