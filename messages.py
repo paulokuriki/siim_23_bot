@@ -117,6 +117,8 @@ def submit_model(dict_msg: dict = {}, dict_users_hp: dict = {}):
 
     metrics = db.return_metrics(dict_users_hp, user_id)
 
+    print(metrics)
+
     avg_training_secs = metrics['avg_training_secs']
     stddev_training_secs = metrics['stddev_training_secs']
 
