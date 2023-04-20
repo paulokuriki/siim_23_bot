@@ -23,7 +23,7 @@ def index():
         try:
             # parse the message using functions from telegram_aux.py
             dict_msg = tel_parse_message(msg)
-            txt = dict_msg.get('text', '')
+            txt = dict_msg.get('txt', '')
 
             # register the competitor in the database, if necessary
             if not db.list_competitors(dict_msg):
