@@ -29,6 +29,7 @@ def index():
         # parse the message to a structured dictionary
         dict_msg = tel_parse_message(msg)
 
+        user_id = dict_msg.get('user_id', '')
         txt = dict_msg.get('txt', '')
 
         # update the dict_users_hp with the previous message
@@ -42,9 +43,11 @@ def index():
 
         # evaluate the user's message and respond accordingly
         if txt == "hi".strip().lower():
+            dict_users_hp[user_id] = {}
             welcome_message(dict_msg)
 
         elif txt in 'new_model':
+            dict_users_hp[user_id] = {}
             select_batch_size(dict_msg)
 
         elif txt in hp.batch_sizes:
