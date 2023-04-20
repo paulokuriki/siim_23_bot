@@ -1,3 +1,5 @@
+import json
+
 import sqlalchemy
 from sqlalchemy import NUMERIC
 from sqlalchemy import create_engine, select, insert
@@ -95,15 +97,13 @@ def insert_json(json_record: dict):
     return
 
 
-def return_metrics(dict_users_hp: dict = {}, user_id: str = '') -> dict:
-    dict_user = dict_users_hp.get(user_id, {})
-
-    if dict_user.get('batch_norm', '') == 'True':
+def return_metrics(dict_user_hp: dict = {}, user_id: str = '') -> dict:
+    if dict_user_hp.get('batch_norm', '') == 'True':
         bn = True
     else:
         bn = False
 
-    if dict_user.get('dropout', '') == 'None':
+    if dict_user_hp.get('dropout', '') == 'None':
         drop = 0
     else:
         drop = 0.2
@@ -116,13 +116,13 @@ def return_metrics(dict_users_hp: dict = {}, user_id: str = '') -> dict:
                  func.stddev(tb_pretrained.c.metrics_val_set).label('stddev_metrics_val_set'),
                  func.avg(tb_pretrained.c.metrics_test_set).label('avg_metrics_test_set'),
                  func.stddev(tb_pretrained.c.metrics_test_set).label('stddev_metrics_test_set')). \
-        where(tb_pretrained.c.batch_size == dict_user.get('batch_size', 0),
-              tb_pretrained.c.epochs == dict_user.get('epochs', 0),
-              tb_pretrained.c.learning_rate == dict_user.get('learning_rate', 0),
+        where(tb_pretrained.c.batch_size == dict_user_hp.get('batch_size', 0),
+              tb_pretrained.c.epochs == dict_user_hp.get('epochs', 0),
+              tb_pretrained.c.learning_rate == dict_user_hp.get('learning_rate', 0),
               tb_pretrained.c.batch_norm == bn,
-              tb_pretrained.c.filters == dict_user.get('filters', 0),
+              tb_pretrained.c.filters == dict_user_hp.get('filters', 0),
               func.round(func.cast(tb_pretrained.c.dropout, NUMERIC), 2) == drop,
-              tb_pretrained.c.image_size == dict_user.get('image_size', 0),
+              tb_pretrained.c.image_size == dict_user_hp.get('image_size', 0),
               )
 
     print(sql.compile(compile_kwargs={"literal_binds": True}))
@@ -166,3 +166,29 @@ def generate_random_number_from_stddev(base_number, std_dev, max_diff: int = 3):
         random_number = base_number - new_std_dev
 
     return random_number
+
+
+def save_dict(dict_user_hp: dict, user_id: str):
+    filename = user_id + '.json'
+
+    try:
+        # Save the dictionary to a file
+        with open(filename, "w") as file:
+            json.dump(dict_user_hp, file)
+    except Exception as e:
+        # Handle exceptions and print an error message
+        print(f"An error occurred while saving the file: {e}")
+
+
+def load_dict(user_id: str):
+    filename = user_id + '.json'
+
+    try:
+        # Read the dictionary from the file
+        with open(filename, "r") as file:
+            loaded_dict = json.load(file)
+    except (FileNotFoundError, json.JSONDecodeError):
+        # Return an empty dictionary if there's an error
+        loaded_dict = {}
+
+    return loaded_dict

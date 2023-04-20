@@ -12,17 +12,10 @@ import hyperparameters as hp
 # create Flask app object
 app = Flask(__name__)
 
-dict_users_hp = {}
-acummulator = 0
-
 # route for the root directory; handles Telegram messages
 @app.route('/', methods=['GET', 'POST'])
 def index():
     # Declare dict_users_hp as a global variable to modify it within the function
-    global dict_users_hp
-    global acummulator
-    acummulator += 1
-
     if request.method == 'POST':
 
         # get the message from the POST request
@@ -36,11 +29,13 @@ def index():
         txt = dict_msg.get('txt', '')
         chat_id = dict_msg.get('chat_id', '')
 
-        # update the dict_users_hp with the previous message
-        dict_users_hp = update_dict_user_hps(dict_users_hp, dict_msg)
+        # load dict from disk, update it and save it back to disk
+        dict_user_hp = db.load_dict(user_id)
+        dict_user_hp = update_dict_user_hps(dict_user_hp, dict_msg)
+        db.save_dict(dict_user_hp, user_id)
 
         # TODO remove.
-        tel_send_message(chat_id, json.dumps(dict_users_hp, indent=2) + f'\n>>>{acummulator}')
+        tel_send_message(chat_id, json.dumps(dict_user_hp, indent=2) + f'\n>>>{acummulator}')
 
         # register the competitor in the database, if necessary
         if not db.list_competitors(dict_msg):
@@ -74,10 +69,10 @@ def index():
             select_image_size(dict_msg)
 
         elif txt in hp.image_size:
-            confirm_training(dict_msg, dict_users_hp)
+            confirm_training(dict_msg, dict_user_hp)
 
         elif txt == "submit_training":
-            submit_model(dict_msg, dict_users_hp)
+            submit_model(dict_msg, dict_user_hp)
 
         elif txt == "list_competitors":
             results = json.dumps(db.list_competitors(), indent=2, default=str)
