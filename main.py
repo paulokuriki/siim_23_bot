@@ -35,7 +35,8 @@ def index():
         # update the dict_users_hp with the previous message
         dict_users_hp = update_dict_user_hps(dict_users_hp, dict_msg)
 
-        print(dict_users_hp)
+        # TODO remove.
+        tel_send_message(chat_id, json.dumps(dict_users_hp, indent=2))
 
         # register the competitor in the database, if necessary
         if not db.list_competitors(dict_msg):
