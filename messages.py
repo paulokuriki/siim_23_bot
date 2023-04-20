@@ -10,6 +10,7 @@ def update_dict_user_hps(dict_users_hp: dict = {}, dict_msg: dict = {}) -> dict:
 
     # Call the extract_dict_options function to parse the txt field into a key-value pair
     key, value = extract_dict_options(txt)
+    print(user_id, txt, key, value, dict_users_hp, dict_msg)
 
     # If key and value variables have 'values'
     if key != '' and value != '':
