@@ -17,6 +17,9 @@ dict_user_hp = {}
 # route for the root directory; handles Telegram messages
 @app.route('/', methods=['GET', 'POST'])
 def index():
+    # Declare dict_users_hp as a global variable to modify it within the function
+    global dict_users_hp
+
     if request.method == 'POST':
 
         # get the message from the POST request
@@ -28,8 +31,8 @@ def index():
 
             txt = dict_msg.get('txt', '')
 
-            # update the dict_user_hp with the previous message
-            dict_user_hp = update_dict_user_hp(dict_user_hp, dict_msg)
+            # update the dict_users_hp with the previous message
+            dict_users_hp = update_dict_user_hps(dict_users_hp, dict_msg)
 
             # register the competitor in the database, if necessary
             if not db.list_competitors(dict_msg):
@@ -61,10 +64,10 @@ def index():
                 select_image_size(dict_msg)
 
             elif txt in hp.image_size:
-                confirm_training(dict_msg, dict_user_hp)
+                confirm_training(dict_msg, dict_users_hp)
 
             elif txt == "submit_training":
-                submit_model(dict_msg, dict_user_hp)
+                submit_model(dict_msg, dict_users_hp)
 
             elif txt == "list_competitors":
                 results = json.dumps(db.list_competitors(), indent=2, default=str)

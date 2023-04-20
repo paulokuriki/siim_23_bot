@@ -2,7 +2,7 @@ import hyperparameters as hp
 from telegram_aux import tel_send_message, tel_send_inlinebutton
 
 
-def update_dict_user_hp(dict_user_hp: dict = {}, dict_msg: dict = {}) -> dict:
+def update_dict_user_hps(dict_user_hp: dict = {}, dict_msg: dict = {}) -> dict:
     # Get the user_id and txt fields from the dict_msg dictionary, providing default values if the keys are not found
     user_id = dict_msg.get('user_id', '')
     txt = dict_msg.get('txt', '')
