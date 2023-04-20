@@ -124,7 +124,7 @@ def return_metrics(dict_users_hp: dict = {}, user_id: str = '') -> dict:
               tb_pretrained.c.image_size == dict_user.get('image_size', 0),
               )
 
-    print(str(sql))
+    print(sql.compile(compile_kwargs={"literal_binds": True}))
 
     # execute the select statement within a transaction and retrieve all results
     with engine.connect() as conn:
