@@ -126,7 +126,7 @@ def submit_model(dict_msg: dict = {}, dict_users_hp: dict = {}):
     stddev_metrics_val_set = metrics['stddev_metrics_val_set']
     avg_metrics_test_set = metrics['avg_metrics_test_set']
 
-    estimated_time = db.generate_random_number_from_stddev(avg_training_secs, stddev_training_secs)
+    estimated_time = db.generate_random_number_from_stddev(avg_training_secs, stddev_training_secs, 3)
 
     tel_send_message(chat_id, "Your model was submitted to the training queue.")
     tel_send_message(chat_id, f"The estimated training time is {estimated_time} secs")

@@ -145,7 +145,7 @@ def return_metrics(dict_users_hp: dict = {}, user_id: str = '') -> dict:
     return dict_result
 
 
-def generate_random_number_from_stddev(base_number, std_dev, max_diff):
+def generate_random_number_from_stddev(base_number, std_dev, max_diff: int = 3):
     import random
 
     rand_multiplier = random.randint(0, max_diff)
