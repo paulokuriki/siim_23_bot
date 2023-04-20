@@ -9,6 +9,7 @@ def update_dict_user_hps(dict_users_hp: dict = {}, dict_msg: dict = {}) -> dict:
 
     # Call the extract_dict_options function to parse the txt field into a key-value pair
     key, value = extract_dict_options(txt)
+    print(dict_users_hp, dict_msg, txt, key, value)
 
     # If key and value variables have 'values'
     if key != '' and value != '':
@@ -157,12 +158,14 @@ def create_dict_options(list_options):
 
 
 def extract_dict_options(txt):
-    if txt.find("_") == 1:
+    key = ''
+    value = ''
+
+    if len(txt.split("_")) == 2:
         key = txt.split("_")[0]
         value = txt.split("_")[1]
-    else:
-        key = value = ''
 
+    print('extract_dict_options', key, value)
     return key, value
 
 
