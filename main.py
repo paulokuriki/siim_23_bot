@@ -34,6 +34,8 @@ def index():
         # update the dict_users_hp with the previous message
         dict_users_hp = update_dict_user_hps(dict_users_hp, dict_msg)
 
+        print(dict_users_hp)
+
         # register the competitor in the database, if necessary
         if not db.list_competitors(dict_msg):
             db.insert_competitor(dict_msg)
