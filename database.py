@@ -102,6 +102,11 @@ def return_metrics(dict_users_hp: dict = {}, user_id: str = '') -> dict:
     else:
         bn = False
 
+    if dict_user.get('dropout', '') == 'None':
+        drop = 0
+    else:
+        drop = 0.2
+
     sql = select(func.avg(tb_pretrained.c.training_secs).label('avg_training_secs'),
                  func.stddev(tb_pretrained.c.training_secs).label('stddev_training_secs'),
                  func.avg(tb_pretrained.c.metrics_train_set).label('avg_metrics_train_set'),
