@@ -2,7 +2,7 @@ import hyperparameters as hp
 from telegram_aux import tel_send_message, tel_send_inlinebutton
 
 
-def update_dict_user_hps(dict_user_hp: dict = {}, dict_msg: dict = {}) -> dict:
+def update_dict_user_hps(dict_users_hp: dict = {}, dict_msg: dict = {}) -> dict:
     # Get the user_id and txt fields from the dict_msg dictionary, providing default values if the keys are not found
     user_id = dict_msg.get('user_id', '')
     txt = dict_msg.get('txt', '')
@@ -10,17 +10,17 @@ def update_dict_user_hps(dict_user_hp: dict = {}, dict_msg: dict = {}) -> dict:
     # Call the extract_dict_options function to parse the txt field into a key-value pair
     key, value = extract_dict_options(txt)
 
-    # Get the dictionary associated with the user_id from the dict_user_hp dictionary, or create a new empty dictionary if the user_id is not found
-    dic_user = dict_user_hp.get(user_id, {})
+    # Get the dictionary associated with the user_id from the dict_users_hp dictionary, or create a new empty dictionary if the user_id is not found
+    dic_user = dict_users_hp.get(user_id, {})
 
     # Update the user's dictionary with the new key-value pair
     dic_user[key] = value
 
-    # Update the main dictionary (dict_user_hp) with the modified user's dictionary
-    dict_user_hp[user_id] = dic_user
+    # Update the main dictionary (dict_users_hp) with the modified user's dictionary
+    dict_users_hp[user_id] = dic_user
 
-    # Return the updated main dictionary (dict_user_hp)
-    return dict_user_hp
+    # Return the updated main dictionary (dict_users_hp)
+    return dict_users_hp
 
 
 # Sends a welcome message to the user and provides options for training a new model or checking status
@@ -114,12 +114,12 @@ def select_image_size(dict_msg: dict = {}):
     tel_send_inlinebutton(chat_id, "Image Size:", create_dict_options(hp.image_size))
 
 
-def confirm_training(dict_msg: dict = {}, dict_user_hp: dict = {}):
+def confirm_training(dict_msg: dict = {}, dict_users_hp: dict = {}):
     chat_id = dict_msg.get('chat_id', '')
     user_id = dict_msg.get('user_id', '')
     fullname = dict_msg.get('fullname', '')
 
-    txt_user_hps = parse_user_hps(dict_user_hp, user_id)
+    txt_user_hps = parse_user_hps(dict_users_hp, user_id)
 
     tel_send_message(chat_id,f"Nice work, {fullname}! ")
     tel_send_message(chat_id, f"Here are your selected hyperparameters:\n{txt_user_hps}! ")
@@ -131,7 +131,10 @@ def confirm_training(dict_msg: dict = {}, dict_user_hp: dict = {}):
                            {"text": "CANCEL", "callback_data": "new_model"}])
 
 
-def submit_model(chat_id: str, txt: str = "", user_id: str = "", username: str = "", fullname: str = ""):
+def submit_model(dict_msg: dict = {}, dict_users_hp: dict = {}):
+    chat_id = dict_msg.get('chat_id', '')
+    
+
     tel_send_message(chat_id, "Your model was submitted to the training queue. ")
     tel_send_message(chat_id, "The estimated training time is <TODO function calculate_estimated_time()>")
     tel_send_message(chat_id, "Time remaining: <TODO function calculate_remaining_time()>")
@@ -183,10 +186,10 @@ def extract_dict_options(txt):
 
 
 
-def parse_user_hps(dict_user_hp: dict = {}, user_id: str = '') -> str:
+def parse_user_hps(dict_users_hp: dict = {}, user_id: str = '') -> str:
     txt = ''
 
-    for key, value in dict_user_hp.items():
+    for key, value in dict_users_hp.items():
         txt = '\n'.join([txt, f'{key.upper()}: {value}'])
 
     return txt
