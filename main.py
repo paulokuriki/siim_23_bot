@@ -18,12 +18,18 @@ dict_user_hp = {}
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
+
         # get the message from the POST request
         msg = request.get_json()
+
         try:
-            # parse the message using functions from telegram_aux.py
+            # parse the message to a structured dictionary
             dict_msg = tel_parse_message(msg)
+
             txt = dict_msg.get('txt', '')
+
+            # update the dict_user_hp with the previous message
+            dict_user_hp = update_dict_user_hp(dict_user_hp, dict_msg)
 
             # register the competitor in the database, if necessary
             if not db.list_competitors(dict_msg):
@@ -55,13 +61,10 @@ def index():
                 select_image_size(dict_msg)
 
             elif txt in hp.image_size:
-                confirm_training(dict_msg)
-
-            elif txt in hp.image_size:
-                confirm_training(dict_msg)
+                confirm_training(dict_msg, dict_user_hp)
 
             elif txt == "submit_training":
-                submit_model(dict_msg)
+                submit_model(dict_msg, dict_user_hp)
 
             elif txt == "list_competitors":
                 results = json.dumps(db.list_competitors(), indent=2, default=str)
