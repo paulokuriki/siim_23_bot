@@ -196,9 +196,26 @@ def load_dict(user_id: str):
     return loaded_dict
 
 
-def make_submission(dict_user_hp, user_id, random_estimated_time, random_metrics_train_set, random_metrics_val_set,
-                    random_metrics_test_set):
-    # create an insert statement for the tb_submissions
+def make_submission(dict_user_hp, user_id) #, random_estimated_time, random_metrics_train_set, random_metrics_val_set,random_metrics_test_set):
+
+    # searches for metrics from pretrained models
+    metrics = return_metrics(dict_user_hp)
+
+    avg_training_secs = metrics['avg_training_secs']
+    stddev_training_secs = metrics['stddev_training_secs']
+    avg_metrics_train_set = metrics['avg_metrics_train_set']
+    stddev_metrics_train_set = metrics['stddev_metrics_train_set']
+    avg_metrics_val_set = metrics['avg_metrics_val_set']
+    stddev_metrics_val_set = metrics['stddev_metrics_val_set']
+    avg_metrics_test_set = metrics['avg_metrics_test_set']
+    stddev_metrics_test_set = metrics['stddev_metrics_test_set']
+
+    # adds or substract up to (random) 5 times the stddev_training_secs
+    perc_max = 5  # 500% +- stddev_training_secs
+    random_estimated_time = generate_random_number(avg_training_secs, stddev_training_secs, perc_max)
+    random_metrics_train_set = generate_random_number(avg_metrics_train_set, stddev_metrics_train_set, perc_max)
+    random_metrics_val_set = generate_random_number(avg_metrics_val_set, stddev_metrics_val_set, perc_max)
+    random_metrics_test_set = generate_random_number(avg_metrics_test_set, stddev_metrics_test_set, perc_max)
 
     now = datetime.datetime.now()
     time_delta = datetime.timedelta(seconds=random_estimated_time)
@@ -209,6 +226,7 @@ def make_submission(dict_user_hp, user_id, random_estimated_time, random_metrics
     else:
         bn = False
 
+    # create an insert statement for the tb_submissions
     stmt = insert(tb_submissions).values(
         datetime_submission=datetime.datetime.now(),
         user_id=user_id,
@@ -234,7 +252,23 @@ def make_submission(dict_user_hp, user_id, random_estimated_time, random_metrics
         with engine.connect() as conn:
             conn.execute(stmt)
             conn.commit()
-            return True
+
+            return random_estimated_time
     except Exception as e:
         print(f'Error making submission\e{e}')
-        return False
+        return 0
+
+
+def check_training_status(dict_user_hp, user_id):
+
+    # create a select statement from the tb_submissions
+    sql = select(tb_submissions).where(tb_submissions.c.user_id == user_id).order_by(tb_submissions.c.user_id.desc())
+
+    # execute the select statement within a transaction and retrieve all results
+    with engine.connect() as conn:
+        row = conn.execute(sql).fetchone()
+        result_dict = dict(row.items()) if row else None
+
+    print(result_dict)
+
+    return 10

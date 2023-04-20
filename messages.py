@@ -107,44 +107,36 @@ def submit_model(dict_msg: dict = {}, dict_user_hp: dict = {}):
     chat_id = dict_msg.get('chat_id', '')
     user_id = dict_msg.get('user_id', '')
 
-    metrics = db.return_metrics(dict_user_hp)
+    #estimated_time = db.make_submission(dict_user_hp, user_id, random_estimated_time, random_metrics_train_set, random_metrics_val_set, random_metrics_test_set)
+    estimated_time = db.make_submission(dict_user_hp, user_id)
 
-    avg_training_secs = metrics['avg_training_secs']
-    stddev_training_secs = metrics['stddev_training_secs']
-    avg_metrics_train_set = metrics['avg_metrics_train_set']
-    stddev_metrics_train_set = metrics['stddev_metrics_train_set']
-    avg_metrics_val_set = metrics['avg_metrics_val_set']
-    stddev_metrics_val_set = metrics['stddev_metrics_val_set']
-    avg_metrics_test_set = metrics['avg_metrics_test_set']
-    stddev_metrics_test_set = metrics['stddev_metrics_test_set']
+    if estimated_time > 0:
+        tel_send_message(chat_id, "Your model was submitted to the training queue.")
+        tel_send_message(chat_id, f"The estimated training time is {estimated_time} secs")
+        tel_send_message(chat_id, f"Time remaining now is: {estimated_time} secs")
+        tel_send_message(chat_id,
+                         "If you want to cancel the training process and define a new model, click on the CANCEL button.")
+        tel_send_message(chat_id, "Otherwise, WAIT for your model's training session to finish.")
+        tel_send_message(chat_id, "You'll receive a message with metrics results and your position on the leaderboard.")
+        tel_send_message(chat_id, "You'll receive a message with metrics results and your position on the leaderboard.")
+        tel_send_inlinebutton(chat_id, "Select your option:",
+                              [{"text": "Check Status", "callback_data": "show_status"},
+                               {"text": "Cancel Training", "callback_data": "new_model"},
+                               {"text": "Leaderboard", "callback_data": "show_leaderboard"}])
+    else:
+        tel_send_message(chat_id, "There was a problem submitting your model to the training queue. "
+                                  "Try again in a few minutes. "
+                                  "If the problem persists, notify the SIIM AI Playground organizers.")
 
-    # adds or substract up to (random) 5 times the stddev_training_secs
-    perc_max = 5  # 500% +- stddev_training_secs
-    random_estimated_time = db.generate_random_number(avg_training_secs, stddev_training_secs, perc_max)
-    random_metrics_train_set = db.generate_random_number(avg_metrics_train_set, stddev_metrics_train_set, perc_max)
-    random_metrics_val_set = db.generate_random_number(avg_metrics_val_set, stddev_metrics_val_set, perc_max)
-    random_metrics_test_set = db.generate_random_number(avg_metrics_test_set, stddev_metrics_test_set, perc_max)
+def show_training_status(dict_msg: dict = {}, dict_user_hp: dict = {}):
+    chat_id = dict_msg.get('chat_id', '')
+    user_id = dict_msg.get('user_id', '')
 
-    db.make_submission(dict_user_hp, user_id, random_estimated_time, random_metrics_train_set, random_metrics_val_set, random_metrics_test_set)
+    estimated_time = db.check_training_status(dict_user_hp, user_id)
 
-
-    tel_send_message(chat_id, "Your model was submitted to the training queue.")
-    tel_send_message(chat_id, f"The estimated training time is {random_estimated_time} secs")
-    tel_send_message(chat_id, f"Time remaining now is: {random_estimated_time} secs")
-    tel_send_message(chat_id,
-                     "If you want to cancel the training process and define a new model, click on the CANCEL button.")
-    tel_send_message(chat_id, "Otherwise, WAIT for your model's training session to finish.")
-    tel_send_message(chat_id, "You'll receive a message with metrics results and your position on the leaderboard.")
-    tel_send_message(chat_id, "You'll receive a message with metrics results and your position on the leaderboard.")
-    tel_send_inlinebutton(chat_id, "Select your option:",
-                          [{"text": "Check Status", "callback_data": "show_status"},
-                           {"text": "Cancel Training", "callback_data": "new_model"},
-                           {"text": "Leaderboard", "callback_data": "show_leaderboard"}])
-
-def show_training_status(chat_id: str, txt: str = "", user_id: str = "", username: str = "", fullname: str = ""):
     tel_send_message(chat_id, "*TRAINING STATUS:*")
-    tel_send_message(chat_id, "The estimated training time is <function calculate_estimated_time()>")
-    tel_send_message(chat_id, "Time remaining: <TODO function calculate_remaining_time()>")
+    tel_send_message(chat_id, f"The estimated training time is {estimated_time}")
+    tel_send_message(chat_id, f"Time remaining: {estimated_time}")
     tel_send_message(chat_id,
                      "If you want to cancel the training process and define a new model, click on the CANCEL button.")
     tel_send_message(chat_id, "Otherwise, you can check the training session STATUS at any time.")
