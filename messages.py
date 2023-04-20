@@ -28,8 +28,6 @@ def update_dict_user_hps(dict_users_hp: dict = {}, dict_msg: dict = {}) -> dict:
 # Sends a welcome message to the user and provides options for training a new model or checking status
 def welcome_message(dict_msg: dict = {}):
     chat_id = dict_msg.get('chat_id', '')
-    user_id = dict_msg.get('user_id', '')
-    username = dict_msg.get('username', '')
     fullname = dict_msg.get('fullname', '')
 
     tel_send_message(chat_id, f"Hello, {fullname}! Welcome to the SIIM 2023 AI Playground")
@@ -41,9 +39,6 @@ def welcome_message(dict_msg: dict = {}):
 # Sends options for selecting batch size to the user
 def select_batch_size(dict_msg: dict = {}):
     chat_id = dict_msg.get('chat_id', '')
-    user_id = dict_msg.get('user_id', '')
-    username = dict_msg.get('username', '')
-    fullname = dict_msg.get('fullname', '')
 
     tel_send_message(chat_id, "It's time to have fun. Let's train your new model.")
     tel_send_message(chat_id, "First, you have to select a batch size.")
@@ -53,9 +48,6 @@ def select_batch_size(dict_msg: dict = {}):
 # Sends options for selecting number of epochs to the user
 def select_epochs(dict_msg: dict = {}):
     chat_id = dict_msg.get('chat_id', '')
-    user_id = dict_msg.get('user_id', '')
-    username = dict_msg.get('username', '')
-    fullname = dict_msg.get('fullname', '')
 
     tel_send_message(chat_id, f"Now, select the number of epochs to be trained.")
     tel_send_inlinebutton(chat_id, "Epochs:", create_dict_options(hp.epochs))
@@ -64,9 +56,6 @@ def select_epochs(dict_msg: dict = {}):
 # Sends options for selecting learning rate to the user
 def select_lr(dict_msg: dict = {}):
     chat_id = dict_msg.get('chat_id', '')
-    user_id = dict_msg.get('user_id', '')
-    username = dict_msg.get('username', '')
-    fullname = dict_msg.get('fullname', '')
 
     tel_send_message(chat_id, "Great, now let's select the learning rate.")
     tel_send_inlinebutton(chat_id, "Learning Rates:", create_dict_options(hp.learning_rates))
@@ -75,9 +64,6 @@ def select_lr(dict_msg: dict = {}):
 # Sends options for selecting whether or not to use batch normalization to the user
 def select_batch_norm(dict_msg: dict = {}):
     chat_id = dict_msg.get('chat_id', '')
-    user_id = dict_msg.get('user_id', '')
-    username = dict_msg.get('username', '')
-    fullname = dict_msg.get('fullname', '')
 
     tel_send_message(chat_id, f"It's time to decide if you want to use batch normalization.")
     tel_send_inlinebutton(chat_id, "Batch Norm:", create_dict_options(hp.batch_norm))
@@ -86,9 +72,6 @@ def select_batch_norm(dict_msg: dict = {}):
 # Sends options for selecting number of filters to the user
 def select_filters(dict_msg: dict = {}):
     chat_id = dict_msg.get('chat_id', '')
-    user_id = dict_msg.get('user_id', '')
-    username = dict_msg.get('username', '')
-    fullname = dict_msg.get('fullname', '')
 
     tel_send_message(chat_id, "Awesome. Now, a important hyperparameter: the number of filters.")
     tel_send_inlinebutton(chat_id, "Number of Filters:", create_dict_options(hp.filters))
@@ -97,9 +80,6 @@ def select_filters(dict_msg: dict = {}):
 # Sends options for selecting whether or not to use dropout to the user
 def select_dropout(dict_msg: dict = {}):
     chat_id = dict_msg.get('chat_id', '')
-    user_id = dict_msg.get('user_id', '')
-    username = dict_msg.get('username', '')
-    fullname = dict_msg.get('fullname', '')
 
     tel_send_message(chat_id, f"Optionally, you can opt to apply dropout to your model.")
     tel_send_inlinebutton(chat_id, "Dropout:", create_dict_options(hp.dropout))
@@ -108,9 +88,6 @@ def select_dropout(dict_msg: dict = {}):
 # Sends options for selecting image size to the user
 def select_image_size(dict_msg: dict = {}):
     chat_id = dict_msg.get('chat_id', '')
-    user_id = dict_msg.get('user_id', '')
-    username = dict_msg.get('username', '')
-    fullname = dict_msg.get('fullname', '')
 
     tel_send_message(chat_id, "For last, but not the least, select the image size to input in your model.")
     tel_send_inlinebutton(chat_id, "Image Size:", create_dict_options(hp.image_size))
@@ -123,7 +100,7 @@ def confirm_training(dict_msg: dict = {}, dict_users_hp: dict = {}):
 
     txt_user_hps = parse_user_hps(dict_users_hp, user_id)
 
-    tel_send_message(chat_id,f"Nice work, {fullname}! ")
+    tel_send_message(chat_id, f"Nice work, {fullname}! ")
     tel_send_message(chat_id, f"Here are your selected hyperparameters:\n{txt_user_hps}! ")
     tel_send_message(chat_id, "If you are ready to train you model, click on the TRAIN button below.")
     tel_send_message(chat_id, "The system will estimate the training time.")
@@ -135,7 +112,6 @@ def confirm_training(dict_msg: dict = {}, dict_users_hp: dict = {}):
 
 def submit_model(dict_msg: dict = {}, dict_users_hp: dict = {}):
     chat_id = dict_msg.get('chat_id', '')
-    
 
     tel_send_message(chat_id, "Your model was submitted to the training queue. ")
     tel_send_message(chat_id, "The estimated training time is <TODO function calculate_estimated_time()>")
@@ -190,9 +166,6 @@ def extract_dict_options(txt):
     return key, value
 
 
-
-
-
 def parse_user_hps(dict_users_hp: dict = {}, user_id: str = '') -> str:
     txt = ''
 
@@ -200,7 +173,3 @@ def parse_user_hps(dict_users_hp: dict = {}, user_id: str = '') -> str:
         txt = '\n'.join([txt, f'{key.upper()}: {value}'])
 
     return txt
-
-
-
-

@@ -39,7 +39,7 @@ def index():
             db.insert_competitor(dict_msg)
 
         # evaluate the user's message and respond accordingly
-        if txt == "hi":
+        if txt == "hi".strip().lower():
             welcome_message(dict_msg)
 
         elif txt in 'new_model':

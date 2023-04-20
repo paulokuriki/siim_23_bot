@@ -30,7 +30,6 @@ def tel_parse_message(message):
             firstname = message.get('callback_query', {}).get('from', {}).get('first_name', '')
             lastname = message.get('callback_query', {}).get('from', {}).get('last_name', '')
             fullname = f'{firstname} {lastname}'
-        txt = txt.lower().strip()
 
         return {'chat_id': chat_id,
                 'txt': txt,
