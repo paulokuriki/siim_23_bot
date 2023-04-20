@@ -74,7 +74,7 @@ def index():
             elif txt == "show_status":
                 show_training_status(dict_msg)
             else:
-                welcome_message(chat_id=chat_id, txt=txt, user_id=user_id, username=username, fullname=fullname)
+                welcome_message(dict_msg)
 
         except Exception as e:
             print(e)
