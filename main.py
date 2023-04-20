@@ -35,7 +35,7 @@ def index():
         dict_user_hp = update_dict_user_hps(dict_user_hp, dict_msg)
         db.save_dict(dict_user_hp, user_id)
 
-        # TODO remove.
+        # TODO remove before deploying in production
         tel_send_message(chat_id, json.dumps(dict_user_hp, indent=2))
 
         # register the competitor in the database, if necessary

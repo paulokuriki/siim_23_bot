@@ -1,3 +1,4 @@
+import datetime
 import json
 
 import sqlalchemy
@@ -6,7 +7,7 @@ from sqlalchemy import create_engine, select, insert
 from sqlalchemy import func
 
 # import tables from the db_schema module
-from db_schema import tb_pretrained, tb_competitors, DATABASE_URL
+from db_schema import tb_pretrained, tb_competitors, tb_submissions, DATABASE_URL
 
 # create a SQLAlchemy engine object using the DATABASE_URL
 engine = create_engine(DATABASE_URL)
@@ -153,10 +154,10 @@ def return_metrics(dict_user_hp: dict = {}, user_id: str = '') -> dict:
     return dict_result
 
 
-def generate_random_number_from_stddev(base_number, std_dev, max_diff: int = 3):
+def generate_random_number(base_number, std_dev, max_percentage_from_std_dev: float = 0.03):
     import random
 
-    rand_multiplier = random.randint(0, max_diff)
+    rand_multiplier = random.uniform(0, max_percentage_from_std_dev)
     new_std_dev = std_dev * rand_multiplier
 
     add_or_subtract = random.randint(0, 1)
@@ -192,3 +193,41 @@ def load_dict(user_id: str):
         loaded_dict = {}
 
     return loaded_dict
+
+
+def make_submission(dict_user_hp, user_id, random_estimated_time, random_metrics_train_set, random_metrics_val_set,
+                    random_metrics_test_set):
+    # create an insert statement for the tb_submissions
+
+    now = datetime.datetime.now()
+    datetime_results_available = now + random_estimated_time
+
+    stmt = insert(tb_submissions).values(
+        datetime_submission=datetime.datetime.now(),
+        user_id=user_id,
+        batch_size=dict_user_hp.get('batch_size', 0),
+        epochs=dict_user_hp.get('epochs', 0),
+        learning_rate=dict_user_hp.get('learning_rate', 0),
+        batch_norm=dict_user_hp.get('batch_norm', 0),
+        filters=dict_user_hp.get('filters', 0),
+        dropout=dict_user_hp.get('dropout', 0),
+        image_size=dict_user_hp.get('image_size', 0),
+        metrics_train_set=random_metrics_train_set,
+        metrics_val_set=random_metrics_val_set,
+        metrics_test_set=random_metrics_test_set,
+        datetime_results_available=datetime_results_available,
+        telegram_sent=False,
+        loss_fig_url='',
+        metrics_fig_url='',
+        sample_figs_urls='',
+        training_status='Training')
+
+    try:
+        # execute the insert statement within a transaction and commit it
+        with engine.connect() as conn:
+            conn.execute(stmt)
+            conn.commit()
+            return True
+    except Exception as e:
+        print(f'Error making submission\e{e}')
+        return False

@@ -1,5 +1,5 @@
-import hyperparameters as hp
 import database as db
+import hyperparameters as hp
 from telegram_aux import tel_send_message, tel_send_inlinebutton
 
 
@@ -14,7 +14,6 @@ def update_dict_user_hps(dict_user_hp: dict = {}, dict_msg: dict = {}) -> dict:
     if key != '' and value != '':
         # Update the user's dictionary with the new key-value pair
         dict_user_hp[key] = value
-
 
     # Return the updated main dictionary (dict_users_hp)
     return dict_user_hp
@@ -110,31 +109,37 @@ def submit_model(dict_msg: dict = {}, dict_user_hp: dict = {}):
 
     metrics = db.return_metrics(dict_user_hp)
 
-    print(metrics)
-
     avg_training_secs = metrics['avg_training_secs']
     stddev_training_secs = metrics['stddev_training_secs']
-
     avg_metrics_train_set = metrics['avg_metrics_train_set']
     stddev_metrics_train_set = metrics['stddev_metrics_train_set']
     avg_metrics_val_set = metrics['avg_metrics_val_set']
     stddev_metrics_val_set = metrics['stddev_metrics_val_set']
     avg_metrics_test_set = metrics['avg_metrics_test_set']
+    stddev_metrics_test_set = metrics['stddev_metrics_test_set']
 
-    estimated_time = db.generate_random_number_from_stddev(avg_training_secs, stddev_training_secs, 3)
+    # adds or substract up to (random) 5 times the stddev_training_secs
+    perc_max = 5  # 500% +- stddev_training_secs
+    random_estimated_time = db.generate_random_number(avg_training_secs, stddev_training_secs, perc_max)
+    random_metrics_train_set = db.generate_random_number(avg_metrics_train_set, stddev_metrics_train_set, perc_max)
+    random_metrics_val_set = db.generate_random_number(avg_metrics_val_set, stddev_metrics_val_set, perc_max)
+    random_metrics_test_set = db.generate_random_number(avg_metrics_test_set, stddev_metrics_test_set, perc_max)
+
+    db.make_submission(dict_user_hp, user_id, random_estimated_time, random_metrics_train_set, random_metrics_val_set, random_metrics_test_set)
+
 
     tel_send_message(chat_id, "Your model was submitted to the training queue.")
-    tel_send_message(chat_id, f"The estimated training time is {estimated_time} secs")
-    tel_send_message(chat_id, "Time remaining: <TODO function calculate_remaining_time()>")
+    tel_send_message(chat_id, f"The estimated training time is {random_estimated_time} secs")
+    tel_send_message(chat_id, "Time remaining now is: {random_estimated_time} secs")
     tel_send_message(chat_id,
                      "If you want to cancel the training process and define a new model, click on the CANCEL button.")
-    tel_send_message(chat_id, "Otherwise, WAIT for the time to finish your model's training session.")
+    tel_send_message(chat_id, "Otherwise, WAIT for your model's training session to finish.")
+    tel_send_message(chat_id, "You'll receive a message with metrics results and your position on the leaderboard.")
     tel_send_message(chat_id, "You'll receive a message with metrics results and your position on the leaderboard.")
     tel_send_inlinebutton(chat_id, "Select your option:",
-                          [{"text": "CANCEL", "callback_data": "new_model"},
-                           {"text": "STATUS", "callback_data": "show_status"},
-                           {"text": "LEADERBOARD", "callback_data": "show_leaderboard"}])
-
+                          [{"text": "Check Status", "callback_data": "show_status"},
+                           {"text": "Cancel Training", "callback_data": "new_model"},
+                           {"text": "Leaderboard", "callback_data": "show_leaderboard"}])
 
 def show_training_status(chat_id: str, txt: str = "", user_id: str = "", username: str = "", fullname: str = ""):
     tel_send_message(chat_id, "*TRAINING STATUS:*")
