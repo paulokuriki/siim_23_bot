@@ -120,11 +120,11 @@ def return_metrics(dict_users_hp: dict = {}, user_id: str = '') -> dict:
               tb_pretrained.c.learning_rate == dict_user.get('learning_rate', 0),
               tb_pretrained.c.batch_norm == bn,
               tb_pretrained.c.filters == dict_user.get('filters', 0),
-              tb_pretrained.c.dropout == dict_user.get('dropout', 0),
+              tb_pretrained.c.dropout == drop,
               tb_pretrained.c.image_size == dict_user.get('image_size', 0),
               )
 
-    print(sql)
+    print(str(sql))
 
     # execute the select statement within a transaction and retrieve all results
     with engine.connect() as conn:
@@ -132,7 +132,9 @@ def return_metrics(dict_users_hp: dict = {}, user_id: str = '') -> dict:
 
     print(results)
 
-    if len(results) == 1:
+    if results == [(None, None, None, None, None, None, None, None)]:
+        result = [0, 0, 0, 0, 0, 0, 0, 0]
+    elif len(results) == 1:
         result = results[0]
     else:
         result = [0, 0, 0, 0, 0, 0, 0, 0]
