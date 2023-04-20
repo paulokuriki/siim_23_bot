@@ -12,30 +12,34 @@ def tel_parse_message(message):
     print("message-->", message)
     try:
 
-        chat_id = txt = user_id = username = fullname = ''
+        chat_id = txt = user_id = username = firstname = lastname = fullname = ''
 
         if message.get('message', None):
             chat_id = message.get('message', {}).get('chat', {}).get('id', '')
             txt = message.get('message', {}).get('text', '')
             user_id = str(message.get('message', {}).get('from', {}).get('id', ''))
             username = message.get('message', {}).get('from', {}).get('username', '')
-            fullname = message.get('message', {}).get('from', {}).get('first_name', '') + ' ' + message.get('message', {}).get('from', {}).get('last_name', '')
+            firstname = message.get('message', {}).get('from', {}).get('first_name', '')
+            lastname = message.get('message', {}).get('from', {}).get('last_name', '')
+            fullname = f'{firstname} {lastname}'
         elif message.get('callback_query', None):
             chat_id = message.get('callback_query', {}).get('from', {}).get('id', '')
             txt = message.get('callback_query', {}).get('data', '')
             user_id = str(message.get('callback_query', {}).get('from', {}).get('id', ''))
             username = message.get('callback_query', {}).get('from', {}).get('username', '')
-            fullname = message.get('callback_query', {}).get('from', {}).get('first_name', '') + ' ' + message.get('callback_query',{}).get('from', {}).get('last_name', '')
-
+            firstname = message.get('callback_query', {}).get('from', {}).get('first_name', '')
+            lastname = message.get('callback_query', {}).get('from', {}).get('last_name', '')
+            fullname = f'{firstname} {lastname}'
         txt = txt.lower().strip()
 
-        print("chat_id-->", chat_id)
-        print("txt-->", txt)
-        print("user_id-->", user_id)
-        print("username-->", username)
-        print("fullname-->", fullname)
-
-        return chat_id, txt, user_id, username, fullname
+        return {'chat_id': chat_id,
+                'txt': txt,
+                'user_id': user_id,
+                'username': username,
+                'firstname': firstname,
+                'lastname': lastname,
+                'fullname': fullname
+                }
     except:
         print("No text found-->>")
 

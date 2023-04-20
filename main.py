@@ -12,6 +12,7 @@ import hyperparameters as hp
 # create Flask app object
 app = Flask(__name__)
 
+dict_user_hp = {}
 
 # route for the root directory; handles Telegram messages
 @app.route('/', methods=['GET', 'POST'])
@@ -21,73 +22,57 @@ def index():
         msg = request.get_json()
         try:
             # parse the message using functions from telegram_aux.py
-            chat_id, txt, user_id, username, fullname = tel_parse_message(msg)
+            dict_msg = tel_parse_message(msg)
+            txt = dict_msg.get('text', '')
 
             # register the competitor in the database, if necessary
-            if not db.list_competitors(user_id=user_id):
-                db.insert_competitor(user_id=user_id, username=username, fullname=fullname)
+            if not db.list_competitors(dict_msg):
+                db.insert_competitor(dict_msg)
 
             # evaluate the user's message and respond accordingly
             if txt == "hi":
-                welcome_message(chat_id=chat_id, txt=txt, user_id=user_id, username=username, fullname=fullname)
+                welcome_message(dict_msg)
 
             elif txt in 'new_model':
-                select_batch_size(chat_id=chat_id, txt=txt, user_id=user_id, username=username, fullname=fullname)
+                select_batch_size(dict_msg)
 
             elif txt in hp.batch_sizes:
-                select_epochs(chat_id=chat_id, txt=txt, user_id=user_id, username=username, fullname=fullname)
+                select_epochs(dict_msg)
 
             elif txt in hp.epochs:
-                select_lr(chat_id=chat_id, txt=txt, user_id=user_id, username=username, fullname=fullname)
+                select_lr(dict_msg)
 
             elif txt in hp.learning_rates:
-                select_batch_norm(chat_id=chat_id, txt=txt, user_id=user_id, username=username, fullname=fullname)
+                select_batch_norm(dict_msg)
 
             elif txt in hp.batch_norm:
-                select_filters(chat_id=chat_id, txt=txt, user_id=user_id, username=username, fullname=fullname)
+                select_filters(dict_msg)
 
             elif txt in hp.filters:
-                select_dropout(chat_id=chat_id, txt=txt, user_id=user_id, username=username, fullname=fullname)
+                select_dropout(dict_msg)
 
             elif txt in hp.dropout:
-                select_image_size(chat_id=chat_id, txt=txt, user_id=user_id, username=username, fullname=fullname)
+                select_image_size(dict_msg)
 
             elif txt in hp.image_size:
-                confirm_training(chat_id=chat_id, txt=txt, user_id=user_id, username=username, fullname=fullname)
+                confirm_training(dict_msg)
 
             elif txt in hp.image_size:
-                confirm_training(chat_id=chat_id, txt=txt, user_id=user_id, username=username, fullname=fullname)
+                confirm_training(dict_msg)
 
             elif txt == "submit_training":
-                submit_model(chat_id=chat_id, txt=txt, user_id=user_id, username=username, fullname=fullname)
+                submit_model(dict_msg)
 
             elif txt == "list_competitors":
                 results = json.dumps(db.list_competitors(), indent=2, default=str)
                 msg = 'Users:\n' + results
-                tel_send_message(chat_id, msg)
+                tel_send_message(dict_msg, msg)
 
             elif txt == "show_leaderboard":
-                show_leaderboard(chat_id=chat_id, txt=txt, user_id=user_id, username=username, fullname=fullname)
+                show_leaderboard(dict_msg)
 
             elif txt == "show_status":
-                show_training_status(chat_id=chat_id, txt=txt, user_id=user_id, username=username, fullname=fullname)
-
-            elif txt == "image":
-                tel_send_image(chat_id)
-            elif txt == "poll":
-                tel_send_poll(chat_id)
-            elif txt == "button":
-                tel_send_button(chat_id)
-            elif txt == "audio":
-                tel_send_audio(chat_id)
-            elif txt == "file":
-                tel_send_document(chat_id)
-            elif txt == "inlineurl":
-                tel_send_inlineurl(chat_id)
-            elif txt == "ic_A":
-                tel_send_message(chat_id, "You have clicked A")
-            elif txt == "ic_B":
-                tel_send_message(chat_id, "You have clicked B")
+                show_training_status(dict_msg)
             else:
                 welcome_message(chat_id=chat_id, txt=txt, user_id=user_id, username=username, fullname=fullname)
 
