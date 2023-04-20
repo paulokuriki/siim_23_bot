@@ -2,7 +2,7 @@ import os
 
 from sqlalchemy import create_engine, MetaData, ForeignKey
 from sqlalchemy import Table, Column
-from sqlalchemy import DateTime as TimeStamp, SmallInteger as smallint, Text as text, REAL as real, BOOLEAN as boolean
+from sqlalchemy import DateTime as TimeStamp, SmallInteger as smallint, Text as text, REAL as real, BOOLEAN as boolean, NUMERIC
 
 # get the database URL from an environment variable or use a default value
 # The URI should start with postgresql:// instead of postgres://. SQLAlchemy used to accept both, but has removed support for the postgres name.

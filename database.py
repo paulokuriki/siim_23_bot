@@ -1,4 +1,5 @@
 import sqlalchemy
+from sqlalchemy import NUMERIC
 from sqlalchemy import create_engine, select, insert
 from sqlalchemy import func
 
@@ -120,7 +121,7 @@ def return_metrics(dict_users_hp: dict = {}, user_id: str = '') -> dict:
               tb_pretrained.c.learning_rate == dict_user.get('learning_rate', 0),
               tb_pretrained.c.batch_norm == bn,
               tb_pretrained.c.filters == dict_user.get('filters', 0),
-              tb_pretrained.c.dropout == drop,
+              func.round(func.cast(tb_pretrained.c.dropout, NUMERIC), 2) == drop,
               tb_pretrained.c.image_size == dict_user.get('image_size', 0),
               )
 
