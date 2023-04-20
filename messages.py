@@ -1,3 +1,5 @@
+import datetime
+
 import database as db
 import hyperparameters as hp
 from telegram_aux import tel_send_message, tel_send_inlinebutton
@@ -132,20 +134,30 @@ def show_training_status(dict_msg: dict = {}, dict_user_hp: dict = {}):
     chat_id = dict_msg.get('chat_id', '')
     user_id = dict_msg.get('user_id', '')
 
-    estimated_time = db.check_training_status(dict_user_hp, user_id)
+    df = db.check_training_status(dict_user_hp, user_id)
 
-    tel_send_message(chat_id, "*TRAINING STATUS:*")
-    tel_send_message(chat_id, f"The estimated training time is {estimated_time}")
-    tel_send_message(chat_id, f"Time remaining: {estimated_time}")
-    tel_send_message(chat_id,
-                     "If you want to cancel the training process and define a new model, click on the CANCEL button.")
-    tel_send_message(chat_id, "Otherwise, you can check the training session STATUS at any time.")
-    tel_send_message(chat_id,
-                     "You'll receive a message with the metrics results and your position on the leaderboard as soon as the model's training is finished.")
-    tel_send_inlinebutton(chat_id, "Select your option:",
-                          [{"text": "CANCEL", "callback_data": "new_model"},
-                           {"text": "STATUS", "callback_data": "show_status"},
-                           {"text": "LEADERBOARD", "callback_data": "show_leaderboard"}])
+    if len(df) == 0:
+        tel_send_message(chat_id, "You didn't submit any model to training yet.")
+    else:
+        df = df.head(0)
+        if datetime.datetime.now < df.datetime_results_available:
+            send_telegram_training_results(df.id)
+        else:
+            estimated_time = calc_timestamp_diff_in_secs(str(df.datetime_submission), str(df.datetime_results_available))
+            time_remaining = calc_timestamp_diff_in_secs(str(datetime.datetime.now(), str(df.datetime_results_available))
+
+            tel_send_message(chat_id, "*TRAINING STATUS:*")
+            tel_send_message(chat_id, f"The estimated training time is {estimated_time}")
+            tel_send_message(chat_id, f"Time remaining: {time_remaining}")
+            tel_send_message(chat_id,
+                             "If you want to cancel the training process and define a new model, click on the CANCEL button.")
+            tel_send_message(chat_id, "Otherwise, you can check the training session STATUS at any time.")
+            tel_send_message(chat_id,
+                             "You'll receive a message with the metrics results and your position on the leaderboard as soon as the model's training is finished.")
+            tel_send_inlinebutton(chat_id, "Select your option:",
+                                  [{"text": "CANCEL", "callback_data": "new_model"},
+                                   {"text": "STATUS", "callback_data": "show_status"},
+                                   {"text": "LEADERBOARD", "callback_data": "show_leaderboard"}])
 
 
 def show_leaderboard(chat_id: str, txt: str = "", user_id: str = "", username: str = "", fullname: str = ""):
@@ -182,3 +194,46 @@ def parse_user_hps(dict_user_hp: dict = {}, user_id: str = '') -> str:
         txt = '\n'.join([txt, f'{key}: {value}'])
 
     return txt
+
+def calc_timestamp_diff_in_secs(timestamp1, timestamp2):
+    from datetime import datetime
+
+    # Convert the strings to datetime objects using strptime()
+    # Adjust the format string if your input has a different format
+    dt1 = datetime.strptime(timestamp1, "%Y-%m-%d %H:%M:%S.%f")
+    dt2 = datetime.strptime(timestamp2, "%Y-%m-%d %H:%M:%S.%f")
+
+    # Calculate the time difference and convert it to seconds
+    time_difference = abs(dt2 - dt1)
+    time_difference_seconds = time_difference.total_seconds()
+
+    return time_difference_seconds
+
+
+def send_telegram_training_results(submission_id, user_id):
+
+
+
+
+    if len(df) == 0:
+        tel_send_message(chat_id, "You didn't submit any model to training yet.")
+    else:
+        df = df.head(0)
+        if datetime.datetime.now < df.datetime_results_available:
+            send_telegram_training_results(df.id)
+        else:
+            estimated_time = calc_timestamp_diff_in_secs(str(df.datetime_submission), str(df.datetime_results_available))
+            time_remaining = calc_timestamp_diff_in_secs(str(datetime.datetime.now(), str(df.datetime_results_available))
+
+            tel_send_message(chat_id, "*TRAINING STATUS:*")
+            tel_send_message(chat_id, f"The estimated training time is {estimated_time}")
+            tel_send_message(chat_id, f"Time remaining: {time_remaining}")
+            tel_send_message(chat_id,
+                             "If you want to cancel the training process and define a new model, click on the CANCEL button.")
+            tel_send_message(chat_id, "Otherwise, you can check the training session STATUS at any time.")
+            tel_send_message(chat_id,
+                             "You'll receive a message with the metrics results and your position on the leaderboard as soon as the model's training is finished.")
+            tel_send_inlinebutton(chat_id, "Select your option:",
+                                  [{"text": "CANCEL", "callback_data": "new_model"},
+                                   {"text": "STATUS", "callback_data": "show_status"},
+                                   {"text": "LEADERBOARD", "callback_data": "show_leaderboard"}])

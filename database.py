@@ -1,5 +1,6 @@
 import datetime
 import json
+import pandas as pd
 
 import sqlalchemy
 from sqlalchemy import NUMERIC
@@ -259,16 +260,11 @@ def make_submission(dict_user_hp, user_id): #, random_estimated_time, random_met
         return 0
 
 
-def check_training_status(dict_user_hp, user_id):
+def check_training_status(user_id):
 
     # create a select statement from the tb_submissions
     sql = select(tb_submissions).where(tb_submissions.c.user_id == user_id).order_by(tb_submissions.c.user_id.desc())
 
-    # execute the select statement within a transaction and retrieve all results
-    with engine.connect() as conn:
-        row = conn.execute(sql).fetchone()
-        result_dict = dict(row.items()) if row else None
+    df = pd.read_sql_query(sql=sql, con=engine)
 
-    print(result_dict)
-
-    return 10
+    return df
