@@ -130,7 +130,7 @@ def submit_model(dict_msg: dict = {}, dict_user_hp: dict = {}):
 
     tel_send_message(chat_id, "Your model was submitted to the training queue.")
     tel_send_message(chat_id, f"The estimated training time is {random_estimated_time} secs")
-    tel_send_message(chat_id, "Time remaining now is: {random_estimated_time} secs")
+    tel_send_message(chat_id, f"Time remaining now is: {random_estimated_time} secs")
     tel_send_message(chat_id,
                      "If you want to cancel the training process and define a new model, click on the CANCEL button.")
     tel_send_message(chat_id, "Otherwise, WAIT for your model's training session to finish.")

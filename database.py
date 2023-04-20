@@ -204,12 +204,17 @@ def make_submission(dict_user_hp, user_id, random_estimated_time, random_metrics
     time_delta = datetime.timedelta(seconds=random_estimated_time)
     datetime_results_available = now + time_delta
 
+    if dict_user_hp.get('learning_rate', '') == 'True':
+        lr = True
+    else:
+        lr = False
+
     stmt = insert(tb_submissions).values(
         datetime_submission=datetime.datetime.now(),
         user_id=user_id,
         batch_size=dict_user_hp.get('batch_size', 0),
         epochs=dict_user_hp.get('epochs', 0),
-        learning_rate=dict_user_hp.get('learning_rate', 0),
+        learning_rate=lr,
         batch_norm=dict_user_hp.get('batch_norm', 0),
         filters=dict_user_hp.get('filters', 0),
         dropout=dict_user_hp.get('dropout', 0),
