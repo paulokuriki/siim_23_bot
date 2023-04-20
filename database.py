@@ -196,7 +196,7 @@ def load_dict(user_id: str):
     return loaded_dict
 
 
-def make_submission(dict_user_hp, user_id) #, random_estimated_time, random_metrics_train_set, random_metrics_val_set,random_metrics_test_set):
+def make_submission(dict_user_hp, user_id): #, random_estimated_time, random_metrics_train_set, random_metrics_val_set,random_metrics_test_set):
 
     # searches for metrics from pretrained models
     metrics = return_metrics(dict_user_hp)
