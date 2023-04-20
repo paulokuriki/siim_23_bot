@@ -201,7 +201,8 @@ def make_submission(dict_user_hp, user_id, random_estimated_time, random_metrics
     # create an insert statement for the tb_submissions
 
     now = datetime.datetime.now()
-    datetime_results_available = now + random_estimated_time
+    time_delta = datetime.timedelta(seconds=random_estimated_time)
+    datetime_results_available = now + time_delta
 
     stmt = insert(tb_submissions).values(
         datetime_submission=datetime.datetime.now(),
