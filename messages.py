@@ -37,8 +37,13 @@ def welcome_message(dict_msg: dict = {}):
 def select_batch_size(dict_msg: dict = {}):
     chat_id = dict_msg.get('chat_id', '')
 
-    tel_send_message(chat_id, "Let's train your new model. It's time to have fun.")
+    tel_send_message(chat_id, "Let's train your new model.")
+    tel_send_message(chat_id, "A Machine Learning model is trained over many images.\n"
+                              "It's also important to select some parameters that can improve your model's performance\n"
+                              "In the next steps, you will select some of these parameters.")
     tel_send_message(chat_id, "First, you have to select a batch size.")
+    tel_send_message(chat_id,
+                     "[Learn more](https://pub.towardsai.net/what-is-the-effect-of-batch-size-on-model-learning-196414284add/)")
     tel_send_inlinebutton(chat_id, "Batch Size:", create_dict_options(hp.batch_sizes))
 
 
@@ -47,6 +52,7 @@ def select_epochs(dict_msg: dict = {}):
     chat_id = dict_msg.get('chat_id', '')
 
     tel_send_message(chat_id, f"Now, select the number of epochs to be trained.")
+    tel_send_message(chat_id, "[Learn more](https://u-next.com/blogs/machine-learning/epoch-in-machine-learning/)")
     tel_send_inlinebutton(chat_id, "Epochs:", create_dict_options(hp.epochs))
 
 
@@ -55,6 +61,7 @@ def select_lr(dict_msg: dict = {}):
     chat_id = dict_msg.get('chat_id', '')
 
     tel_send_message(chat_id, "Great, now let's select the learning rate.")
+    tel_send_message(chat_id, "[Learn more](https://machinelearningmastery.com/understand-the-dynamics-of-learning-rate-on-deep-learning-neural-networks/)")
     tel_send_inlinebutton(chat_id, "Learning Rates:", create_dict_options(hp.learning_rates))
 
 
@@ -63,6 +70,7 @@ def select_batch_norm(dict_msg: dict = {}):
     chat_id = dict_msg.get('chat_id', '')
 
     tel_send_message(chat_id, f"It's time to decide if you want to use batch normalization.")
+    tel_send_message(chat_id, "[Learn more](https://machinelearningmastery.com/batch-normalization-for-training-of-deep-neural-networks/)")
     tel_send_inlinebutton(chat_id, "Batch Norm:", create_dict_options(hp.batch_norm))
 
 
@@ -71,6 +79,7 @@ def select_filters(dict_msg: dict = {}):
     chat_id = dict_msg.get('chat_id', '')
 
     tel_send_message(chat_id, "Awesome. Now, a important hyperparameter: the number of filters.")
+    tel_send_message(chat_id, "[Learn more](https://machinelearningmastery.com/convolutional-layers-for-deep-learning-neural-networks/)")
     tel_send_inlinebutton(chat_id, "Number of Filters:", create_dict_options(hp.filters))
 
 
@@ -79,6 +88,7 @@ def select_dropout(dict_msg: dict = {}):
     chat_id = dict_msg.get('chat_id', '')
 
     tel_send_message(chat_id, f"Optionally, you can opt to apply dropout to your model.")
+    tel_send_message(chat_id, "[Learn more](https://machinelearningmastery.com/dropout-for-regularizing-deep-neural-networks/)")
     tel_send_inlinebutton(chat_id, "Dropout:", create_dict_options(hp.dropout))
 
 
@@ -87,6 +97,8 @@ def select_image_size(dict_msg: dict = {}):
     chat_id = dict_msg.get('chat_id', '')
 
     tel_send_message(chat_id, "For last, but not the least, select the image size to input in your model.")
+    tel_send_message(chat_id,
+                     "[Learn more](https://towardsdatascience.com/ultimate-guide-to-input-shape-and-model-complexity-in-neural-networks-ae665c728f4b)")
     tel_send_inlinebutton(chat_id, "Image Size:", create_dict_options(hp.image_size))
 
 
