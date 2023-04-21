@@ -11,6 +11,7 @@ from telegram_aux import *
 # Create FastAPI app object
 app = FastAPI(docs_url=None, redoc_url=None)
 
+
 # Route for the root directory; handles Telegram messages
 @app.post("/", response_class=HTMLResponse)
 async def index(request: Request):
@@ -82,29 +83,35 @@ async def index(request: Request):
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
-
-    return HTMLResponse("<h1>Welcome to the SIIM AI Playground API!</h1>" \
-           "<p>Open Telegram and look for the bot called @siim_23_bot to start to play.", status_code=200)
+    return HTMLResponse("""
+            <h1>Welcome to the SIIM AI Playground API!</h1>
+            <p>Open Telegram and look for the bot called @siim_23_bot to start to play.</p>
+            <p>
+                <a href="https://stats.uptimerobot.com/KVqA7IDVgq" target="_blank">
+                    Click here to view UptimeRobot stats
+                </a>
+            </p>
+        """,
+                        status_code=200)
 
 
 # Route for uploading JSON records to the database
 @app.post("/upload_json")
 async def upload_json(request: Request):
+    try:
+        # Get the JSON record from the POST request
+        json_record = await request.json()
+        # insert the record into the database using a function from database.py
+        results = db.insert_json(json_record)
+        # return an appropriate response based on the result of the insertion
+        if results == 'JSON inserted successfully.':
+            return JSONResponse(results, status_code=200)
+        else:
+            return JSONResponse(results, status_code=500)
 
-        try:
-            # Get the JSON record from the POST request
-            json_record = await request.json()
-            # insert the record into the database using a function from database.py
-            results = db.insert_json(json_record)
-            # return an appropriate response based on the result of the insertion
-            if results == 'JSON inserted successfully.':
-                return JSONResponse(results, status_code=200)
-            else:
-                return JSONResponse(results, status_code=500)
-
-        except Exception as e:
-            # return an error response if the insertion fails
-            return JSONResponse(e, status_code=500)
+    except Exception as e:
+        # return an error response if the insertion fails
+        return JSONResponse(e, status_code=500)
 
 
 # Route for listing pretrained model metrics
@@ -118,14 +125,13 @@ def list_pretrained_metrics():
 
 # route for listing pretrained model metrics
 @app.get("/notify_results")
-@app.head("/notify_results")   # https://uptimerobot.com/ calls the api through a HEAD request each 5 min
+@app.head("/notify_results")  # https://uptimerobot.com/ calls the api through a HEAD request each 5 min
 def notify_results():
     # Notify the competitors
     results = notify_finished_trainings()
 
     # Return the number of users notified
     return JSONResponse(f'{str(results)} users notified.', status_code=200)
-
 
 
 # route for listing pretrained model metrics
@@ -135,5 +141,3 @@ def list_competitors():
     results = json.dumps(db.list_competitors(), indent=2, default=str)
     # return the results as a JSON object
     return JSONResponse(results, status_code=200)
-
-
