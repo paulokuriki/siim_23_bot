@@ -128,11 +128,8 @@ def notify_results():
     # Notify the competitors
     results = notify_finished_trainings()
 
-    if request.method == 'GET':
-        # Return the number of users notified
-        return f'{str(results)} users notified.'
-
-    return
+    # Return the number of users notified
+    return f'{str(results)} users notified.'
 
 
 # route for listing pretrained model metrics
