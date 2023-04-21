@@ -115,7 +115,7 @@ def submit_model(dict_msg: dict = {}, dict_user_hp: dict = {}):
     if estimated_time > 0:
         tel_send_message(chat_id, "Your model was submitted to the training queue.")
         tel_send_message(chat_id, f"The estimated training time is {convert_seconds(estimated_time)}")
-        tel_send_message(chat_id, "You'll receive an automatic message when your training model is finish.")
+        tel_send_message(chat_id, "You'll receive an automatic message when your training is finished.")
         tel_send_inlinebutton(chat_id, "Select your option:",
                               [{"text": "Check Status", "callback_data": "show_status"},
                                {"text": "Cancel Training", "callback_data": "new_model"},
@@ -161,10 +161,7 @@ def show_training_status(dict_msg: dict = {}):
                 tel_send_message(chat_id, "*TRAINING STATUS:*\n"
                                           f"Estimated training time: {convert_seconds(estimated_time)}\n"
                                           f"Time remaining: {convert_seconds(time_remaining)}")
-                tel_send_message(chat_id,
-                                 "To check again your training session click on the [Check Status] at any time.\n"
-                                 "To cancel the training session and define a new model, click on the [Cancel] button.\n"
-                                 "You'll receive an automatic message with the metrics results and your position on the leaderboard when your model's training is over.")
+                tel_send_message(chat_id, "You'll receive an automatic message when your training is finished.")
                 tel_send_inlinebutton(chat_id, "Select your option:",
                                       [{"text": "Check Status", "callback_data": "show_status"},
                                        {"text": "Cancel Training", "callback_data": "new_model"},
@@ -199,7 +196,7 @@ def show_leaderboard(dict_msg: dict = {}):
         row = df_user.iloc[0]
 
         tel_send_message(chat_id, "*LEADERBOARD*")
-        tel_send_message(chat_id, f"Your are in the position {position} and your actual score is {row.score}")
+        tel_send_message(chat_id, f"Your are in the position *{position}* and your actual score is *{row.score}*")
         tel_send_message(chat_id, '```' + leaderboard + '```')
         tel_send_inlinebutton(chat_id, "Select your option:",
                               [{"text": "Try new model", "callback_data": "new_model"},
