@@ -250,7 +250,6 @@ def make_submission(dict_user_hp: dict, user_id: str, chat_id: str):
         metrics_val_set=random_metrics_val_set,
         metrics_test_set=random_metrics_test_set,
         datetime_results_available=datetime_results_available,
-        telegram_sent=False,
         loss_fig_url='',
         metrics_fig_url='',
         sample_figs_urls='',

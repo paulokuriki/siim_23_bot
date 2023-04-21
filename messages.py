@@ -123,6 +123,9 @@ def submit_model(dict_msg: dict = {}, dict_user_hp: dict = {}):
         tel_send_message(chat_id, "There was a problem submitting your model to the training queue. "
                                   "Try again in a few minutes. "
                                   "If the problem persists, notify the SIIM AI Playground organizers.")
+        tel_send_inlinebutton(row.chat_id, "Select your option:",
+                              [{"text": "Try new model", "callback_data": "new_model"},
+                               {"text": "Leaderboard", "callback_data": "show_leaderboard"}])
 
 
 def show_training_status(dict_msg: dict = {}):
