@@ -159,7 +159,7 @@ def show_training_status(dict_msg: dict = {}):
             if time_remaining > 0:
                 # the training session period is not over yet. the competitor has to wait
                 tel_send_message(chat_id, "*TRAINING STATUS:*\n"
-                                          f"The estimated training time is {convert_seconds(estimated_time)}\n"
+                                          f"Estimated training time: {convert_seconds(estimated_time)}\n"
                                           f"Time remaining: {convert_seconds(time_remaining)}")
                 tel_send_message(chat_id,
                                  "To check again your training session click on the [Check Status] at any time.\n"
@@ -188,7 +188,7 @@ def show_leaderboard(dict_msg: dict = {}):
     df_user = df[df['user_id'] == user_id]
 
     df = df[['rank', 'fullname', 'score', 'entries', 'last_submission']]
-    df.columns = ['Rank', 'Competitor', 'Score', 'Entries', 'Last Submission']
+    df.columns = ['Pos', 'Name', 'Score', 'Entries', 'Last']
     leaderboard = df.to_string(index=False)
 
     if not df_user.empty:
@@ -213,8 +213,6 @@ def show_leaderboard(dict_msg: dict = {}):
         tel_send_inlinebutton(chat_id, "Select your option:",
                               [{"text": "Check Status", "callback_data": "show_status"},
                                {"text": "Create new model", "callback_data": "new_model"}])
-
-
 
     return
 
@@ -247,11 +245,13 @@ def parse_user_hps(dict_user_hp: dict = {}, user_id: str = '') -> str:
     for key, value in dict_user_hp.items():
         txt = '\n'.join([txt, f'{key}: {value}'])
 
+    # Remove _ to avoid formatting issues (italic)
+    txt = txt.replace('_', ' ')
+
     return txt
 
 
 def calc_timestamp_diff_in_secs(timestamp1, timestamp2):
-
     # Convert the strings to datetime objects using strptime()
     # Adjust the format string if your input has a different format
     print(timestamp1, timestamp2)
@@ -311,14 +311,14 @@ def calculate_time_ago(timestamp: str):
     # Check if the difference is more than a day
     elif time_difference >= datetime.timedelta(days=1):
         days = time_difference.days
-        return f'{days} day{"s" if days != 1 else ""} ago'
+        return f'{days} day{"s" if days != 1 else ""}'
 
     # Check if the difference is more than an hour but less than a day
     elif time_difference >= datetime.timedelta(hours=1):
         hours = time_difference.seconds // 3600
-        return f'{hours} hour{"s" if hours != 1 else ""} ago'
+        return f'{hours} hour{"s" if hours != 1 else ""}'
 
     # If the difference is less than a day but more than a minute
     else:
         minutes = time_difference.seconds // 60
-        return f'{minutes} minute{"s" if minutes != 1 else ""} ago'
+        return f'{minutes} minute{"s" if minutes != 1 else ""}'
