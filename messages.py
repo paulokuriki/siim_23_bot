@@ -158,7 +158,7 @@ def show_training_status(dict_msg: dict = {}):
             # checks if it is finished
             if time_remaining > 0:
                 # the training session period is not over yet. the competitor has to wait
-                tel_send_message(chat_id, "TRAINING STATUS:\n"
+                tel_send_message(chat_id, "*TRAINING STATUS:*\n"
                                           f"The estimated training time is {convert_seconds(estimated_time)}\n"
                                           f"Time remaining: {convert_seconds(time_remaining)}")
                 tel_send_message(chat_id,
@@ -198,9 +198,9 @@ def show_leaderboard(dict_msg: dict = {}):
         # Create a series called rec of the first matching row
         row = df_user.iloc[0]
 
-        tel_send_message(chat_id, "LEADERBOARD")
+        tel_send_message(chat_id, "*LEADERBOARD*")
         tel_send_message(chat_id, f"Your are in the position {position} and your actual score is {row.score}")
-        tel_send_message(chat_id, leaderboard)
+        tel_send_message(chat_id, '```' + leaderboard + '```')
         tel_send_inlinebutton(chat_id, "Select your option:",
                               [{"text": "Try new model", "callback_data": "new_model"},
                                {"text": "Leaderboard", "callback_data": "show_leaderboard"}])
@@ -208,7 +208,7 @@ def show_leaderboard(dict_msg: dict = {}):
 
     else:
         # User not found in the dataframe.
-        tel_send_message(chat_id, "LEADERBOARD")
+        tel_send_message(chat_id, "*LEADERBOARD*")
         tel_send_message(chat_id, f"You have not ranked yet. Create a new model or wait your model to finish training.")
         tel_send_inlinebutton(chat_id, "Select your option:",
                               [{"text": "Check Status", "callback_data": "show_status"},
@@ -272,10 +272,10 @@ def notify_finished_trainings(user_id: str = None):
 
     for idx, row in df.iterrows():
         if row.user_id not in list_competitors_notified:
-            tel_send_message(row.chat_id, "Your model training is FINISHED. Here are your results:\n"
-                                          f"Training set: {row.metrics_train_set}\n"
-                                          f"Validation set: {row.metrics_val_set}\n"
-                                          f"Test set: {row.metrics_test_set}")
+            tel_send_message(row.chat_id, "Your model training is *FINISHED*. Here are your results:\n"
+                                          f"*Training set:* {row.metrics_train_set}\n"
+                                          f"*Validation set:* {row.metrics_val_set}\n"
+                                          f"*Test set:* {row.metrics_test_set}")
             tel_send_inlinebutton(row.chat_id, "Select your option:",
                                   [{"text": "Leaderboard", "callback_data": "show_leaderboard"},
                                    {"text": "Try new model", "callback_data": "new_model"}])
