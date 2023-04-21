@@ -120,6 +120,7 @@ def tel_send_inlinebutton(chat_id, message, options):
     payload = {
         'chat_id': chat_id,
         'text': message,
+        'parse_mode': 'Markdown',
         'reply_markup': {"inline_keyboard": [options]}
     }
     r = requests.post(url, json=payload)
