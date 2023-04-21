@@ -109,12 +109,12 @@ def submit_model(dict_msg: dict = {}, dict_user_hp: dict = {}):
     user_id = dict_msg.get('user_id', '')
 
     # estimated_time = db.make_submission(dict_user_hp, user_id, random_estimated_time, random_metrics_train_set, random_metrics_val_set, random_metrics_test_set)
-    estimated_time = db.make_submission(dict_user_hp, user_id, chat_id)
+    estimated_time = convert_seconds(db.make_submission(dict_user_hp, user_id, chat_id))
 
     if estimated_time > 0:
         tel_send_message(chat_id, "Your model was submitted to the training queue.")
-        tel_send_message(chat_id, f"The estimated training time is {estimated_time} secs")
-        tel_send_message(chat_id, "You'll receive a message when your training model is finish.")
+        tel_send_message(chat_id, f"The estimated training time is {estimated_time}")
+        tel_send_message(chat_id, "You'll receive an automatic message when your training model is finish.")
         tel_send_inlinebutton(chat_id, "Select your option:",
                               [{"text": "Check Status", "callback_data": "show_status"},
                                {"text": "Cancel Training", "callback_data": "new_model"},
@@ -123,7 +123,7 @@ def submit_model(dict_msg: dict = {}, dict_user_hp: dict = {}):
         tel_send_message(chat_id, "There was a problem submitting your model to the training queue. "
                                   "Try again in a few minutes. "
                                   "If the problem persists, notify the SIIM AI Playground organizers.")
-        tel_send_inlinebutton(row.chat_id, "Select your option:",
+        tel_send_inlinebutton(chat_id, "Select your option:",
                               [{"text": "Try new model", "callback_data": "new_model"},
                                {"text": "Leaderboard", "callback_data": "show_leaderboard"}])
 
@@ -142,10 +142,11 @@ def show_training_status(dict_msg: dict = {}):
     else:
         rec = df.loc[0]
 
-        estimated_time = calc_timestamp_diff_in_secs(str(rec.datetime_submission),
-                                                     str(rec.datetime_results_available))
-        time_remaining = calc_timestamp_diff_in_secs(str(datetime.datetime.now()),
-                                                     str(rec.datetime_results_available))
+        estimated_time = convert_seconds(calc_timestamp_diff_in_secs(str(rec.datetime_submission),
+                                                     str(rec.datetime_results_available)))
+
+        time_remaining = convert_seconds(calc_timestamp_diff_in_secs(str(datetime.datetime.now()),
+                                                     str(rec.datetime_results_available)))
 
         ranking = calc_timestamp_diff_in_secs(str(datetime.datetime.now()),
                                               str(rec.datetime_results_available))
@@ -162,8 +163,8 @@ def show_training_status(dict_msg: dict = {}):
         else:
 
             tel_send_message(chat_id, "TRAINING STATUS:")
-            tel_send_message(chat_id, f"The estimated training time is {estimated_time} secs")
-            tel_send_message(chat_id, f"Time remaining: {time_remaining} secs")
+            tel_send_message(chat_id, f"The estimated training time is {estimated_time}")
+            tel_send_message(chat_id, f"Time remaining: {time_remaining}")
             tel_send_message(chat_id,
                              "If you want to cancel the training process and define a new model, click on the CANCEL button.")
             tel_send_message(chat_id, "Otherwise, you can check the training session STATUS at any time.")
@@ -263,3 +264,10 @@ def notify_finished_trainings():
     db.mark_submissions_notified(list_competitors_notified)
 
     return len(list_competitors_notified)
+
+def convert_seconds(seconds):
+    hours = int(seconds // 3600)
+    minutes = int((seconds % 3600) // 60)
+    seconds = int(seconds % 60)
+
+    return f"{hours:02d}h:{minutes:02d}m:{seconds:02d}s"
