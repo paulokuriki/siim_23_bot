@@ -144,10 +144,10 @@ def show_training_status(dict_msg: dict = {}):
         rec = df.loc[0]
 
         estimated_time = convert_seconds(calc_timestamp_diff_in_secs(str(rec.datetime_submission),
-                                                     str(rec.datetime_results_available)))
+                                                                     str(rec.datetime_results_available)))
 
         time_remaining = convert_seconds(calc_timestamp_diff_in_secs(str(datetime.datetime.now()),
-                                                     str(rec.datetime_results_available)))
+                                                                     str(rec.datetime_results_available)))
 
         ranking = calc_timestamp_diff_in_secs(str(datetime.datetime.now()),
                                               str(rec.datetime_results_available))
@@ -156,7 +156,6 @@ def show_training_status(dict_msg: dict = {}):
             tel_send_message(chat_id, "RESULTS: TRAINING METRICS:")
             tel_send_message(chat_id, f"Training set: {rec.metrics_train_set}")
             tel_send_message(chat_id, f"Validation set: {rec.metrics_test_set}")
-            tel_send_message(chat_id, f"Validation set: {rec.metrics_val_set}")
             tel_send_inlinebutton(chat_id, "Select your option:",
                                   [{"text": "Try new model", "callback_data": "new_model"},
                                    {"text": "Leaderboard", "callback_data": "show_leaderboard"}])
@@ -252,19 +251,19 @@ def notify_finished_trainings():
 
     for idx, row in df.iterrows():
         if row.user_id not in list_competitors_notified:
-            tel_send_message(row.chat_id, "[Notification] Your model training is FINISHED. Here are your results:")
-            tel_send_message(row.chat_id, f"[Notification] Training set: {row.metrics_train_set}")
-            tel_send_message(row.chat_id, f"[Notification] Validation set: {row.metrics_test_set}")
-            tel_send_message(row.chat_id, f"[Notification] Validation set: {row.metrics_val_set}")
+            tel_send_message(row.chat_id, "[Notification] Your model training is FINISHED. Here are your results:\n"
+                                          f"Training set: {row.metrics_train_set}\n"
+                                          f"Validation set: {row.metrics_test_set}\n")
             tel_send_inlinebutton(row.chat_id, "Select your option:",
-                                  [{"text": "Try new model", "callback_data": "new_model"},
-                                   {"text": "Leaderboard", "callback_data": "show_leaderboard"}])
+                                  [{"text": "Leaderboard", "callback_data": "show_leaderboard"},
+                                   {"text": "Try new model", "callback_data": "new_model"}])
 
             list_competitors_notified.append(row.user_id)
 
     db.mark_submissions_notified(list_competitors_notified)
 
     return len(list_competitors_notified)
+
 
 def convert_seconds(seconds):
     hours = int(seconds // 3600)
