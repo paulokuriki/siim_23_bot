@@ -109,11 +109,12 @@ def submit_model(dict_msg: dict = {}, dict_user_hp: dict = {}):
     user_id = dict_msg.get('user_id', '')
 
     # estimated_time = db.make_submission(dict_user_hp, user_id, random_estimated_time, random_metrics_train_set, random_metrics_val_set, random_metrics_test_set)
-    estimated_time = convert_seconds(db.make_submission(dict_user_hp, user_id, chat_id))
+    estimated_time = db.make_submission(dict_user_hp, user_id, chat_id)
+    converted_estimated_time = convert_seconds(db.make_submission(dict_user_hp, user_id, chat_id))
 
     if estimated_time > 0:
         tel_send_message(chat_id, "Your model was submitted to the training queue.")
-        tel_send_message(chat_id, f"The estimated training time is {estimated_time}")
+        tel_send_message(chat_id, f"The estimated training time is {converted_estimated_time}")
         tel_send_message(chat_id, "You'll receive an automatic message when your training model is finish.")
         tel_send_inlinebutton(chat_id, "Select your option:",
                               [{"text": "Check Status", "callback_data": "show_status"},
