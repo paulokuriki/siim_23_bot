@@ -81,7 +81,7 @@ def index():
             show_leaderboard(dict_msg)
 
         elif txt == "show_status":
-            show_training_status(dict_msg, dict_user_hp)
+            show_training_status(dict_msg)
         else:
             dict_user_hp = {}
             db.save_dict(dict_user_hp, user_id)
