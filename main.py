@@ -125,6 +125,16 @@ def list_pretrained_metrics():
     return results
 
 
+
+# route for listing pretrained model metrics
+@app.route('/notify_results', methods=['GET'])
+def notify_results():
+    # get the pretrained metrics from the database using a function from database.py
+    notify_finished_trainings()
+    # return the results as a JSON object
+    return results
+
+
 # route for listing pretrained model metrics
 @app.route('/list_competitors', methods=['GET'])
 def list_competitors():

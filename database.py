@@ -1,9 +1,9 @@
 import datetime
 import json
-import pandas as pd
-from pandas import DataFrame
 
+import pandas as pd
 import sqlalchemy
+from pandas import DataFrame
 from sqlalchemy import NUMERIC
 from sqlalchemy import create_engine, select, insert
 from sqlalchemy import func
@@ -157,7 +157,7 @@ def return_metrics(dict_user_hp: dict = {}, user_id: str = '') -> dict:
     return dict_result
 
 
-def generate_random_number(base_number, std_dev, max_percentage_from_std_dev: float = 0.03):
+def generate_random_number(base_number: float, std_dev: float, max_percentage_from_std_dev: float = 0.03):
     import random
 
     rand_multiplier = random.uniform(0, max_percentage_from_std_dev)
@@ -198,8 +198,7 @@ def load_dict(user_id: str):
     return loaded_dict
 
 
-def make_submission(dict_user_hp, user_id, chat_id): #, random_estimated_time, random_metrics_train_set, random_metrics_val_set,random_metrics_test_set):
-
+def make_submission(dict_user_hp: dict, user_id: str, chat_id: str):
     # searches for metrics from pretrained models
     metrics = return_metrics(dict_user_hp)
 
@@ -262,27 +261,77 @@ def make_submission(dict_user_hp, user_id, chat_id): #, random_estimated_time, r
         return 0
 
 
-def load_df_submissions(user_id) -> DataFrame:
-
+def load_df_submissions(user_id: str) -> DataFrame:
     # create a select statement from the tb_submissions
-    sql = select(tb_submissions).where(tb_submissions.c.user_id == user_id).order_by(tb_submissions.c.datetime_submission.desc())
+    sql = select(tb_submissions).where(tb_submissions.c.user_id == user_id).order_by(
+        tb_submissions.c.datetime_submission.desc())
 
-    #print(sql.compile(compile_kwargs={"literal_binds": True}))
+    # print(sql.compile(compile_kwargs={"literal_binds": True}))
 
     df = pd.read_sql_query(sql=sql, con=engine)
-    #print(df)
+    # print(df)
 
     return df
 
-def get_user_ranking(user_id) -> DataFrame:
 
+def load_df_finished_trainings() -> DataFrame:
     # create a select statement from the tb_submissions
-    sql = select(tb_submissions.c.user_id).\
-        where(str(datetime.datetime.now()) >= str(tb_submissions.c.datetime_results_available)).\
-        group_by(tb_submissions.c.user_id).\
+    sql = select(tb_submissions.c.id,
+                 tb_submissions.c.user_id,
+                 tb_submissions.c.chat_id,
+                 tb_submissions.c.metrics_train_set,
+                 tb_submissions.c.metrics_val_set,
+                 tb_submissions.c.metrics_test_set,
+                 func.max(tb_submissions.c.datetime_results_available).label('max_datetime_results_available')). \
+        where(tb_submissions.c.training_status == 'Training',
+              tb_submissions.c.telegram_sent == False,
+              tb_submissions.c.datetime_results_available <= datetime.datetime.now()). \
+        group_by(tb_submissions.c.id,
+                 tb_submissions.c.user_id,
+                 tb_submissions.c.chat_id,
+                 tb_submissions.c.metrics_train_set,
+                 tb_submissions.c.metrics_val_set,
+                 tb_submissions.c.metrics_test_set). \
+        order_by(tb_submissions.c.datetime_submission.desc())
+
+    print(sql.compile(compile_kwargs={"literal_binds": True}))
+
+    df = pd.read_sql_query(sql=sql, con=engine)
+    # print(df)
+
+    return df
+
+
+def mark_submissions_notified(list_competitors_notified: list):
+    # create a select statement from the tb_submissions
+    stmt = tb_submissions.update(). \
+        where(tb_submissions.c.user_id.in_(list_competitors_notified),
+              tb_submissions.c.training_status == 'Training'). \
+        values(training_status='Notified',
+               telegram_sent=datetime.datetime.now())
+
+    try:
+        # execute the insert statement within a transaction and commit it
+        with engine.connect() as conn:
+            conn.execute(stmt)
+            conn.commit()
+            return True
+
+    except Exception as e:
+        # handle all other exceptions by printing the error message and returning None
+        print(e)
+
+        return False
+
+
+def get_user_ranking(user_id: str) -> DataFrame:
+    # create a select statement from the tb_submissions
+    sql = select(tb_submissions.c.user_id). \
+        where(str(datetime.datetime.now()) >= str(tb_submissions.c.datetime_results_available)). \
+        group_by(tb_submissions.c.user_id). \
         order_by(tb_submissions.c.user_id)
 
-    #print(sql.compile(compile_kwargs={"literal_binds": True}))
+    # print(sql.compile(compile_kwargs={"literal_binds": True}))
 
     df = pd.read_sql_query(sql=sql, con=engine)
 

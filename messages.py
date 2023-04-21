@@ -238,3 +238,23 @@ def calc_timestamp_diff_in_secs(timestamp1, timestamp2):
     time_difference_seconds = int(time_difference.total_seconds())
 
     return time_difference_seconds
+
+
+def notify_finished_trainings():
+    df = db.load_df_finished_trainings()
+
+    list_competitors_notified=[]
+
+    for idx, row in df.iterrows():
+        if row.user_id not in list_competitors_notified:
+            tel_send_message(row.chat_id, "RESULTS: TRAINING METRICS:")
+            tel_send_message(row.chat_id, f"Training set: {row.metrics_train_set}")
+            tel_send_message(row.chat_id, f"Validation set: {row.metrics_test_set}")
+            tel_send_message(row.chat_id, f"Validation set: {row.metrics_val_set}")
+            tel_send_inlinebutton(row.chat_id, "Select your option:",
+                                  [{"text": "Try new model", "callback_data": "new_model"},
+                                   {"text": "Leaderboard", "callback_data": "show_leaderboard"}])
+
+            list_competitors_notified.append(row.user_id)
+
+    db.mark_submissions_notified(list_competitors_notified)
