@@ -207,8 +207,8 @@ def show_leaderboard(dict_msg: dict = {}):
         # Create a series called rec of the first matching row
         row = df_user.iloc[0]
 
-        tel_send_message(chat_id, "*LEADERBOARD*")
-        tel_send_message(chat_id, f"Your are in the position *{position}* and your actual score is *{row.score}*")
+        tel_send_message(chat_id, f"Your are in the *{number_to_ordinal(position)}* position. Your best score is *{row.score}*")
+        tel_send_message(chat_id, "*LEADERBOARD (Top 10)*")
         tel_send_message(chat_id, '```' + leaderboard + '```')
         tel_send_inlinebutton(chat_id, "Select your option:",
                               [{"text": "Try new model", "callback_data": "new_model"},
@@ -331,3 +331,20 @@ def calculate_time_ago(timestamp: str):
     else:
         minutes = time_difference.seconds // 60
         return f'{minutes} minute{"s" if minutes != 1 else ""}'
+
+
+def number_to_ordinal(n):
+    if isinstance(n, (int, float)):
+        n = int(n)
+    else:
+        raise TypeError("The input should be a number.")
+
+    if n < 0:
+        raise ValueError("The input should be a non-negative integer.")
+
+    if n % 100 in [11, 12, 13]:
+        suffix = 'th'
+    else:
+        suffix = {1: 'st', 2: 'nd', 3: 'rd'}.get(n % 10, 'th')
+
+    return str(n) + suffix
