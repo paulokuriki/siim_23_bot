@@ -8,6 +8,7 @@ from sqlalchemy import NUMERIC
 from sqlalchemy import create_engine, select, insert
 from sqlalchemy import func
 
+import db_schema
 # import tables from the db_schema module
 from db_schema import tb_pretrained, tb_competitors, tb_submissions, DATABASE_URL
 
@@ -269,8 +270,9 @@ def make_submission(dict_user_hp: dict, user_id: str, chat_id: str):
 
 def load_df_submissions(user_id: str) -> DataFrame:
     # create a select statement from the tb_submissions
-    sql = select(tb_submissions).where(tb_submissions.c.user_id == user_id).order_by(
-        tb_submissions.c.datetime_submission.desc())
+    sql = select(tb_submissions). \
+        where(tb_submissions.c.user_id == user_id). \
+        order_by(tb_submissions.c.datetime_submission.desc())
 
     # print(sql.compile(compile_kwargs={"literal_binds": True}))
 
@@ -280,7 +282,13 @@ def load_df_submissions(user_id: str) -> DataFrame:
     return df
 
 
-def load_df_finished_trainings() -> DataFrame:
+def load_df_finished_trainings(user_id: str = None) -> DataFrame:
+    # optional user_id
+    if user_id:
+        where_user = tb_submissions.c.user_id == user_id
+    else:
+        where_user = True
+
     # create a select statement from the tb_submissions
     sql = select(tb_submissions.c.id,
                  tb_submissions.c.user_id,
@@ -289,8 +297,9 @@ def load_df_finished_trainings() -> DataFrame:
                  tb_submissions.c.metrics_val_set,
                  tb_submissions.c.metrics_test_set,
                  func.max(tb_submissions.c.datetime_results_available).label('max_datetime_results_available')). \
-        where(tb_submissions.c.training_status == 'Training',
+        where(tb_submissions.c.training_status == db_schema.TRAINING_STATUS_TRAINING,
               tb_submissions.c.telegram_sent == None,
+              where_user,
               tb_submissions.c.datetime_results_available <= datetime.datetime.now()). \
         group_by(tb_submissions.c.id,
                  tb_submissions.c.user_id,
@@ -312,8 +321,8 @@ def mark_submissions_notified(list_competitors_notified: list):
     # create a select statement from the tb_submissions
     stmt = tb_submissions.update(). \
         where(tb_submissions.c.user_id.in_(list_competitors_notified),
-              tb_submissions.c.training_status == 'Training'). \
-        values(training_status='Notified',
+              tb_submissions.c.training_status == db_schema.TRAINING_STATUS_TRAINING). \
+        values(training_status=db_schema.TRAINING_STATUS_NOTIFIED,
                telegram_sent=datetime.datetime.now())
 
     try:
@@ -332,12 +341,13 @@ def mark_submissions_notified(list_competitors_notified: list):
 
 def get_user_ranking(user_id: str) -> DataFrame:
     # create a select statement from the tb_submissions
-    sql = select(tb_submissions.c.user_id). \
-        where(str(datetime.datetime.now()) >= str(tb_submissions.c.datetime_results_available)). \
+    sql = select(tb_submissions). \
+        where(
+        tb_submissions.c.training_status.in_([db_schema.TRAINING_STATUS_COMPLETE, db_schema.TRAINING_STATUS_NOTIFIED])). \
         group_by(tb_submissions.c.user_id). \
         order_by(tb_submissions.c.user_id)
 
-    # print(sql.compile(compile_kwargs={"literal_binds": True}))
+    print(sql.compile(compile_kwargs={"literal_binds": True}))
 
     df = pd.read_sql_query(sql=sql, con=engine)
 

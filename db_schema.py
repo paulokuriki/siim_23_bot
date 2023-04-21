@@ -1,6 +1,6 @@
 import os
 
-from sqlalchemy import DateTime as TimeStamp, SmallInteger as smallint, Text as text, REAL as real, BOOLEAN as boolean, Integer
+from sqlalchemy import DateTime as TimeStamp, SmallInteger as smallint, Text as text, REAL as real, BOOLEAN as boolean
 from sqlalchemy import Table, Column
 from sqlalchemy import create_engine, MetaData, ForeignKey
 
@@ -9,6 +9,11 @@ from sqlalchemy import create_engine, MetaData, ForeignKey
 DATABASE_URL = os.environ.get('DATABASE_URL',
                               'postgresql+psycopg2://postgres:postgres@localhost:5432/postgres').replace("postgres://",
                                                                                                          "postgresql://")
+
+TRAINING_STATUS_TRAINING = 'Training'
+TRAINING_STATUS_CANCELLED = 'Cancelled'
+TRAINING_STATUS_NOTIFIED = 'Notified'
+TRAINING_STATUS_COMPLETE = 'Complete'
 
 # create a SQLAlchemy engine object using the DATABASE_URL
 engine = create_engine(DATABASE_URL)
