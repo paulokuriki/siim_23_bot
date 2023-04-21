@@ -3,8 +3,6 @@
 # import necessary modules
 from flask import Flask, request, Response
 
-import database as db
-import hyperparameters as hp
 from messages import *
 # import functions from other modules
 from telegram_aux import *
@@ -28,7 +26,6 @@ def index():
 
         user_id = dict_msg.get('user_id', '')
         txt = dict_msg.get('txt', '')
-        chat_id = dict_msg.get('chat_id', '')
 
         # load dict from disk, update it and save it back to disk
         dict_user_hp = db.load_dict(user_id)
@@ -125,7 +122,6 @@ def list_pretrained_metrics():
     return results
 
 
-
 # route for listing pretrained model metrics
 @app.route('/notify_results', methods=['GET'])
 def notify_results():
@@ -133,7 +129,7 @@ def notify_results():
     results = notify_finished_trainings()
 
     # Return the number of users notified
-    return f'{}str(results)} users notified.'
+    return f'{str(results)} users notified.'
 
 
 # route for listing pretrained model metrics
