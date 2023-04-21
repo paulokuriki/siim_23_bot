@@ -179,21 +179,44 @@ def show_leaderboard(dict_msg: dict = {}):
     chat_id = dict_msg.get('chat_id', '')
     user_id = dict_msg.get('user_id', '')
 
-    position = db.get_user_ranking(user_id)
+    df = db.get_leaderboard_df()
 
-    if position > 0:
+    df['last_submission'] = df['last_submission'].apply(calculate_time_ago)
+    df['rank'] = df.index + 1
+
+    # Look for the user_id in the dataframe
+    df_user = df[df['user_id'] == user_id]
+
+    df = df[['rank', 'fullname', 'score', 'entries', 'last_submission']]
+    df.columns = ['Rank', 'Competitor', 'Score', 'Entries', 'Last Submission']
+    leaderboard = df.to_string(index=False)
+
+    if not df_user.empty:
+        # Find the position (index) of the first matching row and add 1 to start counting from 1
+        position = df_user.index[0] + 1
+
+        # Create a series called rec of the first matching row
+        row = df_user.iloc[0]
+
         tel_send_message(chat_id, "LEADERBOARD")
-        tel_send_message(chat_id, f"Your are in the position {position}")
+        tel_send_message(chat_id, f"Your are in the position {position} and your actual score is {row.score}")
+        tel_send_message(chat_id, leaderboard)
         tel_send_inlinebutton(chat_id, "Select your option:",
                               [{"text": "Try new model", "callback_data": "new_model"},
                                {"text": "Leaderboard", "callback_data": "show_leaderboard"}])
+
+
     else:
+        # User not found in the dataframe.
         tel_send_message(chat_id, "LEADERBOARD")
-        tel_send_message(chat_id, f"You are not ranked yet. Create a new model or wait your model to finish training.")
+        tel_send_message(chat_id, f"You have not ranked yet. Create a new model or wait your model to finish training.")
         tel_send_inlinebutton(chat_id, "Select your option:",
-                              [{"text": "Create new model", "callback_data": "new_model"},
-                               {"text": "Check Status", "callback_data": "show_status"},
-                               {"text": "Leaderboard", "callback_data": "show_leaderboard"}])
+                              [{"text": "Check Status", "callback_data": "show_status"},
+                               {"text": "Create new model", "callback_data": "new_model"}])
+
+
+
+    return
 
 
 def create_dict_options(list_options):
@@ -228,13 +251,12 @@ def parse_user_hps(dict_user_hp: dict = {}, user_id: str = '') -> str:
 
 
 def calc_timestamp_diff_in_secs(timestamp1, timestamp2):
-    from datetime import datetime
 
     # Convert the strings to datetime objects using strptime()
     # Adjust the format string if your input has a different format
     print(timestamp1, timestamp2)
-    dt1 = datetime.strptime(timestamp1, "%Y-%m-%d %H:%M:%S.%f")
-    dt2 = datetime.strptime(timestamp2, "%Y-%m-%d %H:%M:%S.%f")
+    dt1 = datetime.datetime.strptime(timestamp1, "%Y-%m-%d %H:%M:%S.%f")
+    dt2 = datetime.datetime.strptime(timestamp2, "%Y-%m-%d %H:%M:%S.%f")
 
     # Calculate the time difference and convert it to seconds
     time_difference = dt2 - dt1
@@ -252,7 +274,8 @@ def notify_finished_trainings(user_id: str = None):
         if row.user_id not in list_competitors_notified:
             tel_send_message(row.chat_id, "Your model training is FINISHED. Here are your results:\n"
                                           f"Training set: {row.metrics_train_set}\n"
-                                          f"Validation set: {row.metrics_test_set}\n")
+                                          f"Validation set: {row.metrics_val_set}\n"
+                                          f"Test set: {row.metrics_test_set}")
             tel_send_inlinebutton(row.chat_id, "Select your option:",
                                   [{"text": "Leaderboard", "callback_data": "show_leaderboard"},
                                    {"text": "Try new model", "callback_data": "new_model"}])
@@ -270,3 +293,32 @@ def convert_seconds(seconds):
     seconds = int(seconds % 60)
 
     return f"{hours:02d}h:{minutes:02d}m:{seconds:02d}s"
+
+
+def calculate_time_ago(timestamp: str):
+    # Parse the input timestamp string
+    timestamp = str(timestamp)
+    timestamp = datetime.datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S.%f')
+
+    # Calculate the difference between now and the input timestamp
+    now = datetime.datetime.now()
+    time_difference = now - timestamp
+
+    # Check if the difference is less than one minute
+    if time_difference < datetime.timedelta(minutes=1):
+        return 'Now'
+
+    # Check if the difference is more than a day
+    elif time_difference >= datetime.timedelta(days=1):
+        days = time_difference.days
+        return f'{days} day{"s" if days != 1 else ""} ago'
+
+    # Check if the difference is more than an hour but less than a day
+    elif time_difference >= datetime.timedelta(hours=1):
+        hours = time_difference.seconds // 3600
+        return f'{hours} hour{"s" if hours != 1 else ""} ago'
+
+    # If the difference is less than a day but more than a minute
+    else:
+        minutes = time_difference.seconds // 60
+        return f'{minutes} minute{"s" if minutes != 1 else ""} ago'

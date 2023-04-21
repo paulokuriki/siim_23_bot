@@ -339,21 +339,21 @@ def mark_submissions_notified(list_competitors_notified: list):
         return False
 
 
-def get_user_ranking(user_id: str) -> DataFrame:
+def get_leaderboard_df() -> DataFrame:
     # create a select statement from the tb_submissions
-    sql = select(tb_submissions). \
-        where(
-        tb_submissions.c.training_status.in_([db_schema.TRAINING_STATUS_COMPLETE, db_schema.TRAINING_STATUS_NOTIFIED])). \
-        group_by(tb_submissions.c.user_id). \
-        order_by(tb_submissions.c.user_id)
+    sql = select(tb_submissions.c.user_id,
+                 tb_competitors.c.fullname,
+                 func.max(tb_submissions.c.metrics_test_set).label('score'),
+                 func.count(tb_submissions.c.user_id).label('entries'),
+                 func.max(tb_submissions.c.datetime_submission).label('last_submission')
+                 ).\
+        join(tb_competitors).\
+        where(tb_submissions.c.training_status == db_schema.TRAINING_STATUS_NOTIFIED). \
+        group_by(tb_submissions.c.user_id, tb_competitors.c.fullname). \
+        order_by(func.max(tb_submissions.c.metrics_test_set).desc())
 
     print(sql.compile(compile_kwargs={"literal_binds": True}))
 
     df = pd.read_sql_query(sql=sql, con=engine)
 
-    if user_id in df['user_id'].values:
-        # Get the position (index) of the user_id in the DataFrame
-        position = df.index[df['user_id'] == user_id].tolist()[0] + 1
-        return position
-    else:
-        return -1
+    return df
