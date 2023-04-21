@@ -123,13 +123,14 @@ def list_pretrained_metrics():
 
 
 # route for listing pretrained model metrics
-@app.route('/notify_results', methods=['GET'])
+@app.route('/notify_results', methods=['GET', 'HEAD'])
 def notify_results():
     # Notify the competitors
     results = notify_finished_trainings()
 
-    # Return the number of users notified
-    return f'{str(results)} users notified.'
+    if request.method == 'GET':
+        # Return the number of users notified
+        return f'{str(results)} users notified.'
 
 
 # route for listing pretrained model metrics
