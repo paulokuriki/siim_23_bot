@@ -222,10 +222,17 @@ def make_submission(dict_user_hp: dict, user_id: str, chat_id: str):
     time_delta = datetime.timedelta(seconds=random_estimated_time)
     datetime_results_available = now + time_delta
 
+    # convert string True/False to booleans
     if dict_user_hp.get('batch_norm', '') == 'True':
-        bn = True
+        batch_norm = True
     else:
-        bn = False
+        batch_norm = False
+
+    # Convert None Dropout to 0. Otherwise keep it
+    if dict_user_hp.get('dropout', '') == 'None':
+        dropout = 0
+    else:
+        dropout = dict_user_hp.get('dropout', '')
 
     # create an insert statement for the tb_submissions
     stmt = insert(tb_submissions).values(
@@ -235,9 +242,9 @@ def make_submission(dict_user_hp: dict, user_id: str, chat_id: str):
         batch_size=dict_user_hp.get('batch_size', 0),
         epochs=dict_user_hp.get('epochs', 0),
         learning_rate=dict_user_hp.get('learning_rate', 0),
-        batch_norm=bn,
+        batch_norm=batch_norm,
         filters=dict_user_hp.get('filters', 0),
-        dropout=dict_user_hp.get('dropout', 0),
+        dropout=dropout,
         image_size=dict_user_hp.get('image_size', 0),
         metrics_train_set=random_metrics_train_set,
         metrics_val_set=random_metrics_val_set,
