@@ -265,7 +265,7 @@ def make_submission(dict_user_hp, user_id, chat_id): #, random_estimated_time, r
 def load_df_submissions(user_id) -> DataFrame:
 
     # create a select statement from the tb_submissions
-    sql = select(tb_submissions.c.user_id).where(tb_submissions.c.user_id == user_id).order_by(tb_submissions.c.datetime_submission.desc())
+    sql = select(tb_submissions).where(tb_submissions.c.user_id == user_id).order_by(tb_submissions.c.datetime_submission.desc())
 
     #print(sql.compile(compile_kwargs={"literal_binds": True}))
 
