@@ -3,6 +3,7 @@
 # Import necessary modules
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse
+import aiohttp
 
 from messages import *
 # Import functions from other modules
@@ -82,9 +83,12 @@ async def index(request: Request):
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
-
-    return HTMLResponse("<h1>Welcome to the SIIM AI Playground API!</h1>" \
-           "<p>Open Telegram and look for the bot called @siim_23_bot to start to play.", status_code=200)
+    uptime_robot_page = await fetch_uptime_robot_page()
+    return HTMLResponse(f"""
+        <h1>Welcome to the SIIM AI Playground API!</h1>
+        <p>Open Telegram and look for the bot called @siim_23_bot to start to play.</p>
+        <iframe srcdoc="{uptime_robot_page}" width="100%" height="600px" frameborder="0"></iframe>
+    """, status_code=200)
 
 
 # Route for uploading JSON records to the database
@@ -137,3 +141,8 @@ def list_competitors():
     return JSONResponse(results, status_code=200)
 
 
+async def fetch_uptime_robot_page():
+    url = "https://stats.uptimerobot.com/KVqA7IDVgq"
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            return await response.text()
