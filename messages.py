@@ -246,14 +246,14 @@ def calc_timestamp_diff_in_secs(timestamp1, timestamp2):
 def notify_finished_trainings():
     df = db.load_df_finished_trainings()
 
-    list_competitors_notified=[]
+    list_competitors_notified = []
 
     for idx, row in df.iterrows():
         if row.user_id not in list_competitors_notified:
-            tel_send_message(row.chat_id, "RESULTS: TRAINING METRICS:")
-            tel_send_message(row.chat_id, f"Training set: {row.metrics_train_set}")
-            tel_send_message(row.chat_id, f"Validation set: {row.metrics_test_set}")
-            tel_send_message(row.chat_id, f"Validation set: {row.metrics_val_set}")
+            tel_send_message(row.chat_id, "[Notification] Your model training is FINISHED. Here are your results:")
+            tel_send_message(row.chat_id, f"[Notification] Training set: {row.metrics_train_set}")
+            tel_send_message(row.chat_id, f"[Notification] Validation set: {row.metrics_test_set}")
+            tel_send_message(row.chat_id, f"[Notification] Validation set: {row.metrics_val_set}")
             tel_send_inlinebutton(row.chat_id, "Select your option:",
                                   [{"text": "Try new model", "callback_data": "new_model"},
                                    {"text": "Leaderboard", "callback_data": "show_leaderboard"}])
