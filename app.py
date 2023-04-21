@@ -118,6 +118,7 @@ def list_pretrained_metrics():
 
 # route for listing pretrained model metrics
 @app.get("/notify_results")
+@app.head("/notify_results")   # https://uptimerobot.com/ calls the api through a HEAD request each 5 min
 def notify_results():
     # Notify the competitors
     results = notify_finished_trainings()
