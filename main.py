@@ -132,6 +132,8 @@ def notify_results():
         # Return the number of users notified
         return f'{str(results)} users notified.'
 
+    return
+
 
 # route for listing pretrained model metrics
 @app.route('/list_competitors', methods=['GET'])
