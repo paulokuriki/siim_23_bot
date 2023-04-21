@@ -202,7 +202,7 @@ def show_leaderboard(dict_msg: dict = {}):
 
     if not df_user.empty:
         # Find the position (index) of the first matching row and add 1 to start counting from 1
-        position = df_user.index[0] + 1
+        position = int(df_user.index[0] + 1)
 
         # Create a series called rec of the first matching row
         row = df_user.iloc[0]
