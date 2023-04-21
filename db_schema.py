@@ -1,6 +1,6 @@
 import os
 
-from sqlalchemy import DateTime as TimeStamp, SmallInteger as smallint, Text as text, REAL as real, BOOLEAN as boolean
+from sqlalchemy import DateTime as TimeStamp, SmallInteger as smallint, Text as text, REAL as real, BOOLEAN as boolean, Integer
 from sqlalchemy import Table, Column
 from sqlalchemy import create_engine, MetaData, ForeignKey
 
@@ -55,6 +55,7 @@ tb_submissions = Table("submissions", metadata_obj,
                        Column("id", smallint, primary_key=True),
                        Column("datetime_submission", TimeStamp),
                        Column("user_id", text, ForeignKey("competitors.user_id"), nullable=False),
+                       Column("chat_id", text),
                        Column("batch_size", smallint),
                        Column("epochs", smallint),
                        Column("learning_rate", real),

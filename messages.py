@@ -36,7 +36,7 @@ def welcome_message(dict_msg: dict = {}):
 def select_batch_size(dict_msg: dict = {}):
     chat_id = dict_msg.get('chat_id', '')
 
-    tel_send_message(chat_id, "It's time to have fun. Let's train your new model.")
+    tel_send_message(chat_id, "Let's train your new model. It's time to have fun.")
     tel_send_message(chat_id, "First, you have to select a batch size.")
     tel_send_inlinebutton(chat_id, "Batch Size:", create_dict_options(hp.batch_sizes))
 
@@ -97,30 +97,24 @@ def confirm_training(dict_msg: dict = {}, dict_user_hp: dict = {}):
 
     tel_send_message(chat_id, f"Nice work, {fullname}! ")
     tel_send_message(chat_id, f"Here are your selected hyperparameters:{txt_user_hps}")
-    tel_send_message(chat_id, "If you are happy with the selected hyperparameters, click on the TRAIN button below.")
-    tel_send_message(chat_id, "The system will estimate the training time.")
-    tel_send_message(chat_id, "If you want to cancel and define a new model, click on the CANCEL button.")
+    tel_send_message(chat_id, "If you are happy with the selected hyperparameters, click on the [Train] button below.")
+    tel_send_message(chat_id, "If you want to cancel and define a new model, click on the [Cancel] button.")
     tel_send_inlinebutton(chat_id, "Select your option:",
-                          [{"text": "TRAIN", "callback_data": "submit_training"},
-                           {"text": "CANCEL", "callback_data": "new_model"}])
+                          [{"text": "Train", "callback_data": "submit_training"},
+                           {"text": "Cancel", "callback_data": "new_model"}])
 
 
 def submit_model(dict_msg: dict = {}, dict_user_hp: dict = {}):
     chat_id = dict_msg.get('chat_id', '')
     user_id = dict_msg.get('user_id', '')
 
-    #estimated_time = db.make_submission(dict_user_hp, user_id, random_estimated_time, random_metrics_train_set, random_metrics_val_set, random_metrics_test_set)
-    estimated_time = db.make_submission(dict_user_hp, user_id)
+    # estimated_time = db.make_submission(dict_user_hp, user_id, random_estimated_time, random_metrics_train_set, random_metrics_val_set, random_metrics_test_set)
+    estimated_time = db.make_submission(dict_user_hp, user_id, chat_id)
 
     if estimated_time > 0:
         tel_send_message(chat_id, "Your model was submitted to the training queue.")
         tel_send_message(chat_id, f"The estimated training time is {estimated_time} secs")
-        tel_send_message(chat_id, f"Time remaining now is: {estimated_time} secs")
-        tel_send_message(chat_id,
-                         "If you want to cancel the training process and define a new model, click on the CANCEL button.")
-        tel_send_message(chat_id, "Otherwise, WAIT for your model's training session to finish.")
-        tel_send_message(chat_id, "You'll receive a message with metrics results and your position on the leaderboard.")
-        tel_send_message(chat_id, "You'll receive a message with metrics results and your position on the leaderboard.")
+        tel_send_message(chat_id, "You'll receive a message when your training model is finish.")
         tel_send_inlinebutton(chat_id, "Select your option:",
                               [{"text": "Check Status", "callback_data": "show_status"},
                                {"text": "Cancel Training", "callback_data": "new_model"},
@@ -130,39 +124,73 @@ def submit_model(dict_msg: dict = {}, dict_user_hp: dict = {}):
                                   "Try again in a few minutes. "
                                   "If the problem persists, notify the SIIM AI Playground organizers.")
 
-def show_training_status(dict_msg: dict = {}, dict_user_hp: dict = {}):
+
+def show_training_status(dict_msg: dict = {}):
     chat_id = dict_msg.get('chat_id', '')
     user_id = dict_msg.get('user_id', '')
 
-    df = db.check_training_status(dict_user_hp, user_id)
+    df = db.load_df_submissions(user_id)
 
     if len(df) == 0:
         tel_send_message(chat_id, "You didn't submit any model to training yet.")
+        tel_send_inlinebutton(chat_id, "Select your option:",
+                              [{"text": "Create new model", "callback_data": "new_model"},
+                               {"text": "Leaderboard", "callback_data": "show_leaderboard"}])
     else:
-        df = df.head(0)
-        if datetime.datetime.now < df.datetime_results_available:
-            send_telegram_training_results(df.id)
-        else:
-            estimated_time = calc_timestamp_diff_in_secs(str(df.datetime_submission), str(df.datetime_results_available))
-            time_remaining = calc_timestamp_diff_in_secs(str(datetime.datetime.now()), str(df.datetime_results_available))
+        rec = df.loc[0]
 
-            tel_send_message(chat_id, "*TRAINING STATUS:*")
-            tel_send_message(chat_id, f"The estimated training time is {estimated_time}")
-            tel_send_message(chat_id, f"Time remaining: {time_remaining}")
+        estimated_time = calc_timestamp_diff_in_secs(str(rec.datetime_submission),
+                                                     str(rec.datetime_results_available))
+        time_remaining = calc_timestamp_diff_in_secs(str(datetime.datetime.now()),
+                                                     str(rec.datetime_results_available))
+
+        ranking = calc_timestamp_diff_in_secs(str(datetime.datetime.now()),
+                                              str(rec.datetime_results_available))
+
+        if time_remaining <= 0:
+            tel_send_message(chat_id, "RESULTS: TRAINING METRICS:")
+            tel_send_message(chat_id, f"Training set: {rec.metrics_train_set}")
+            tel_send_message(chat_id, f"Validation set: {rec.metrics_test_set}")
+            tel_send_message(chat_id, f"Validation set: {rec.metrics_val_set}")
+            tel_send_inlinebutton(chat_id, "Select your option:",
+                                  [{"text": "Try new model", "callback_data": "new_model"},
+                                   {"text": "Leaderboard", "callback_data": "show_leaderboard"}])
+
+        else:
+
+            tel_send_message(chat_id, "TRAINING STATUS:")
+            tel_send_message(chat_id, f"The estimated training time is {estimated_time} secs")
+            tel_send_message(chat_id, f"Time remaining: {time_remaining} secs")
             tel_send_message(chat_id,
                              "If you want to cancel the training process and define a new model, click on the CANCEL button.")
             tel_send_message(chat_id, "Otherwise, you can check the training session STATUS at any time.")
             tel_send_message(chat_id,
                              "You'll receive a message with the metrics results and your position on the leaderboard as soon as the model's training is finished.")
             tel_send_inlinebutton(chat_id, "Select your option:",
-                                  [{"text": "CANCEL", "callback_data": "new_model"},
-                                   {"text": "STATUS", "callback_data": "show_status"},
-                                   {"text": "LEADERBOARD", "callback_data": "show_leaderboard"}])
+                                  [{"text": "Check Status", "callback_data": "show_status"},
+                                   {"text": "Cancel Training", "callback_data": "new_model"},
+                                   {"text": "Leaderboard", "callback_data": "show_leaderboard"}])
 
 
-def show_leaderboard(chat_id: str, txt: str = "", user_id: str = "", username: str = "", fullname: str = ""):
-    tel_send_message(chat_id, "LEADERBOARD")
-    tel_send_message(chat_id, "<TODO function show_leaderboard()>")
+def show_leaderboard(dict_msg: dict = {}):
+    chat_id = dict_msg.get('chat_id', '')
+    user_id = dict_msg.get('user_id', '')
+
+    position = db.get_user_ranking(user_id)
+
+    if position > 0:
+        tel_send_message(chat_id, "LEADERBOARD")
+        tel_send_message(chat_id, f"Your are in the position {position}")
+        tel_send_inlinebutton(chat_id, "Select your option:",
+                              [{"text": "Try new model", "callback_data": "new_model"},
+                               {"text": "Leaderboard", "callback_data": "show_leaderboard"}])
+    else:
+        tel_send_message(chat_id, "LEADERBOARD")
+        tel_send_message(chat_id, f"You are not ranked yet. Create a new model or wait your model to finish training.")
+        tel_send_inlinebutton(chat_id, "Select your option:",
+                              [{"text": "Create new model", "callback_data": "new_model"},
+                               {"text": "Check Status", "callback_data": "show_status"},
+                               {"text": "Leaderboard", "callback_data": "show_leaderboard"}])
 
 
 def create_dict_options(list_options):
@@ -195,44 +223,18 @@ def parse_user_hps(dict_user_hp: dict = {}, user_id: str = '') -> str:
 
     return txt
 
+
 def calc_timestamp_diff_in_secs(timestamp1, timestamp2):
     from datetime import datetime
 
     # Convert the strings to datetime objects using strptime()
     # Adjust the format string if your input has a different format
+    print(timestamp1, timestamp2)
     dt1 = datetime.strptime(timestamp1, "%Y-%m-%d %H:%M:%S.%f")
     dt2 = datetime.strptime(timestamp2, "%Y-%m-%d %H:%M:%S.%f")
 
     # Calculate the time difference and convert it to seconds
-    time_difference = abs(dt2 - dt1)
-    time_difference_seconds = time_difference.total_seconds()
+    time_difference = dt2 - dt1
+    time_difference_seconds = int(time_difference.total_seconds())
 
     return time_difference_seconds
-
-
-def send_telegram_training_results(submission_id, user_id):
-
-    df = db.check_training_status(user_id)
-
-    if len(df) == 0:
-        tel_send_message(chat_id, "You didn't submit any model to training yet.")
-    else:
-        df = df.head(0)
-        if datetime.datetime.now < df.datetime_results_available:
-            send_telegram_training_results(df.id)
-        else:
-            estimated_time = calc_timestamp_diff_in_secs(str(df.datetime_submission), str(df.datetime_results_available))
-            time_remaining = calc_timestamp_diff_in_secs(str(datetime.datetime.now(), str(df.datetime_results_available))
-
-            tel_send_message(chat_id, "*TRAINING STATUS:*")
-            tel_send_message(chat_id, f"The estimated training time is {estimated_time}")
-            tel_send_message(chat_id, f"Time remaining: {time_remaining}")
-            tel_send_message(chat_id,
-                             "If you want to cancel the training process and define a new model, click on the CANCEL button.")
-            tel_send_message(chat_id, "Otherwise, you can check the training session STATUS at any time.")
-            tel_send_message(chat_id,
-                             "You'll receive a message with the metrics results and your position on the leaderboard as soon as the model's training is finished.")
-            tel_send_inlinebutton(chat_id, "Select your option:",
-                                  [{"text": "CANCEL", "callback_data": "new_model"},
-                                   {"text": "STATUS", "callback_data": "show_status"},
-                                   {"text": "LEADERBOARD", "callback_data": "show_leaderboard"}])

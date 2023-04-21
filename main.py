@@ -36,19 +36,14 @@ def index():
         db.save_dict(dict_user_hp, user_id)
 
         # TODO remove before deploying in production
-        tel_send_message(chat_id, json.dumps(dict_user_hp, indent=2))
+        # tel_send_message(chat_id, json.dumps(dict_user_hp, indent=2))
 
         # register the competitor in the database, if necessary
         if not db.list_competitors(dict_msg):
             db.insert_competitor(dict_msg)
 
         # evaluate the user's message and respond accordingly
-        if txt == "hi".strip().lower():
-            dict_user_hp = {}
-            db.save_dict(dict_user_hp, user_id)
-            welcome_message(dict_msg)
-
-        elif txt in 'new_model':
+        if txt in 'new_model':
             dict_user_hp = {}
             db.save_dict(dict_user_hp, user_id)
             select_batch_size(dict_msg)
@@ -88,6 +83,8 @@ def index():
         elif txt == "show_status":
             show_training_status(dict_msg, dict_user_hp)
         else:
+            dict_user_hp = {}
+            db.save_dict(dict_user_hp, user_id)
             welcome_message(dict_msg)
 
         # except Exception as e:

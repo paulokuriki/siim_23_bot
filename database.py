@@ -198,7 +198,7 @@ def load_dict(user_id: str):
     return loaded_dict
 
 
-def make_submission(dict_user_hp, user_id): #, random_estimated_time, random_metrics_train_set, random_metrics_val_set,random_metrics_test_set):
+def make_submission(dict_user_hp, user_id, chat_id): #, random_estimated_time, random_metrics_train_set, random_metrics_val_set,random_metrics_test_set):
 
     # searches for metrics from pretrained models
     metrics = return_metrics(dict_user_hp)
@@ -232,6 +232,7 @@ def make_submission(dict_user_hp, user_id): #, random_estimated_time, random_met
     stmt = insert(tb_submissions).values(
         datetime_submission=datetime.datetime.now(),
         user_id=user_id,
+        chat_id=chat_id,
         batch_size=dict_user_hp.get('batch_size', 0),
         epochs=dict_user_hp.get('epochs', 0),
         learning_rate=dict_user_hp.get('learning_rate', 0),
@@ -261,11 +262,33 @@ def make_submission(dict_user_hp, user_id): #, random_estimated_time, random_met
         return 0
 
 
-def check_training_status(user_id) -> DataFrame:
+def load_df_submissions(user_id) -> DataFrame:
 
     # create a select statement from the tb_submissions
-    sql = select(tb_submissions).where(tb_submissions.c.user_id == user_id).order_by(tb_submissions.c.user_id.desc())
+    sql = select(tb_submissions.c.user_id).where(tb_submissions.c.user_id == user_id).order_by(tb_submissions.c.datetime_submission.desc())
+
+    #print(sql.compile(compile_kwargs={"literal_binds": True}))
+
+    df = pd.read_sql_query(sql=sql, con=engine)
+    #print(df)
+
+    return df
+
+def get_user_ranking(user_id) -> DataFrame:
+
+    # create a select statement from the tb_submissions
+    sql = select(tb_submissions.c.user_id).\
+        where(str(datetime.datetime.now()) >= str(tb_submissions.c.datetime_results_available)).\
+        group_by(tb_submissions.c.user_id).\
+        order_by(tb_submissions.c.user_id)
+
+    #print(sql.compile(compile_kwargs={"literal_binds": True}))
 
     df = pd.read_sql_query(sql=sql, con=engine)
 
-    return df
+    if user_id in df['user_id'].values:
+        # Get the position (index) of the user_id in the DataFrame
+        position = df.index[df['user_id'] == user_id].tolist()[0] + 1
+        return position
+    else:
+        return -1
