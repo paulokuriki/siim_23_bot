@@ -261,3 +261,5 @@ def notify_finished_trainings():
             list_competitors_notified.append(row.user_id)
 
     db.mark_submissions_notified(list_competitors_notified)
+
+    return len(list_competitors_notified)
