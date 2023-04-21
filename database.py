@@ -290,7 +290,7 @@ def load_df_finished_trainings() -> DataFrame:
                  tb_submissions.c.metrics_test_set,
                  func.max(tb_submissions.c.datetime_results_available).label('max_datetime_results_available')). \
         where(tb_submissions.c.training_status == 'Training',
-              tb_submissions.c.telegram_sent == False,
+              tb_submissions.c.telegram_sent == None,
               tb_submissions.c.datetime_results_available <= datetime.datetime.now()). \
         group_by(tb_submissions.c.id,
                  tb_submissions.c.user_id,
