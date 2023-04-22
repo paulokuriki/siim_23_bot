@@ -169,3 +169,24 @@ def tel_send_document(chat_id):
     }
     r = requests.post(url, json=payload)
     return r
+
+
+def tel_get_user_photos(user_id, offset=0, limit=1):
+    url = f'https://api.telegram.org/bot{TOKEN}/getUserProfilePhotos'
+    payload = {
+        'user_id': user_id,
+        'offset': offset,
+        'limit': limit
+    }
+    r = requests.post(url, json=payload)
+    return r
+
+def tel_download_file(file_id, file_unique_id):
+    url = f'https://api.telegram.org/file/bot<TOKEN>'
+
+    payload = {
+        'file_id': file_id,
+        'file_unique_id': file_unique_id,
+    }
+    r = requests.post(url, json=payload)
+    return r
