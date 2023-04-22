@@ -92,7 +92,7 @@ async def index(request: Request):
     df['last_submission'] = df['last_submission'].apply(calculate_time_ago)
     df['rank'] = df.index + 1
     df = df[['rank', 'fullname', 'score', 'entries', 'last_submission']]
-    df.columns = ['Pos', 'Name', 'Score', 'Entries', 'Last']
+    df.columns = ['#', 'Team', 'Score', 'Entries', 'Last']
     return templates.TemplateResponse("index.html", {"request": request, "df": df}, status_code=200)
 
 
@@ -142,3 +142,15 @@ def list_competitors():
     results = json.dumps(db.list_competitors(), indent=2, default=str)
     # return the results as a JSON object
     return JSONResponse(results, status_code=200)
+
+
+# Route for listing pretrained model metrics
+@app.get("/api/leaderboard", response_class=JSONResponse)
+def get_leaderboard():
+    df = db.get_leaderboard_df()
+    df['last_submission'] = df['last_submission'].apply(calculate_time_ago)
+    df['rank'] = df.index + 1
+    df = df[['rank', 'fullname', 'score', 'entries', 'last_submission']]
+    df.columns = ['#', 'Team', 'Score', 'Entries', 'Last']
+
+    return JSONResponse(df.to_dict(orient="records"), status_code=200)
