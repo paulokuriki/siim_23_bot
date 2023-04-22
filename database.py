@@ -129,7 +129,7 @@ def return_metrics(dict_user_hp: dict = {}, user_id: str = '') -> dict:
               tb_pretrained.c.image_size == dict_user_hp.get('image_size', 0),
               )
 
-    print(sql.compile(compile_kwargs={"literal_binds": True}))
+    # print(sql.compile(compile_kwargs={"literal_binds": True}))
 
     # execute the select statement within a transaction and retrieve all results
     with engine.connect() as conn:
@@ -309,7 +309,7 @@ def load_df_finished_trainings(user_id: str = None) -> DataFrame:
                  tb_submissions.c.metrics_test_set). \
         order_by(tb_submissions.c.datetime_submission.desc())
 
-    print(sql.compile(compile_kwargs={"literal_binds": True}))
+    # print(sql.compile(compile_kwargs={"literal_binds": True}))
 
     df = pd.read_sql_query(sql=sql, con=engine)
     # print(df)
@@ -352,7 +352,7 @@ def get_leaderboard_df() -> DataFrame:
         group_by(tb_submissions.c.user_id, tb_competitors.c.fullname). \
         order_by(func.max(tb_submissions.c.metrics_test_set).desc())
 
-    print(sql.compile(compile_kwargs={"literal_binds": True}))
+    # print(sql.compile(compile_kwargs={"literal_binds": True}))
 
     df = pd.read_sql_query(sql=sql, con=engine)
 
