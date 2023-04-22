@@ -1,3 +1,4 @@
+from dateutil.relativedelta import relativedelta
 import datetime
 
 import database as db
@@ -61,7 +62,8 @@ def select_lr(dict_msg: dict = {}):
     chat_id = dict_msg.get('chat_id', '')
 
     tel_send_message(chat_id, "Great, now let's select the learning rate.")
-    tel_send_message(chat_id, "[Learn more](https://machinelearningmastery.com/understand-the-dynamics-of-learning-rate-on-deep-learning-neural-networks/)")
+    tel_send_message(chat_id,
+                     "[Learn more](https://machinelearningmastery.com/understand-the-dynamics-of-learning-rate-on-deep-learning-neural-networks/)")
     tel_send_inlinebutton(chat_id, "*Select the Learning Rate*:", create_dict_options(hp.learning_rates))
 
 
@@ -70,7 +72,8 @@ def select_batch_norm(dict_msg: dict = {}):
     chat_id = dict_msg.get('chat_id', '')
 
     tel_send_message(chat_id, f"It's time to decide if you want to use batch normalization.")
-    tel_send_message(chat_id, "[Learn more](https://machinelearningmastery.com/batch-normalization-for-training-of-deep-neural-networks/)")
+    tel_send_message(chat_id,
+                     "[Learn more](https://machinelearningmastery.com/batch-normalization-for-training-of-deep-neural-networks/)")
     tel_send_inlinebutton(chat_id, "*Select the Batch Norm*:", create_dict_options(hp.batch_norm))
 
 
@@ -79,7 +82,8 @@ def select_filters(dict_msg: dict = {}):
     chat_id = dict_msg.get('chat_id', '')
 
     tel_send_message(chat_id, "Awesome. Now, a important hyperparameter: the number of filters.")
-    tel_send_message(chat_id, "[Learn more](https://machinelearningmastery.com/convolutional-layers-for-deep-learning-neural-networks/)")
+    tel_send_message(chat_id,
+                     "[Learn more](https://machinelearningmastery.com/convolutional-layers-for-deep-learning-neural-networks/)")
     tel_send_inlinebutton(chat_id, "*Select the Number of Filters:*", create_dict_options(hp.filters))
 
 
@@ -88,7 +92,8 @@ def select_dropout(dict_msg: dict = {}):
     chat_id = dict_msg.get('chat_id', '')
 
     tel_send_message(chat_id, f"Optionally, you can opt to apply dropout to your model.")
-    tel_send_message(chat_id, "[Learn more](https://machinelearningmastery.com/dropout-for-regularizing-deep-neural-networks/)")
+    tel_send_message(chat_id,
+                     "[Learn more](https://machinelearningmastery.com/dropout-for-regularizing-deep-neural-networks/)")
     tel_send_inlinebutton(chat_id, "*Use Dropout:*", create_dict_options(hp.dropout))
 
 
@@ -207,7 +212,8 @@ def show_leaderboard(dict_msg: dict = {}):
         # Create a series called rec of the first matching row
         row = df_user.iloc[0]
 
-        tel_send_message(chat_id, f"Your are in the *{number_to_ordinal(position)}* position. Your best score is *{row.score}*")
+        tel_send_message(chat_id,
+                         f"Your are in the *{number_to_ordinal(position)}* position. Your best score is *{row.score}*")
         tel_send_message(chat_id, "*LEADERBOARD (Top 10)*")
         tel_send_message(chat_id, '```' + leaderboard + '```')
         tel_send_inlinebutton(chat_id, "Select your option:",
@@ -312,25 +318,36 @@ def calculate_time_ago(timestamp: str):
     # Calculate the difference between now and the input timestamp
     now = datetime.datetime.now()
     time_difference = now - timestamp
+    relative_difference = relativedelta(now, timestamp)
 
     # Check if the difference is less than one minute
     if time_difference < datetime.timedelta(minutes=1):
         return 'Now'
 
+    # Check if the difference is more than a year
+    elif relative_difference.years >= 1:
+        years = relative_difference.years
+        return f'{years}y'
+
+    # Check if the difference is more than a month but less than a year
+    elif relative_difference.months >= 1:
+        months = relative_difference.months + relative_difference.years * 12
+        return f'{months}mo'
+
     # Check if the difference is more than a day
     elif time_difference >= datetime.timedelta(days=1):
         days = time_difference.days
-        return f'{days} day{"s" if days != 1 else ""}'
+        return f'{days}d'
 
     # Check if the difference is more than an hour but less than a day
     elif time_difference >= datetime.timedelta(hours=1):
         hours = time_difference.seconds // 3600
-        return f'{hours} hour{"s" if hours != 1 else ""}'
+        return f'{hours}h'
 
     # If the difference is less than a day but more than a minute
     else:
         minutes = time_difference.seconds // 60
-        return f'{minutes} minute{"s" if minutes != 1 else ""}'
+        return f'{minutes}min'
 
 
 def number_to_ordinal(n):
@@ -348,6 +365,7 @@ def number_to_ordinal(n):
         suffix = {1: 'st', 2: 'nd', 3: 'rd'}.get(n % 10, 'th')
 
     return str(n) + suffix
+
 
 def read_html_file(file_path: str) -> str:
     with open(file_path, "r") as f:
