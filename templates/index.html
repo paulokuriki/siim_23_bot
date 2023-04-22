@@ -2,29 +2,30 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Add a responsive viewport -->
     <title>SIIM 2023 AI Playground</title>
     <style>
-                    body {
-                        font-family: Arial, sans-serif;
-                        max-width: 800px;
-                        margin: 0 auto;
-                        padding: 20px;
-                        line-height: 1.6;
-                    }
-                    h1, h2 {
-                        color: #2c3e50;
-                    }
-                    p {
-                        font-size: 18px;
-                    }
-                    a {
-                        color: #3498db;
-                        text-decoration: none;
-                    }
-                    a:hover {
-                        text-decoration: underline;
-                    }
-                    table {
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1, h2 {
+            color: #2c3e50;
+        }
+        p {
+            font-size: 18px;
+        }
+        a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        table {
             width: 100%;
             border-collapse: collapse;
         }
@@ -36,6 +37,17 @@
         th {
             background-color: #f2f2f2;
         }
+
+        /* Add media queries for responsiveness */
+        @media (max-width: 480px) {
+            p {
+                font-size: 16px;
+            }
+            table {
+                font-size: 14px;
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -48,7 +60,6 @@
 <p>You will need a Telegram App to participate. Click <a href="https://t.me/siim_23_bot">here</a> to open the bot or use the QR Code below.</p>
 
 <p style="text-align:center"><img alt="QR Code for Telegram" src= "{{ url_for('static', path='siim_23_bot.jpeg') }}" style="height:200px; width:200px" /></p>
-
 
 <h2 style="text-align:center">Leaderboard</h2>
     {% if df is not none %}
