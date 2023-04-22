@@ -348,3 +348,8 @@ def number_to_ordinal(n):
         suffix = {1: 'st', 2: 'nd', 3: 'rd'}.get(n % 10, 'th')
 
     return str(n) + suffix
+
+def read_html_file(file_path: str) -> str:
+    with open(file_path, "r") as f:
+        content = f.read()
+    return content

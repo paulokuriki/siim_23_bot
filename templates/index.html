@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SIIM 2023 AI Playground</title>
+    <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        max-width: 800px;
+                        margin: 0 auto;
+                        padding: 20px;
+                        line-height: 1.6;
+                    }
+                    h1, h2 {
+                        color: #2c3e50;
+                    }
+                    p {
+                        font-size: 18px;
+                    }
+                    a {
+                        color: #3498db;
+                        text-decoration: none;
+                    }
+                    a:hover {
+                        text-decoration: underline;
+                    }
+                    table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px;
+            border: 1px solid #ccc;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+<!--https://onlinehtmleditor.dev/-->
+
+<h1 style="text-align:center">Welcome to the SIIM AI Playground API!</h1>
+
+<p>In this competition, you will be challenged to create the best model to segment kidney images.</p>
+
+<p>You will need a Telegram App to participate. Click <a href="https://t.me/siim_23_bot">here</a> to open the bot or use the QR Code below.</p>
+
+<p style="text-align:center"><img alt="QR Code for Telegram" src= "{{ url_for('static', path='siim_23_bot.jpeg') }}" style="height:200px; width:200px" /></p>
+
+
+<h2 style="text-align:center">Leaderboard</h2>
+    {% if df is not none %}
+    <table>
+        <thead>
+            <tr>
+            {% for col in df.columns %}
+                <th>{{ col }}</th>
+            {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for _, row in df.iterrows() %}
+            <tr>
+                {% for col in df.columns %}
+                <td>{{ row[col] }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No leaderboard data available.</p>
+    {% endif %}
+
+<p>&nbsp;</p>
+
+<p>&nbsp;</p>
+
+<p>App Status:</p>
+
+<p><a href="https://stats.uptimerobot.com/KVqA7IDVgq" target="_blank">API updatime status </a></p>
+
+</body>
+</html>

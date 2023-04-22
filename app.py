@@ -3,6 +3,8 @@
 # Import necessary modules
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 
 from messages import *
 # Import functions from other modules
@@ -11,6 +13,9 @@ from telegram_aux import *
 # Create FastAPI app object
 app = FastAPI(docs_url=None, redoc_url=None)
 
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+templates = Jinja2Templates(directory="templates")
 
 # Route for the root directory; handles Telegram messages
 @app.post("/", response_class=HTMLResponse)
@@ -83,16 +88,12 @@ async def index(request: Request):
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
-    return HTMLResponse("""
-            <h1>Welcome to the SIIM AI Playground API!</h1>
-            <p>Open Telegram and look for the bot called @siim_23_bot to start to play.</p>
-            <p>
-                <a href="https://stats.uptimerobot.com/KVqA7IDVgq" target="_blank">
-                    Click here to view UptimeRobot stats
-                </a>
-            </p>
-        """,
-                        status_code=200)
+    df = db.get_leaderboard_df()
+    df['last_submission'] = df['last_submission'].apply(calculate_time_ago)
+    df['rank'] = df.index + 1
+    df = df[['rank', 'fullname', 'score', 'entries', 'last_submission']]
+    df.columns = ['Pos', 'Name', 'Score', 'Entries', 'Last']
+    return templates.TemplateResponse("index.html", {"request": request, "df": df}, status_code=200)
 
 
 # Route for uploading JSON records to the database
