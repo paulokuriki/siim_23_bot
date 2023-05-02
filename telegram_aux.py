@@ -56,11 +56,11 @@ def tel_send_message(chat_id, text):
 
 
 # Get the Image response from the bot by providing the image link
-def tel_send_image(chat_id):
+def tel_send_image(chat_id, img_url):
     url = f'https://api.telegram.org/bot{TOKEN}/sendPhoto'
     payload = {
         'chat_id': chat_id,
-        'photo': "https://raw.githubusercontent.com/fbsamples/original-coast-clothing/main/public/styles/male-work.jpg"
+        'photo': img_url
     }
     r = requests.post(url, json=payload)
     return r
