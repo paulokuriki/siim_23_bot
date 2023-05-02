@@ -213,7 +213,7 @@ def make_submission(dict_user_hp: dict, user_id: str, chat_id: str):
     stddev_metrics_test_set = metrics['stddev_metrics_test_set']
 
     # adds or substract up to (random) 5 times the stddev_training_secs
-    perc_max = 5  # 500% +- stddev_training_secs
+    perc_max = 1  # 100% +- stddev_training_secs
     random_estimated_time = generate_random_number(avg_training_secs, stddev_training_secs, perc_max)
     random_metrics_train_set = generate_random_number(avg_metrics_train_set, stddev_metrics_train_set, perc_max)
     random_metrics_val_set = generate_random_number(avg_metrics_val_set, stddev_metrics_val_set, perc_max)
