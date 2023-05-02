@@ -13,9 +13,9 @@ BUCKET_URL = 'https://storage.googleapis.com/siim_23_bot/'
 
 def imgs_url(experiment, epochs, learning_rate, batch_norm, filters, dropout, image_size, batch_size):
 
-    dice = f'{BUCKET_URL}{experiment}_{epochs}_{str(learning_rate)}_{str(batch_norm)}_{filters}_{dropout}_{image_size}_{batch_size}_dice.png'
-    jacloss = f'{BUCKET_URL}{experiment}_{epochs}_{str(learning_rate)}_{str(batch_norm)}_{filters}_{dropout}_{image_size}_{batch_size}_jacloss.png'
-    sample = f'{BUCKET_URL}{experiment}_{epochs}_{str(learning_rate)}_{str(batch_norm)}_{filters}_{dropout}_{image_size}_{batch_size}_sample.png'
+    dice = f'{BUCKET_URL}{experiment}_{epochs}_{learning_rate}_{str(batch_norm)}_{filters}_{dropout}_{image_size}_{batch_size}_dice.png'
+    jacloss = f'{BUCKET_URL}{experiment}_{epochs}_{learning_rate}_{str(batch_norm)}_{filters}_{dropout}_{image_size}_{batch_size}_jacloss.png'
+    sample = f'{BUCKET_URL}{experiment}_{epochs}_{learning_rate}_{str(batch_norm)}_{filters}_{dropout}_{image_size}_{batch_size}_sample.png'
 
     print(dice, jacloss, sample)
 
