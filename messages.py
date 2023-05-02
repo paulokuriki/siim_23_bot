@@ -4,7 +4,7 @@ import datetime
 import database as db
 import db_schema
 import hyperparameters as hp
-from telegram_aux import tel_send_message, tel_send_inlinebutton
+from telegram_aux import tel_send_message, tel_send_inlinebutton, tel_send_image
 
 
 def update_dict_user_hps(dict_user_hp: dict = {}, dict_msg: dict = {}) -> dict:
@@ -291,6 +291,13 @@ def notify_finished_trainings(user_id: str = None):
                                           f"*Training set:* {row.metrics_train_set}\n"
                                           f"*Validation set:* {row.metrics_val_set}\n"
                                           f"*Test set:* {row.metrics_test_set}")
+
+            dice, jacloss, sample = db_schema.imgs_url(0, row.epochs, row.learning_rate, row.batch_norm, row.filters, row.dropout, row.image_size, row.batch_size)
+
+            tel_send_image(row.chat_id, dice)
+            tel_send_image(row.chat_id, jacloss)
+            tel_send_image(row.chat_id, sample)
+
             tel_send_inlinebutton(row.chat_id, "Select your option:",
                                   [{"text": "Leaderboard", "callback_data": "show_leaderboard"},
                                    {"text": "Try new model", "callback_data": "new_model"}])

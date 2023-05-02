@@ -9,6 +9,18 @@ from sqlalchemy import create_engine, MetaData, ForeignKey
 DATABASE_URL = os.environ.get('DATABASE_URL',
                               'postgresql+psycopg2://postgres:postgres@localhost:5432/postgres').replace("postgres://",
                                                                                                          "postgresql://")
+BUCKET_URL = 'https://storage.googleapis.com/siim_23_bot/'
+
+def imgs_url(experiment, epochs, learning_rate, batch_norm, filters, dropout, image_size, batch_size):
+
+    dice = f'{BUCKET_URL}{experiment}_{epochs}_{str(learning_rate)}_{str(batch_norm)}_{filters}_{dropout}_{image_size}_{batch_size}_dice.png'
+    jacloss = f'{BUCKET_URL}{experiment}_{epochs}_{str(learning_rate)}_{str(batch_norm)}_{filters}_{dropout}_{image_size}_{batch_size}_jacloss.png'
+    sample = f'{BUCKET_URL}{experiment}_{epochs}_{str(learning_rate)}_{str(batch_norm)}_{filters}_{dropout}_{image_size}_{batch_size}_sample.png'
+
+    print(dice, jacloss, sample)
+
+    return dice, jacloss, sample
+
 
 TRAINING_STATUS_TRAINING = 'Training'
 TRAINING_STATUS_CANCELLED = 'Cancelled'
