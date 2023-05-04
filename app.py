@@ -171,4 +171,4 @@ async def get_rotated_image(image_url: str = Query(...)):
     with open(filename, "wb") as f:
         f.write(rotated_image_bytes.getvalue())
 
-    return FileResponse(filename, media_type="image/png")
+    return FileResponse(filename, media_type="image/png", filename=filename)
