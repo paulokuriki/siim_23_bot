@@ -160,7 +160,7 @@ def get_leaderboard():
     return JSONResponse(df.to_dict(orient="records"), status_code=200)
 
 
-@app.get("/rotate_image", tags=["images"])
+@app.get("/rotate_image", tags=["images"], name="rotate_image")
 async def get_rotated_image(image_url: str = Query(...)):
     image_bytes = await download_image(image_url)
     rotated_image_bytes = await rotate_image(io.BytesIO(image_bytes))
