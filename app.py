@@ -1,10 +1,11 @@
 # https://www.pragnakalp.com/create-telegram-bot-using-python-tutorial-with-examples/
 
 import io
+from urllib.parse import urlparse
 
 # Import necessary modules
 from fastapi import FastAPI, Query
-from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse, FileResponse
+from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
@@ -165,4 +166,9 @@ async def get_rotated_image(image_url: str = Query(...)):
     image_bytes = await download_image(image_url)
     rotated_image_bytes = await rotate_image(io.BytesIO(image_bytes))
 
-    return StreamingResponse(rotated_image_bytes, media_type="image/png")
+    parsed_url = urlparse(image_url)
+    filename = os.path.basename(parsed_url.path)
+    with open(filename, "wb") as f:
+        f.write(rotated_image_bytes.getvalue())
+
+    return FileResponse(filename, media_type="image/png")
