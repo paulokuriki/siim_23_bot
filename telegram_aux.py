@@ -60,7 +60,7 @@ def tel_send_image(chat_id, img_url):
     url = f'https://api.telegram.org/bot{TOKEN}/sendPhoto'
     payload = {
         'chat_id': chat_id,
-        'photo': img_url
+        'photo': str(img_url)
     }
     print(payload)
     r = requests.post(url, json=payload)
