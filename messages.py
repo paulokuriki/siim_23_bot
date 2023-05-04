@@ -290,9 +290,9 @@ def notify_finished_trainings(request: Request, user_id: str = None):
     for idx, row in df.iterrows():
         if row.user_id not in list_competitors_notified:
             tel_send_message(row.chat_id, "Your model training is *FINISHED*. Here are your results:\n"
-                                          f"*Training set:* {row.metrics_train_set}\n"
-                                          f"*Validation set:* {row.metrics_val_set}\n"
-                                          f"*Test set:* {row.metrics_test_set}")
+                                          f"*Training set:* {row.metrics_train_set:.5f}\n"
+                                          f"*Validation set:* {row.metrics_val_set:.5f}\n"
+                                          f"*Test set:* {row.metrics_test_set:.5f}")
 
             dice, jacloss, sample = db_schema.imgs_url(0, row.epochs, row.learning_rate, row.batch_norm, row.filters,
                                                        row.dropout, row.image_size, row.batch_size)
