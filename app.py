@@ -131,9 +131,9 @@ def list_pretrained_metrics():
 # route for listing pretrained model metrics
 @app.get("/notify_results")
 @app.head("/notify_results")  # https://uptimerobot.com/ calls the api through a HEAD request each 5 min
-async def notify_results(request: Request):
+def notify_results(request: Request):
     # Notify the competitors
-    results = await notify_finished_trainings(request=request)
+    results = notify_finished_trainings(request=request)
 
     # Return the number of users notified
     return JSONResponse(f'{str(results)} users notified.', status_code=200)
