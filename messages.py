@@ -188,7 +188,7 @@ def show_training_status(dict_msg: dict = {}, request: Request = None):
 
             else:
                 # The training session is over. Notify the user and change status in the database
-                notify_finished_trainings(request=request, urer_id=user_id)
+                notify_finished_trainings(request=request, user_id=user_id)
 
 
 def show_leaderboard(dict_msg: dict = {}):
