@@ -62,6 +62,7 @@ def tel_send_image(chat_id, img_url):
         'chat_id': chat_id,
         'photo': img_url
     }
+    print(payload)
     r = requests.post(url, json=payload)
     return r
 
