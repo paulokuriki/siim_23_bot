@@ -1,5 +1,7 @@
-from dateutil.relativedelta import relativedelta
 import datetime
+
+from dateutil.relativedelta import relativedelta
+from fastapi import Request
 
 import database as db
 import db_schema
@@ -146,7 +148,7 @@ def submit_model(dict_msg: dict = {}, dict_user_hp: dict = {}):
                                {"text": "Leaderboard", "callback_data": "show_leaderboard"}])
 
 
-def show_training_status(dict_msg: dict = {}):
+def show_training_status(dict_msg: dict = {}, request: Request = None):
     chat_id = dict_msg.get('chat_id', '')
     user_id = dict_msg.get('user_id', '')
 
@@ -186,7 +188,7 @@ def show_training_status(dict_msg: dict = {}):
 
             else:
                 # The training session is over. Notify the user and change status in the database
-                notify_finished_trainings(user_id)
+                notify_finished_trainings(request=request, urer_id=user_id)
 
 
 def show_leaderboard(dict_msg: dict = {}):
@@ -280,7 +282,7 @@ def calc_timestamp_diff_in_secs(timestamp1, timestamp2):
     return time_difference_seconds
 
 
-def notify_finished_trainings(user_id: str = None):
+def notify_finished_trainings(request: Request, user_id: str = None):
     df = db.load_df_finished_trainings(user_id)
 
     list_competitors_notified = []
@@ -292,7 +294,11 @@ def notify_finished_trainings(user_id: str = None):
                                           f"*Validation set:* {row.metrics_val_set}\n"
                                           f"*Test set:* {row.metrics_test_set}")
 
-            dice, jacloss, sample = db_schema.imgs_url(0, row.epochs, row.learning_rate, row.batch_norm, row.filters, row.dropout, row.image_size, row.batch_size)
+            dice, jacloss, sample = db_schema.imgs_url(0, row.epochs, row.learning_rate, row.batch_norm, row.filters,
+                                                       row.dropout, row.image_size, row.batch_size)
+
+            # rotates the sample image as they as originally they were created rotated
+            sample = request.url_for("rotate_image", image_url=sample)
 
             tel_send_image(row.chat_id, dice)
             tel_send_image(row.chat_id, jacloss)

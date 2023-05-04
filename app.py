@@ -1,11 +1,14 @@
 # https://www.pragnakalp.com/create-telegram-bot-using-python-tutorial-with-examples/
 
-# Import necessary modules
-from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse, JSONResponse
-from fastapi.templating import Jinja2Templates
-from fastapi.staticfiles import StaticFiles
+import io
 
+# Import necessary modules
+from fastapi import FastAPI, Query
+from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+
+from image_lib import download_image, rotate_image
 from messages import *
 # Import functions from other modules
 from telegram_aux import *
@@ -16,6 +19,7 @@ app = FastAPI(docs_url=None, redoc_url=None)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 templates = Jinja2Templates(directory="templates")
+
 
 # Route for the root directory; handles Telegram messages
 @app.post("/", response_class=HTMLResponse)
@@ -77,7 +81,7 @@ async def index(request: Request):
         show_leaderboard(dict_msg)
 
     elif txt == "show_status":
-        show_training_status(dict_msg)
+        show_training_status(dict_msg, request=request)
     else:
         dict_user_hp = {}
         db.save_dict(dict_user_hp, user_id)
@@ -127,9 +131,9 @@ def list_pretrained_metrics():
 # route for listing pretrained model metrics
 @app.get("/notify_results")
 @app.head("/notify_results")  # https://uptimerobot.com/ calls the api through a HEAD request each 5 min
-def notify_results():
+async def notify_results(request: Request):
     # Notify the competitors
-    results = notify_finished_trainings()
+    results = await notify_finished_trainings(request=request)
 
     # Return the number of users notified
     return JSONResponse(f'{str(results)} users notified.', status_code=200)
@@ -154,3 +158,11 @@ def get_leaderboard():
     df.columns = ['#', 'Team', 'Score', 'Entries', 'Last']
 
     return JSONResponse(df.to_dict(orient="records"), status_code=200)
+
+
+@app.get("/rotate_image", tags=["images"])
+async def get_rotated_image(image_url: str = Query(...)):
+    image_bytes = await download_image(image_url)
+    rotated_image_bytes = await rotate_image(io.BytesIO(image_bytes))
+
+    return StreamingResponse(rotated_image_bytes, media_type="image/png")
