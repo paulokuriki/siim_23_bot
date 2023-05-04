@@ -299,6 +299,8 @@ def notify_finished_trainings(request: Request, user_id: str = None):
 
             # rotates the sample image as they as originally they were created rotated
             sample = request.url_for("rotate_image").include_query_params(image_url=sample)
+            print(dice)
+            print(sample)
 
             tel_send_image(row.chat_id, dice)
             tel_send_image(row.chat_id, jacloss)
