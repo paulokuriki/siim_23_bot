@@ -5,7 +5,7 @@ from urllib.parse import urlparse
 
 # Import necessary modules
 from fastapi import FastAPI, Query
-from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
+from fastapi.responses import HTMLResponse, JSONResponse, FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
@@ -166,9 +166,11 @@ async def get_rotated_image(image_url: str = Query(...)):
     image_bytes = await download_image(image_url)
     rotated_image_bytes = await rotate_image(io.BytesIO(image_bytes))
 
-    parsed_url = urlparse(image_url)
-    filename = os.path.basename(parsed_url.path)
-    with open(filename, "wb") as f:
-        f.write(rotated_image_bytes.getvalue())
+    #parsed_url = urlparse(image_url)
+    #filename = os.path.basename(parsed_url.path)
+    #with open(filename, "wb") as f:
+    #    f.write(rotated_image_bytes.getvalue())
 
-    return FileResponse(filename, media_type="image/png", filename=filename)
+    #return FileResponse(filename, media_type="image/png", filename=filename)
+    return StreamingResponse(rotated_image_bytes, media_type="image/png")
+
