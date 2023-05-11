@@ -327,7 +327,6 @@ def parse_user_hps(dict_user_hp: dict = {}, user_id: str = '') -> str:
 def calc_timestamp_diff_in_secs(timestamp1, timestamp2):
     # Convert the strings to datetime objects using strptime()
     # Adjust the format string if your input has a different format
-    print(timestamp1, timestamp2)
     dt1 = datetime.datetime.strptime(timestamp1, "%Y-%m-%d %H:%M:%S.%f")
     dt2 = datetime.datetime.strptime(timestamp2, "%Y-%m-%d %H:%M:%S.%f")
 
@@ -362,7 +361,6 @@ def notify_finished_trainings(base_url: str = None, user_id: str = None):
 
             # rotates the sample image as they as originally they were created rotated
             sample = create_url(base_url, "rotate_image", {"image_url": sample})
-            print(sample)
 
             tel_send_image(row.chat_id, sample)
 
@@ -450,7 +448,7 @@ def read_html_file(file_path: str) -> str:
 
 def create_url(url, route, parameters=None):
     url = url.rstrip('/')
-    url = url + route
+    url = url + '/' + route
 
     if parameters:
         parameter_string = urllib.parse.urlencode(parameters)
