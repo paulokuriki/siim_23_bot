@@ -70,11 +70,10 @@ def select_epochs(dict_msg: dict = {}):
 def select_lr(dict_msg: dict = {}):
     chat_id = dict_msg.get('chat_id', '')
 
-    tel_send_message(chat_id, "*Learning Rate*")
+    tel_send_message(chat_id, "*Learning Rate 👣*")
     tel_send_message(chat_id, "This is a critical hyperparameter that controls the step size of the model's weight updates during training. A smaller learning rate leads to slower convergence but potentially more accurate results, while a larger learning rate leads to faster convergence but possibly less accurate results.\n"
                               "*- 🦿 Increasing the learning rate:* A higher learning rate allows the model to update its weights more aggressively during training. This can lead to *faster convergence* but may cause the model to _overshoot_ the optimal weights, resulting in *reduced accuracy or unstable training*. In some cases, a high learning rate can cause the model to diverge, meaning it will not learn anything useful."
-                              "*- 🦾 Decreasing the learning rate:* A lower learning rate causes the model to update its weights more cautiously during training. While this can lead to *more accurate results*, it also *increases the time* it takes for the model to converge. In some cases, a low learning rate can cause the model to get stuck in a _suboptimal solution_, never reaching the best possible performance."
-                              )
+                              "*- 🦾 Decreasing the learning rate:* A lower learning rate causes the model to update its weights more cautiously during training. While this can lead to *more accurate results*, it also *increases the time* it takes for the model to converge. In some cases, a low learning rate can cause the model to get stuck in a _suboptimal solution_, never reaching the best possible performance."                              )
     tel_send_inlinebutton(chat_id, "*Select the Learning Rate*:", create_dict_options(hp.learning_rates))
 
 
@@ -84,12 +83,12 @@ def select_batch_norm(dict_msg: dict = {}):
 
     tel_send_message(chat_id, "*Batch Normalization*")
     tel_send_message(chat_id, "This is a technique used to improve the training of deep neural networks by normalizing the inputs of each layer. It helps reduce the internal covariate shift, which means that the distribution of inputs to a layer remains more stable during training. This results in faster convergence and improved overall performance. In a U-Net architecture, you can apply batch normalization after each convolutional layer. Try training with and without Batch Normalization to see how training and performance are affected.")
-    tel_send_message(chat_id, "*Training _with_ batch normalization: 📈*\n" 
+    tel_send_message(chat_id, "*Training _with_ batch normalization: ♒*\n" 
                               "- Faster convergence: Batch normalization helps reduce the internal covariate shift by normalizing the inputs to each layer during training. This can lead to faster convergence, as the model's weights can be updated more efficiently. It allows you to use higher learning rates without the risk of divergence.\n"
                               "- Improved performance: By normalizing the inputs, batch normalization can help the model learn more complex features and generalize better to unseen data. This can result in improved performance on the validation dataset.\n"
                               "- Regularization effect: Batch normalization introduces some noise into the model during training, which can have a slight regularization effect. This may help reduce the risk of overfitting.\n"
                               "- Increased computational complexity: While batch normalization can improve the training process, it also adds computational complexity to the model. This can result in longer training times and increased memory requirements.")
-    tel_send_message(chat_id, "*Training _without_ batch normalization: 📉*\n" 
+    tel_send_message(chat_id, "*Training _without_ batch normalization: 📈*\n" 
                               "- Faster convergence: Batch normalization helps reduce the internal covariate shift by normalizing the inputs to each layer during training. This can lead to faster convergence, as the model's weights can be updated more efficiently. It allows you to use higher learning rates without the risk of divergence.\n"
                               "- Improved performance: By normalizing the inputs, batch normalization can help the model learn more complex features and generalize better to unseen data. This can result in improved performance on the validation dataset.\n"
                               "- Regularization effect: Batch normalization introduces some noise into the model during training, which can have a slight regularization effect. This may help reduce the risk of overfitting.\n"
@@ -102,7 +101,20 @@ def select_batch_norm(dict_msg: dict = {}):
 def select_filters(dict_msg: dict = {}):
     chat_id = dict_msg.get('chat_id', '')
 
-    tel_send_message(chat_id, "*Dropout*")
+    tel_send_message(chat_id, "*Filter Kernels 📔*")
+    tel_send_message(chat_id, "In a convolutional neural network, filters (or kernels) are used to extract features from the input images. The number of filters in each layer determines the complexity of features the network can learn. In a U-Net architecture, the number of filters typically doubles at each down-sampling layer and halves at each up-sampling layer. A common starting point for the first layer is 64 filters, followed by 128, 256, and so on, as you go deeper into the network. However, you can experiment with different numbers of filters based on your specific problem and computational resources.\n"
+                              "*- 📚 Increasing the number of convolutional filters: Using more filters in each layer allows the model to learn a greater variety of features from the input images. This can lead to improved performance, especially for complex tasks or high-resolution images. However, increasing the number of filters also increases the model's complexity and computational requirements, which can lead to longer training times and the risk of overfitting."
+                              "*- 📗 Decreasing the number of convolutional filters: Reducing the number of filters in each layer simplifies the model, which can reduce the risk of overfitting and decrease the computational requirements. However, this simplification may also limit the model's ability to learn complex features from the input images, potentially reducing its overall performance.")
+
+
+    tel_send_inlinebutton(chat_id, "*Select the Number of Filters:*", create_dict_options(hp.filters))
+
+
+# Sends options for selecting whether or not to use dropout to the user
+def select_dropout(dict_msg: dict = {}):
+    chat_id = dict_msg.get('chat_id', '')
+
+    tel_send_message(chat_id, "*Dropout 🙈*")
     tel_send_message(chat_id, "Dropout is a regularization technique that helps prevent overfitting in deep learning models. During training, dropout randomly sets a fraction of the neurons (units) in a layer to zero at each update, which prevents the model from becoming too reliant on any single neuron. The dropout rate is a hyperparameter that determines the fraction of neurons to drop; common values are between 0.1 and 0.5. In a U-Net architecture, you can apply dropout between the layers or after each convolutional layer, depending on your preference.")
     tel_send_message(chat_id, "*Increasing dropout rate:* If you increase the dropout rate, a larger fraction of neurons will be dropped out (set to zero) during training. This can have several effects on the model:\n" 
                               "- Regularization effect: A higher dropout rate can improve the model's ability to generalize to new data by preventing overfitting. By dropping out more neurons, the model becomes less reliant on any single neuron, which encourages it to learn more robust and diverse features from the data.\n"
@@ -113,16 +125,7 @@ def select_filters(dict_msg: dict = {}):
                               "- Faster convergence: Since fewer neurons are dropped out, the model's effective capacity during training is increased. This can lead to faster learning and shorter training times to reach the desired performance.\n"
                               "- Overfitting risk: If the dropout rate is set too low, the model might overfit the training data, learning to memorize it instead of generalizing to new data. In this case, the model's performance on the training dataset may be very good, but its performance on the validation dataset may be poor.\n")
 
-    tel_send_inlinebutton(chat_id, "*Select the Number of Filters:*", create_dict_options(hp.filters))
 
-
-# Sends options for selecting whether or not to use dropout to the user
-def select_dropout(dict_msg: dict = {}):
-    chat_id = dict_msg.get('chat_id', '')
-
-    tel_send_message(chat_id, f"Optionally, you can opt to apply dropout to your model.")
-    tel_send_message(chat_id,
-                     "[Learn more](https://machinelearningmastery.com/dropout-for-regularizing-deep-neural-networks/)")
     tel_send_inlinebutton(chat_id, "*Use Dropout:*", create_dict_options(hp.dropout))
 
 
@@ -130,9 +133,17 @@ def select_dropout(dict_msg: dict = {}):
 def select_image_size(dict_msg: dict = {}):
     chat_id = dict_msg.get('chat_id', '')
 
-    tel_send_message(chat_id, "For last, but not the least, select the image size to input in your model.")
-    tel_send_message(chat_id,
-                     "[Learn more](https://radiopaedia.org/articles/scaling)")
+    tel_send_message(chat_id, "*Image Size 🖼️*")
+    tel_send_message(chat_id, "The image input size is an important parameter that defines the dimensions (width and height) of the input images fed to the neural network. In the U-Net architecture, the input size should be divisible by the number of down-sampling operations (usually a power of 2), to ensure the model can process the images without issues. For instance, if your U-Net has four down-sampling operations, an input size of 256x256 would be appropriate. You may need to resize or crop your original MR images to match the chosen input size.")
+    tel_send_message(chat_id, "*Increasing image input size:* If you increase the image input size, you will feed larger images into the model during training. This can have several effects on the model:\n" 
+                              "- More details: Larger images contain more details and can potentially help the model learn more fine-grained features. This might improve the model's performance, especially for tasks that require high-resolution input data.\n"
+                              "- Increased computational requirements: Processing larger images requires more memory and computational resources, which can lead to longer training times and greater hardware demands. This can be a limitation, especially on systems with limited GPU memory.\n"
+                              "- Risk of overfitting: Feeding larger images into the model may increase the risk of overfitting if the dataset is small or if the model's capacity is not adjusted accordingly. The model may start learning to memorize noise or artifacts specific to the training images rather than generalizing to unseen data.\n")
+    tel_send_message(chat_id, "*Decreasing image input size:* If you decrease the image input size, you will feed smaller images into the model during training. This can have the following effects on the model:\n" 
+                              "- Less details: Smaller images contain less detail, which can limit the model's ability to learn fine-grained features. This might negatively affect the model's performance, especially for tasks that require high-resolution input data.\n"
+                              "- Reduced computational requirements: Processing smaller images requires less memory and computational resources, which can result in shorter training times and lower hardware demands. This can be beneficial, especially on systems with limited GPU memory.\n"
+                              "- Increased risk of underfitting: Feeding smaller images into the model may increase the risk of underfitting if the reduced resolution leads to the loss of important information. In this case, the model may struggle to learn the underlying patterns in the data, resulting in poor performance on both training and validation datasets.\n")
+
     tel_send_inlinebutton(chat_id, "*Select the Image Size:*", create_dict_options(hp.image_size))
 
 
@@ -144,7 +155,7 @@ def confirm_training(dict_msg: dict = {}, dict_user_hp: dict = {}):
 
     tel_send_message(chat_id, f"Nice work, {fullname}! ")
     tel_send_message(chat_id, f"Here are your selected hyperparameters:{txt_user_hps}")
-    tel_send_message(chat_id, "If you are happy with the selected hyperparameters, click on the [Train] button below.")
+    tel_send_message(chat_id, "If you are happy with your selection, click on the [Train] button below.")
     tel_send_message(chat_id, "If you want to cancel and define a new model, click on the [Cancel] button.")
     tel_send_inlinebutton(chat_id, "Select your option:",
                           [{"text": "Train", "callback_data": "submit_training"},
