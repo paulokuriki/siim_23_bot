@@ -262,10 +262,10 @@ def make_submission(dict_user_hp: dict, user_id: str, chat_id: str):
             conn.execute(stmt)
             conn.commit()
 
-            return random_estimated_time
+            return random_estimated_time, datetime_results_available
     except Exception as e:
         print(f'Error making submission\e{e}')
-        return 0
+        return 0, 0
 
 
 def load_df_submissions(user_id: str) -> DataFrame:

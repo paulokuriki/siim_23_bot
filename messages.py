@@ -8,6 +8,7 @@ import db_schema
 import hyperparameters as hp
 from telegram_aux import tel_send_message, tel_send_inlinebutton, tel_send_image
 
+from apscheduler.schedulers.background import BackgroundScheduler
 
 def update_dict_user_hps(dict_user_hp: dict = {}, dict_msg: dict = {}) -> dict:
     # Get the user_id and txt fields from the dict_msg dictionary, providing default values if the keys are not found
@@ -162,12 +163,13 @@ def confirm_training(dict_msg: dict = {}, dict_user_hp: dict = {}):
                            {"text": "Cancel", "callback_data": "new_model"}])
 
 
-def submit_model(dict_msg: dict = {}, dict_user_hp: dict = {}):
+def submit_model(dict_msg: dict = {}, dict_user_hp: dict = {}, request=Request, scheduler=BackgroundScheduler):
     chat_id = dict_msg.get('chat_id', '')
     user_id = dict_msg.get('user_id', '')
 
-    # estimated_time = db.make_submission(dict_user_hp, user_id, random_estimated_time, random_metrics_train_set, random_metrics_val_set, random_metrics_test_set)
-    estimated_time = db.make_submission(dict_user_hp, user_id, chat_id)
+    estimated_time, datetime_results_available = db.make_submission(dict_user_hp, user_id, chat_id)
+
+    scheduler.add_job(notify_finished_trainings, 'date', run_date=datetime_results_available, args=[request, user_id])
 
     if estimated_time > 0:
         tel_send_message(chat_id, "📃 Your model was submitted to the training queue.")

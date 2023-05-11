@@ -1,11 +1,11 @@
 # https://www.pragnakalp.com/create-telegram-bot-using-python-tutorial-with-examples/
 
 import io
-from urllib.parse import urlparse
 
+from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 # Import necessary modules
 from fastapi import FastAPI, Query
-from fastapi.responses import HTMLResponse, JSONResponse, FileResponse, StreamingResponse
+from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
@@ -13,6 +13,9 @@ from image_lib import download_image, rotate_image
 from messages import *
 # Import functions from other modules
 from telegram_aux import *
+
+scheduler = BackgroundScheduler(jobstores={'default': SQLAlchemyJobStore(url=db_schema.DATABASE_URL)})
+scheduler.start()
 
 # Create FastAPI app object
 app = FastAPI(docs_url=None, redoc_url=None)
@@ -71,7 +74,7 @@ async def index(request: Request):
         confirm_training(dict_msg, dict_user_hp)
 
     elif txt == "submit_training":
-        submit_model(dict_msg, dict_user_hp)
+        submit_model(dict_msg, dict_user_hp, request=request, scheduler=scheduler)
 
     elif txt == "list_competitors":
         results = json.dumps(db.list_competitors(), indent=2, default=str)
@@ -151,9 +154,9 @@ def list_competitors():
 
 # Route for listing pretrained model metrics
 @app.get("/api/leaderboard", response_class=JSONResponse)
-def get_leaderboard():
+async def get_leaderboard():
     df = db.get_leaderboard_df()
-    df['last_submission'] = df['last_submission'].apply(calculate_time_ago)
+    df['last_submission'] = await df['last_submission'].apply(calculate_time_ago)
     df['rank'] = df.index + 1
     df = df[['rank', 'fullname', 'score', 'entries', 'last_submission']]
     df.columns = ['#', 'Team', 'Score', 'Entries', 'Last']
@@ -166,11 +169,4 @@ async def get_rotated_image(image_url: str = Query(...)):
     image_bytes = await download_image(image_url)
     rotated_image_bytes = await rotate_image(io.BytesIO(image_bytes))
 
-    #parsed_url = urlparse(image_url)
-    #filename = os.path.basename(parsed_url.path)
-    #with open(filename, "wb") as f:
-    #    f.write(rotated_image_bytes.getvalue())
-
-    #return FileResponse(filename, media_type="image/png", filename=filename)
     return StreamingResponse(rotated_image_bytes, media_type="image/png")
-
