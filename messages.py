@@ -50,8 +50,6 @@ def select_batch_size(dict_msg: dict = {}):
     tel_send_message(chat_id, "This parameter determines the *number of images* used in each update of the model's weights. A *smaller batch* size may lead to *more accurate* weight updates, but it will also require more iterations and, therefore, *longer training times*.\n"
                               "*- ⬆️ Increasing batch size:* This can lead to *faster training* since more data points are processed simultaneously, but it might require more memory. A larger batch size can also result in *less accurate* gradient estimates, potentially making the training less stable.\n"
                               "*- ⬇️ Decreasing batch size:* This can lead to *slower training*, as fewer data points are processed at once, but it can also provide *more accurate* gradient estimates, making training more stable. Additionally, it requires less memory, which can be helpful for training on limited hardware.")
-    tel_send_message(chat_id,
-                     "[Learn more](https://radiopaedia.org/articles/batch-size-machine-learning)")
     tel_send_inlinebutton(chat_id, "*Select the Batch Size:*", create_dict_options(hp.batch_sizes))
 
 
@@ -72,9 +70,11 @@ def select_epochs(dict_msg: dict = {}):
 def select_lr(dict_msg: dict = {}):
     chat_id = dict_msg.get('chat_id', '')
 
-    tel_send_message(chat_id, "Great, now let's select the learning rate.")
-    tel_send_message(chat_id,
-                     "[Learn more](https://radiopaedia.org/articles/optimization-algorithms)")
+    tel_send_message(chat_id, "*Learning Rate*")
+    tel_send_message(chat_id, "This is a critical hyperparameter that controls the step size of the model's weight updates during training. A smaller learning rate leads to slower convergence but potentially more accurate results, while a larger learning rate leads to faster convergence but possibly less accurate results.\n"
+                              "*- 🦿 Increasing the learning rate:* A higher learning rate allows the model to update its weights more aggressively during training. This can lead to *faster convergence* but may cause the model to _overshoot_ the optimal weights, resulting in *reduced accuracy or unstable training*. In some cases, a high learning rate can cause the model to diverge, meaning it will not learn anything useful."
+                              "*- 🦾 Decreasing the learning rate:* A lower learning rate causes the model to update its weights more cautiously during training. While this can lead to *more accurate results*, it also *increases the time* it takes for the model to converge. In some cases, a low learning rate can cause the model to get stuck in a _suboptimal solution_, never reaching the best possible performance."
+                              )
     tel_send_inlinebutton(chat_id, "*Select the Learning Rate*:", create_dict_options(hp.learning_rates))
 
 
@@ -82,9 +82,19 @@ def select_lr(dict_msg: dict = {}):
 def select_batch_norm(dict_msg: dict = {}):
     chat_id = dict_msg.get('chat_id', '')
 
-    tel_send_message(chat_id, f"It's time to decide if you want to use batch normalization.")
-    tel_send_message(chat_id,
-                     "[Learn more](https://radiopaedia.org/articles/normalization-general)")
+    tel_send_message(chat_id, "*Batch Normalization*")
+    tel_send_message(chat_id, "This is a technique used to improve the training of deep neural networks by normalizing the inputs of each layer. It helps reduce the internal covariate shift, which means that the distribution of inputs to a layer remains more stable during training. This results in faster convergence and improved overall performance. In a U-Net architecture, you can apply batch normalization after each convolutional layer. Try training with and without Batch Normalization to see how training and performance are affected.")
+    tel_send_message(chat_id, "*Training _with_ batch normalization: 📈*\n" 
+                              "- Faster convergence: Batch normalization helps reduce the internal covariate shift by normalizing the inputs to each layer during training. This can lead to faster convergence, as the model's weights can be updated more efficiently. It allows you to use higher learning rates without the risk of divergence.\n"
+                              "- Improved performance: By normalizing the inputs, batch normalization can help the model learn more complex features and generalize better to unseen data. This can result in improved performance on the validation dataset.\n"
+                              "- Regularization effect: Batch normalization introduces some noise into the model during training, which can have a slight regularization effect. This may help reduce the risk of overfitting.\n"
+                              "- Increased computational complexity: While batch normalization can improve the training process, it also adds computational complexity to the model. This can result in longer training times and increased memory requirements.")
+    tel_send_message(chat_id, "*Training _without_ batch normalization: 📉*\n" 
+                              "- Faster convergence: Batch normalization helps reduce the internal covariate shift by normalizing the inputs to each layer during training. This can lead to faster convergence, as the model's weights can be updated more efficiently. It allows you to use higher learning rates without the risk of divergence.\n"
+                              "- Improved performance: By normalizing the inputs, batch normalization can help the model learn more complex features and generalize better to unseen data. This can result in improved performance on the validation dataset.\n"
+                              "- Regularization effect: Batch normalization introduces some noise into the model during training, which can have a slight regularization effect. This may help reduce the risk of overfitting.\n"
+                              "- Increased computational complexity: While batch normalization can improve the training process, it also adds computational complexity to the model. This can result in longer training times and increased memory requirements.")
+
     tel_send_inlinebutton(chat_id, "*Select the Batch Norm*:", create_dict_options(hp.batch_norm))
 
 
