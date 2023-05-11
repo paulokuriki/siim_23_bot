@@ -253,7 +253,7 @@ def show_leaderboard(dict_msg: dict = {}):
         row = df_user.iloc[0]
 
         tel_send_message(chat_id,
-                         f"Your are in the *{number_to_ordinal(position)}* position. Your best score is *{row.score}*")
+                         f"👏 Your are in the *{number_to_ordinal(position)}* position. Your best score is *{row.score}*")
         tel_send_message(chat_id, "🏆 *LEADERBOARD (Top 10)*")
         tel_send_message(chat_id, '```' + leaderboard + '```')
         tel_send_inlinebutton(chat_id, "Select your option:",
