@@ -102,9 +102,17 @@ def select_batch_norm(dict_msg: dict = {}):
 def select_filters(dict_msg: dict = {}):
     chat_id = dict_msg.get('chat_id', '')
 
-    tel_send_message(chat_id, "Awesome. Now, a important hyperparameter: the number of filters.")
-    tel_send_message(chat_id,
-                     "[Learn more](https://radiopaedia.org/articles/kernel-image-processing)")
+    tel_send_message(chat_id, "*Dropout*")
+    tel_send_message(chat_id, "Dropout is a regularization technique that helps prevent overfitting in deep learning models. During training, dropout randomly sets a fraction of the neurons (units) in a layer to zero at each update, which prevents the model from becoming too reliant on any single neuron. The dropout rate is a hyperparameter that determines the fraction of neurons to drop; common values are between 0.1 and 0.5. In a U-Net architecture, you can apply dropout between the layers or after each convolutional layer, depending on your preference.")
+    tel_send_message(chat_id, "*Increasing dropout rate:* If you increase the dropout rate, a larger fraction of neurons will be dropped out (set to zero) during training. This can have several effects on the model:\n" 
+                              "- Regularization effect: A higher dropout rate can improve the model's ability to generalize to new data by preventing overfitting. By dropping out more neurons, the model becomes less reliant on any single neuron, which encourages it to learn more robust and diverse features from the data.\n"
+                              "- Slower convergence: Since more neurons are dropped out, the model's effective capacity is reduced during training, which can slow down the learning process. This may result in longer training times to reach the desired performance.\n"
+                              "- Underfitting risk: If the dropout rate is set too high, the model may struggle to learn from the data, leading to underfitting. In this case, the model's performance on both the training and validation datasets may be poor.\n")
+    tel_send_message(chat_id, "*Decreasing dropout rate:* If you decrease the dropout rate, a smaller fraction of neurons will be dropped out during training. This can have the following effects on the model:\n" 
+                              "- Reduced regularization effect: A lower dropout rate reduces the regularization effect, which may increase the risk of overfitting. If the model becomes too reliant on specific neurons, it might perform well on the training data but poorly on new, unseen data.\n"
+                              "- Faster convergence: Since fewer neurons are dropped out, the model's effective capacity during training is increased. This can lead to faster learning and shorter training times to reach the desired performance.\n"
+                              "- Overfitting risk: If the dropout rate is set too low, the model might overfit the training data, learning to memorize it instead of generalizing to new data. In this case, the model's performance on the training dataset may be very good, but its performance on the validation dataset may be poor.\n")
+
     tel_send_inlinebutton(chat_id, "*Select the Number of Filters:*", create_dict_options(hp.filters))
 
 
