@@ -61,7 +61,7 @@ def select_epochs(dict_msg: dict = {}):
 
     tel_send_message(chat_id, "This is the number of times the model will iterate through the entire dataset during training. More epochs might result in better performance but at the cost of longer training time.\n"
                               "*- 🆙 Increasing the number of epochs:* When you increase the number of epochs, your model will iterate through the entire dataset more times during training. This may result in *improved performance*, as the model has more opportunities to learn from the data. However, it also *increases the training time* and may lead to _overfitting_ if the model starts memorizing the training data instead of learning to generalize.\n"
-                              "*- ⏬Decreasing the number of epochs:* Decreasing the number of epochs means the model will iterate through the dataset fewer times during training. This can lead to *shorter training* times but may result in _underfitting_, as the model might not have enough time to learn the underlying patterns in the data. A model with too few epochs might show *poor performance* on both the training and validation datasets."
+                              "*- ⏬ Decreasing the number of epochs:* Decreasing the number of epochs means the model will iterate through the dataset fewer times during training. This can lead to *shorter training* times but may result in _underfitting_, as the model might not have enough time to learn the underlying patterns in the data. A model with too few epochs might show *poor performance* on both the training and validation datasets."
                               )
     tel_send_inlinebutton(chat_id, "*Select the Number of Epochs:*", create_dict_options(hp.epochs))
 
