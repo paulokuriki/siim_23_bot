@@ -172,7 +172,7 @@ def submit_model(dict_msg: dict = {}, dict_user_hp: dict = {}, request=Request, 
     print(datetime_results_available)
     print(request)
     print(user_id)
-    scheduler.add_job(notify_finished_trainings, 'date', run_date=datetime_results_available, args=[request, user_id])
+    #scheduler.add_job(notify_finished_trainings, 'date', run_date=datetime_results_available, args=[request, user_id])
 
     if estimated_time > 0:
         tel_send_message(chat_id, "📃 Your model was submitted to the training queue.")
