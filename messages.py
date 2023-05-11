@@ -81,7 +81,7 @@ def select_lr(dict_msg: dict = {}):
 def select_batch_norm(dict_msg: dict = {}):
     chat_id = dict_msg.get('chat_id', '')
 
-    tel_send_message(chat_id, "*Batch Normalization*")
+    tel_send_message(chat_id, "*Batch Normalization ☮️*")
     tel_send_message(chat_id, "This is a technique used to improve the training of deep neural networks by normalizing the inputs of each layer. It helps reduce the internal covariate shift, which means that the distribution of inputs to a layer remains more stable during training. This results in faster convergence and improved overall performance. In a U-Net architecture, you can apply batch normalization after each convolutional layer. Try training with and without Batch Normalization to see how training and performance are affected.")
     tel_send_message(chat_id, "*Training _with_ batch normalization: ♒*\n" 
                               "- Faster convergence: Batch normalization helps reduce the internal covariate shift by normalizing the inputs to each layer during training. This can lead to faster convergence, as the model's weights can be updated more efficiently. It allows you to use higher learning rates without the risk of divergence.\n"
