@@ -135,8 +135,6 @@ def return_metrics(dict_user_hp: dict = {}, user_id: str = '') -> dict:
     with engine.connect() as conn:
         results = conn.execute(sql).fetchall()
 
-    print(results)
-
     if results == [(None, None, None, None, None, None, None, None)]:
         result = [0, 0, 0, 0, 0, 0, 0, 0]
     elif len(results) == 1:

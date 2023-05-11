@@ -1,4 +1,5 @@
 import datetime
+from datetime import timedelta
 
 from dateutil.relativedelta import relativedelta
 from fastapi import Request
@@ -169,7 +170,10 @@ def submit_model(dict_msg: dict = {}, dict_user_hp: dict = {}, request=Request, 
 
     estimated_time, datetime_results_available = db.make_submission(dict_user_hp, user_id, chat_id)
 
+    run_time = datetime.datetime.now() + timedelta(seconds=5)
+
     #scheduler.add_job(notify_finished_trainings, 'date', run_date=str(datetime_results_available), args=[request, user_id])
+    scheduler.add_job(notify_finished_trainings, 'date', run_date=run_time, args=[request, user_id])
 
     if estimated_time > 0:
         tel_send_message(chat_id, "📃 Your model was submitted to the training queue.")
