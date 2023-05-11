@@ -153,7 +153,7 @@ def confirm_training(dict_msg: dict = {}, dict_user_hp: dict = {}):
 
     txt_user_hps = parse_user_hps(dict_user_hp)
 
-    tel_send_message(chat_id, f"Nice work, {fullname}! ")
+    tel_send_message(chat_id, f"🎉🎊 Nice work, {fullname}!")
     tel_send_message(chat_id, f"Here are your selected hyperparameters:{txt_user_hps}")
     tel_send_message(chat_id, "If you are happy with your selection, click on the [Train] button below.")
     tel_send_message(chat_id, "If you want to cancel and define a new model, click on the [Cancel] button.")
@@ -170,15 +170,15 @@ def submit_model(dict_msg: dict = {}, dict_user_hp: dict = {}):
     estimated_time = db.make_submission(dict_user_hp, user_id, chat_id)
 
     if estimated_time > 0:
-        tel_send_message(chat_id, "Your model was submitted to the training queue.")
-        tel_send_message(chat_id, f"The estimated training time is {convert_seconds(estimated_time)}")
-        tel_send_message(chat_id, "You'll receive an automatic message when your training is finished.")
+        tel_send_message(chat_id, "📃 Your model was submitted to the training queue.")
+        tel_send_message(chat_id, f"🕐 The estimated training time is {convert_seconds(estimated_time)}")
+        tel_send_message(chat_id, "🛎️ You'll receive an automatic message when your training is finished.")
         tel_send_inlinebutton(chat_id, "Select your option:",
                               [{"text": "Check Status", "callback_data": "show_status"},
                                {"text": "Cancel Training", "callback_data": "new_model"},
                                {"text": "Leaderboard", "callback_data": "show_leaderboard"}])
     else:
-        tel_send_message(chat_id, "There was a problem submitting your model to the training queue. "
+        tel_send_message(chat_id, "😥 There was a problem submitting your model to the training queue. "
                                   "Try again in a few minutes. "
                                   "If the problem persists, notify the SIIM AI Playground organizers.")
         tel_send_inlinebutton(chat_id, "Select your option:",
@@ -195,7 +195,7 @@ def show_training_status(dict_msg: dict = {}, request: Request = None):
 
     if len(df) == 0:
         # If there is no submission
-        tel_send_message(chat_id, "You didn't submit any model to training yet.")
+        tel_send_message(chat_id, "🤚 You didn't submit any model to training yet.")
         tel_send_inlinebutton(chat_id, "Select your option:",
                               [{"text": "Create new model", "callback_data": "new_model"},
                                {"text": "Leaderboard", "callback_data": "show_leaderboard"}])
@@ -215,10 +215,10 @@ def show_training_status(dict_msg: dict = {}, request: Request = None):
             # checks if it is finished
             if time_remaining > 0:
                 # the training session period is not over yet. the competitor has to wait
-                tel_send_message(chat_id, "*TRAINING STATUS:*\n"
-                                          f"Estimated training time: {convert_seconds(estimated_time)}\n"
-                                          f"Time remaining: {convert_seconds(time_remaining)}")
-                tel_send_message(chat_id, "You'll receive an automatic message when your training is finished.")
+                tel_send_message(chat_id, "🏋️ *TRAINING STATUS:*\n"
+                                          f"🕐 Estimated training time: {convert_seconds(estimated_time)}\n"
+                                          f"🕙 Time remaining: {convert_seconds(time_remaining)}")
+                tel_send_message(chat_id, "🛎️ You'll receive an automatic message when your training is finished.")
                 tel_send_inlinebutton(chat_id, "Select your option:",
                                       [{"text": "Check Status", "callback_data": "show_status"},
                                        {"text": "Cancel Training", "callback_data": "new_model"},
@@ -254,7 +254,7 @@ def show_leaderboard(dict_msg: dict = {}):
 
         tel_send_message(chat_id,
                          f"Your are in the *{number_to_ordinal(position)}* position. Your best score is *{row.score}*")
-        tel_send_message(chat_id, "*LEADERBOARD (Top 10)*")
+        tel_send_message(chat_id, "🏆 *LEADERBOARD (Top 10)*")
         tel_send_message(chat_id, '```' + leaderboard + '```')
         tel_send_inlinebutton(chat_id, "Select your option:",
                               [{"text": "Try new model", "callback_data": "new_model"},
@@ -263,7 +263,7 @@ def show_leaderboard(dict_msg: dict = {}):
 
     else:
         # User not found in the dataframe.
-        tel_send_message(chat_id, "*LEADERBOARD*")
+        tel_send_message(chat_id, "🏆 *LEADERBOARD*")
         tel_send_message(chat_id, f"You have not ranked yet. Create a new model or wait your model to finish training.")
         tel_send_inlinebutton(chat_id, "Select your option:",
                               [{"text": "Check Status", "callback_data": "show_status"},
