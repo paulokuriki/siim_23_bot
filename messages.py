@@ -169,6 +169,9 @@ def submit_model(dict_msg: dict = {}, dict_user_hp: dict = {}, request=Request, 
 
     estimated_time, datetime_results_available = db.make_submission(dict_user_hp, user_id, chat_id)
 
+    print(datetime_results_available)
+    print(request)
+    print(user_id)
     scheduler.add_job(notify_finished_trainings, 'date', run_date=datetime_results_available, args=[request, user_id])
 
     if estimated_time > 0:
