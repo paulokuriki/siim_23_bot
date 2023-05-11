@@ -30,8 +30,14 @@ def welcome_message(dict_msg: dict = {}):
     chat_id = dict_msg.get('chat_id', '')
     fullname = dict_msg.get('fullname', '')
 
-    tel_send_message(chat_id, f"Hello, {fullname}! Welcome to the SIIM 2023 AI Playground")
-    tel_send_inlinebutton(chat_id, "Select your option:",
+    tel_send_message(chat_id, f"Hello, {fullname}! Welcome to the SIIM 2023 AI Playground. Let’s train your model!")
+    tel_send_message(chat_id, "Today you will be developing a deep learning-based model to segment kidneys in MR images. The model is based on the U-Net architecture. There are many hyper-parameters that need to be adjusted to create a high performing model. We will walk through these parameters, and you will be able to learn about them, and specify their values in your model. You will then see how well your model was trained and its performance on a hold-out data set. Your performance will be compared with others, and you can see how well you did on the leaderboard.")
+    tel_send_message(chat_id, "Some details:\n"
+                     "1. Deep Learning Model: In this project, you'll be using a deep learning model, which is a type of artificial intelligence algorithm that can learn complex patterns from data. In this case, the data consists of MR images of kidneys.\n"
+                     "2. Segmentation: The goal of this project is to segment kidneys in MR images, which means identifying the boundaries and regions of the kidneys in the images. You are creating an AI model that decides for every voxel (a 3D pixel) whether it is, or isn’t, a kidney voxel.\n"
+                     "3. U-Net Architecture: U-Net is a popular convolutional neural network (CNN) architecture specifically designed for image segmentation tasks. Its unique U-shaped structure allows it to capture both local and global context in images, making it suitable for medical image segmentation."
+                     )
+    tel_send_inlinebutton(chat_id, "Let’s get started!",
                           [{"text": "Train new model", "callback_data": "new_model"},
                            {"text": "Check Status", "callback_data": "show_status"}])
 
@@ -40,11 +46,10 @@ def welcome_message(dict_msg: dict = {}):
 def select_batch_size(dict_msg: dict = {}):
     chat_id = dict_msg.get('chat_id', '')
 
-    tel_send_message(chat_id, "Let's train your new model.")
-    tel_send_message(chat_id, "A Machine Learning model is trained over many images.\n"
-                              "It's also important to select some parameters that can improve your model's performance\n"
-                              "In the next steps, you will select some of these parameters.")
-    tel_send_message(chat_id, "First, you have to select a batch size.")
+    tel_send_message(chat_id, "Batch Size")
+    tel_send_message(chat_id, "This parameter determines the number of images used in each update of the model's weights. A smaller batch size may lead to more accurate weight updates, but it will also require more iterations and, therefore, longer training times.\n"
+                              "- Increasing batch size: This can lead to faster training since more data points are processed simultaneously, but it might require more memory. A larger batch size can also result in less accurate gradient estimates, potentially making the training less stable.\n"
+                              "- Decreasing batch size: This can lead to slower training, as fewer data points are processed at once, but it can also provide more accurate gradient estimates, making training more stable. Additionally, it requires less memory, which can be helpful for training on limited hardware.")
     tel_send_message(chat_id,
                      "[Learn more](https://radiopaedia.org/articles/batch-size-machine-learning)")
     tel_send_inlinebutton(chat_id, "*Select the Batch Size:*", create_dict_options(hp.batch_sizes))
