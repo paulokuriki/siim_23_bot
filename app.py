@@ -137,7 +137,7 @@ def list_pretrained_metrics():
 @app.head("/notify_results")  # https://uptimerobot.com/ calls the api through a HEAD request each 5 min
 def notify_results(request: Request):
     # Notify the competitors
-    results = notify_finished_trainings(request=request)
+    results = notify_finished_trainings(base_url=str(request.base_url))
 
     # Return the number of users notified
     return JSONResponse(f'{str(results)} users notified.', status_code=200)

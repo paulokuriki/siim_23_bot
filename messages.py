@@ -1,5 +1,6 @@
 import datetime
 from datetime import timedelta
+import urllib.parse
 
 from dateutil.relativedelta import relativedelta
 from fastapi import Request
@@ -173,7 +174,7 @@ def submit_model(dict_msg: dict = {}, dict_user_hp: dict = {}, request=Request, 
     run_time = datetime.datetime.now() + timedelta(seconds=5)
 
     #scheduler.add_job(notify_finished_trainings, 'date', run_date=str(datetime_results_available), args=[request, user_id])
-    scheduler.add_job(notify_finished_trainings, 'date', run_date=run_time, args=[request, user_id])
+    scheduler.add_job(notify_finished_trainings, 'date', run_date=run_time, args=[str(request.base_url), user_id])
 
     if estimated_time > 0:
         tel_send_message(chat_id, "📃 Your model was submitted to the training queue.")
@@ -232,7 +233,7 @@ def show_training_status(dict_msg: dict = {}, request: Request = None):
 
             else:
                 # The training session is over. Notify the user and change status in the database
-                notify_finished_trainings(request=request, user_id=user_id)
+                notify_finished_trainings(base_url=str(request.base_url), user_id=user_id)
 
 
 def show_leaderboard(dict_msg: dict = {}):
@@ -326,7 +327,10 @@ def calc_timestamp_diff_in_secs(timestamp1, timestamp2):
     return time_difference_seconds
 
 
-def notify_finished_trainings(request: Request, user_id: str = None):
+def notify_finished_trainings(base_url: str = None, user_id: str = None):
+    if base_url is None:
+        base_url = 'https://siim-23-bot.herokuapp.com/'
+
     df = db.load_df_finished_trainings(user_id)
 
     list_competitors_notified = []
@@ -342,7 +346,9 @@ def notify_finished_trainings(request: Request, user_id: str = None):
                                                        row.dropout, row.image_size, row.batch_size)
 
             # rotates the sample image as they as originally they were created rotated
-            sample = request.url_for("rotate_image").include_query_params(image_url=sample)
+            #sample = request.url_for("rotate_image").include_query_params(image_url=sample)
+            sample = create_url(base_url, "rotate_image", f"image_url={sample}")
+            print(sample)
 
             tel_send_image(row.chat_id, dice)
             tel_send_image(row.chat_id, jacloss)
@@ -428,3 +434,16 @@ def read_html_file(file_path: str) -> str:
     with open(file_path, "r") as f:
         content = f.read()
     return content
+
+
+
+
+def create_url(url, route, parameters=None):
+    url = url.rstrip('/')
+    url = url + route
+
+    if parameters:
+        parameter_string = urllib.parse.urlencode(parameters)
+        url += '?' + parameter_string
+
+    return url
