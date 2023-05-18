@@ -107,5 +107,6 @@ tb_costs = Table("training_costs", metadata_obj,
                        Column("cuda_cores", smallint)
                        )
 
+print('metadata_obj.create_all(engine)')
 # creates the tables in case they don't exist
 metadata_obj.create_all(engine)
