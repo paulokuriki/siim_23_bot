@@ -203,7 +203,7 @@ def submit_training(dict_msg: dict = {}, dict_user_hp: dict = {}, request: Reque
     chat_id = dict_msg.get('chat_id', '')
     user_id = dict_msg.get('user_id', '')
     fullname = dict_msg.get('fullname', '')
-    gpu_model = dict_msg.get('txt', '')
+    gpu_model = dict_msg.get('txt', '').split('gpu_model_')[1]
 
     estimated_time = db.estimate_train_time(dict_user_hp, user_id, chat_id)
     user_balance = 0
