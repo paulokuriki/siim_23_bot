@@ -171,7 +171,7 @@ def select_gpu(dict_msg: dict = {}, dict_user_hp: dict = {}):
     user_hps = parse_user_hps(dict_user_hp)
 
     estimated_time = db.estimate_train_time(dict_user_hp, user_id, chat_id)
-    user_balance = 0
+    user_balance = 10
 
     # create messages with costs and time for each gpu
     msg_gpu_comparison, list_dict_buttons, list_est_times, list_costs = create_msg_costs_gpu(estimated_time)
@@ -207,7 +207,7 @@ def submit_training(dict_msg: dict = {}, dict_user_hp: dict = {}, request: Reque
     gpu_model = dict_msg.get('txt', '').split('gpu_model_')[1]
 
     estimated_time = db.estimate_train_time(dict_user_hp, user_id, chat_id)
-    user_balance = 0
+    user_balance = 10
 
     # create messages with costs and time for each gpu
     msg_gpu_comparison, list_dict_buttons, list_est_times, list_costs = create_msg_costs_gpu(estimated_time, gpu_model)
