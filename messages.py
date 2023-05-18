@@ -506,7 +506,7 @@ def create_msg_costs_gpu(estimated_time: str, gpu_model: str = ''):
         est_time = estimated_time * TRAIN_TIME_MULTIPLIER / row.cuda_cores
         cost = gpu_cost_per_seconds * est_time
 
-        msg += f"*- {row.model}*: _Time:_ {convert_seconds(est_time)}  _Cost:_ {cost} {COIN}\n"
+        msg += f"*- {row.gpu_model}*: _Time:_ {convert_seconds(est_time)}  _Cost:_ {cost} {COIN}\n"
 
         list_dict_buttons.append({"text": gpu_model, "callback_data": f"gpu_model_{gpu_model}"})
         list_est_times.append(est_time)
