@@ -303,7 +303,7 @@ def load_df_costs(gpu_model: str = '') -> DataFrame:
     # create a select statement from the tb_gpus
     sql = select(tb_costs). \
         where(where). \
-        order_by(tb_costs.c.order.desc())
+        order_by(tb_costs.c.order)
 
     # print(sql.compile(compile_kwargs={"literal_binds": True}))
 
