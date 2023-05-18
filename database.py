@@ -203,19 +203,15 @@ def estimate_train_time(dict_user_hp: dict, user_id: str, chat_id: str):
     metrics = return_metrics(dict_user_hp)
 
     avg_training_secs = metrics['avg_training_secs']
-    stddev_training_secs = metrics['stddev_training_secs']
 
-    # adds or substract up to (random) 1 times the stddev_training_secs
-    perc_max = 1  # 100% +- stddev_training_secs
-    random_estimated_time = generate_random_number(avg_training_secs, stddev_training_secs, perc_max)
-
-    return random_estimated_time
+    return avg_training_secs
 
 
-
-def make_submission(dict_user_hp: dict, user_id: str, chat_id: str, estimated_time: float):
+def make_submission(dict_user_hp: dict, user_id: str, chat_id: str, gpu_model: str, cost: float):
     # searches for metrics from pretrained models
     metrics = return_metrics(dict_user_hp)
+
+    avg_training_secs = metrics['avg_training_secs']
 
     avg_metrics_train_set = metrics['avg_metrics_train_set']
     stddev_metrics_train_set = metrics['stddev_metrics_train_set']
@@ -226,13 +222,12 @@ def make_submission(dict_user_hp: dict, user_id: str, chat_id: str, estimated_ti
 
     # adds or substract up to (random) 5 times the stddev_training_secs
     perc_max = 1  # 100% +- stddev_training_secs
-    random_estimated_time = estimated_time
     random_metrics_train_set = generate_random_number(avg_metrics_train_set, stddev_metrics_train_set, perc_max)
     random_metrics_val_set = generate_random_number(avg_metrics_val_set, stddev_metrics_val_set, perc_max)
     random_metrics_test_set = generate_random_number(avg_metrics_test_set, stddev_metrics_test_set, perc_max)
 
     now = datetime.datetime.now()
-    time_delta = datetime.timedelta(seconds=random_estimated_time)
+    time_delta = datetime.timedelta(seconds=avg_training_secs)
     datetime_results_available = now + time_delta
 
     # convert string True/False to booleans
@@ -259,6 +254,8 @@ def make_submission(dict_user_hp: dict, user_id: str, chat_id: str, estimated_ti
         filters=dict_user_hp.get('filters', 0),
         dropout=dropout,
         image_size=dict_user_hp.get('image_size', 0),
+        gpu_model=gpu_model,
+        cost=cost,
         metrics_train_set=random_metrics_train_set,
         metrics_val_set=random_metrics_val_set,
         metrics_test_set=random_metrics_test_set,
@@ -416,3 +413,27 @@ def gpu_buttons() -> list:
     # print(df)
 
     return df.to_list()
+
+
+def return_balance_per_user(user_id: str = '') -> float:
+    sql = select(func.sum(tb_pretrained.c.cost).label('sum_cost')). \
+        where(tb_pretrained.c.user_id == user_id)
+    df = pd.read_sql_query(sql=sql, con=engine)
+
+    if len(df):
+        expenses = df.iloc[0][0]
+    else:
+        expenses = 0
+
+    sql = select(tb_competitors.c.initial_balance). \
+        where(tb_competitors.c.user_id == user_id)
+    df = pd.read_sql_query(sql=sql, con=engine)
+
+    if len(df):
+        initial_balance = df.iloc[0][0]
+    else:
+        initial_balance = 0
+
+    balance = initial_balance - expenses
+
+    return round(balance, 2)

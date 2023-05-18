@@ -42,7 +42,7 @@ tb_competitors = Table("competitors", metadata_obj,
                        Column("user_id", text, primary_key=True),
                        Column("username", text),
                        Column("fullname", text),
-                       Column("cash", Numeric(10, 2)),
+                       Column("initial_balance", Numeric(10, 2)),
                        )
 
 # create a SQLAlchemy Table object for the pretrained_results table with columns for various model training parameters
@@ -86,6 +86,8 @@ tb_submissions = Table("submissions", metadata_obj,
                        Column("filters", smallint),
                        Column("dropout", real),
                        Column("image_size", smallint),
+                       Column("gpu_model", text),
+                       Column("cost", Numeric(10, 2)),
                        Column("metrics_train_set", real),
                        Column("metrics_val_set", real),
                        Column("metrics_test_set", real),

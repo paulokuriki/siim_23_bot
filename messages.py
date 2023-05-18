@@ -166,20 +166,17 @@ def select_image_size(dict_msg: dict = {}):
 def select_gpu(dict_msg: dict = {}, dict_user_hp: dict = {}):
     chat_id = dict_msg.get('chat_id', '')
     user_id = dict_msg.get('user_id', '')
-    fullname = dict_msg.get('fullname', '')
 
     user_hps = parse_user_hps(dict_user_hp)
 
     estimated_time = db.estimate_train_time(dict_user_hp, user_id, chat_id)
-    user_balance = round(10, 2)
+
+    user_balance = db.return_balance_per_user(user_id)
 
     # create messages with costs and time for each gpu
     msg_gpu_comparison, list_dict_buttons, list_est_times, list_costs = create_msg_costs_gpu(estimated_time)
 
     list_dict_buttons += [{"text": "Cancel", "callback_data": "new_model"}]
-
-    # run_time = datetime_results_available
-    # scheduler.add_job(notify_finished_trainings, 'date', run_date=run_time, args=[str(request.base_url), user_id])
 
     if estimated_time > 0:
         tel_send_message(chat_id, f"Here are your selected hyperparameters:{user_hps}")
@@ -206,8 +203,10 @@ def submit_training(dict_msg: dict = {}, dict_user_hp: dict = {}, request: Reque
     fullname = dict_msg.get('fullname', '')
     gpu_model = dict_msg.get('txt', '').split('gpu_model_')[1]
 
+    # calculate avg train time
     estimated_time = db.estimate_train_time(dict_user_hp, user_id, chat_id)
-    user_balance = round(10, 2)
+
+    user_balance = db.return_balance_per_user(user_id)
 
     # create messages with costs and time for each gpu
     msg_gpu_comparison, list_dict_buttons, list_est_times, list_costs = create_msg_costs_gpu(estimated_time, gpu_model)
@@ -219,7 +218,7 @@ def submit_training(dict_msg: dict = {}, dict_user_hp: dict = {}, request: Reque
         select_gpu(dict_msg, dict_user_hp)
         return
 
-    datetime_results_available = db.make_submission(dict_user_hp, user_id, chat_id, estimated_time)
+    datetime_results_available = db.make_submission(dict_user_hp, user_id, chat_id, gpu_model, cost)
 
     run_time = datetime_results_available
     scheduler.add_job(notify_finished_trainings, 'date', run_date=run_time, args=[str(request.base_url), user_id])
