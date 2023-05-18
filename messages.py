@@ -13,6 +13,7 @@ from telegram_aux import tel_send_message, tel_send_inlinebutton, tel_send_image
 COIN = "eSIIMCash"
 TRAIN_TIME_MULTIPLIER = 4000
 
+
 def update_dict_user_hps(dict_user_hp: dict = {}, dict_msg: dict = {}) -> dict:
     # Get the user_id and txt fields from the dict_msg dictionary, providing default values if the keys are not found
     txt = dict_msg.get('txt', '')
@@ -505,12 +506,13 @@ def create_msg_costs_gpu(estimated_time: str, gpu_model: str = ''):
         gpu_cost_per_seconds = row.cost / 60 / 60
         est_time = estimated_time * TRAIN_TIME_MULTIPLIER / row.cuda_cores
         cost = gpu_cost_per_seconds * est_time
-
-        msg += f"*- {row.gpu_model}*: _Time:_ {convert_seconds(est_time)}  _Cost:_ {cost} {COIN}\n"
+        formatted_cost = "{:.2f}".format(cost)
 
         list_dict_buttons.append({"text": gpu_model, "callback_data": f"gpu_model_{gpu_model}"})
         list_est_times.append(est_time)
         list_costs.append(cost)
+
+        msg += f"*- {row.gpu_model}*: _Time:_ {convert_seconds(est_time)}  _Cost:_ {formatted_cost} {COIN}\n"
 
     return msg, list_dict_buttons, list_est_times, list_costs
 
@@ -521,5 +523,6 @@ def list_gpus_buttons() -> list:
     df_costs['button'] = 'gpu_model_' + df_costs['gpu_model']
 
     return df_costs['button'].to_list()
+
 
 GPU_NAMES = list_gpus_buttons()
