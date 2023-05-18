@@ -1,6 +1,5 @@
 import datetime
 import urllib.parse
-from datetime import timedelta
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from dateutil.relativedelta import relativedelta
@@ -11,6 +10,8 @@ import db_schema
 import hyperparameters as hp
 from telegram_aux import tel_send_message, tel_send_inlinebutton, tel_send_image
 
+COIN = "eSIIMCash"
+TRAIN_TIME_MULTIPLIER = 4000
 
 def update_dict_user_hps(dict_user_hp: dict = {}, dict_msg: dict = {}) -> dict:
     # Get the user_id and txt fields from the dict_msg dictionary, providing default values if the keys are not found
@@ -39,7 +40,8 @@ def welcome_message(dict_msg: dict = {}):
     tel_send_message(chat_id, "*Some details:*📝\n"
                               "*1. 💻 Deep Learning Model:* In this project, you'll be using a deep learning model, which is a type of artificial intelligence algorithm that can learn complex patterns from data. In this case, the data consists of MR images of kidneys.\n"
                               "*2. 🎭 Segmentation:* The goal of this project is to segment kidneys in MR images, which means identifying the boundaries and regions of the kidneys in the images. You are creating an AI model that decides for every voxel (a 3D pixel) whether it is, or isn’t, a kidney voxel.\n"
-                              "*3. 🩻 U-Net Architecture:* U-Net is a popular convolutional neural network (CNN) architecture specifically designed for image segmentation tasks. Its unique U-shaped structure allows it to capture both local and global context in images, making it suitable for medical image segmentation."
+                              "*3. 🩻 U-Net Architecture:* U-Net is a popular convolutional neural network (CNN) architecture specifically designed for image segmentation tasks. Its unique U-shaped structure allows it to capture both local and global context in images, making it suitable for medical image segmentation.\n"
+                              f"*. 🪙 {COIN}:* Training a model on a GPU costs money. You will start will receive 100 {COIN} to train your models."
                      )
     tel_send_inlinebutton(chat_id, "Let’s get started!",
                           [{"text": "Train new model", "callback_data": "new_model"},
@@ -160,36 +162,71 @@ def select_image_size(dict_msg: dict = {}):
     tel_send_inlinebutton(chat_id, "*Select the Image Size:*", create_dict_options(hp.image_size))
 
 
-def confirm_training(dict_msg: dict = {}, dict_user_hp: dict = {}):
-    chat_id = dict_msg.get('chat_id', '')
-    fullname = dict_msg.get('fullname', '')
-
-    txt_user_hps = parse_user_hps(dict_user_hp)
-
-    tel_send_message(chat_id, f"🎉🎊 Nice work, {fullname}!")
-    tel_send_message(chat_id, f"Here are your selected hyperparameters:{txt_user_hps}")
-    tel_send_message(chat_id, "If you are happy with your selection, click on the [Train] button below.")
-    tel_send_message(chat_id, "If you want to cancel and define a new model, click on the [Cancel] button.")
-    tel_send_inlinebutton(chat_id, "Select your option:",
-                          [{"text": "Train", "callback_data": "submit_training"},
-                           {"text": "Cancel", "callback_data": "new_model"}])
-
-
-def submit_model(dict_msg: dict = {}, dict_user_hp: dict = {}, request=Request, scheduler=BackgroundScheduler):
+def select_gpu(dict_msg: dict = {}, dict_user_hp: dict = {}):
     chat_id = dict_msg.get('chat_id', '')
     user_id = dict_msg.get('user_id', '')
+    fullname = dict_msg.get('fullname', '')
 
-    estimated_time, datetime_results_available = db.make_submission(dict_user_hp, user_id, chat_id)
+    user_hps = parse_user_hps(dict_user_hp)
 
-    #run_time = datetime.datetime.now() + timedelta(seconds=5)
-    run_time=datetime_results_available
+    estimated_time = db.estimate_train_time(dict_user_hp, user_id, chat_id)
+    user_balance = 0
 
-    # scheduler.add_job(notify_finished_trainings, 'date', run_date=str(datetime_results_available), args=[request, user_id])
+    # create messages with costs and time for each gpu
+    msg_gpu_comparison, list_dict_buttons, list_est_times, list_costs = create_msg_costs_gpu(estimated_time)
+
+    list_dict_buttons += [{"text": "Cancel", "callback_data": "new_model"}]
+
+    # run_time = datetime_results_available
+    # scheduler.add_job(notify_finished_trainings, 'date', run_date=run_time, args=[str(request.base_url), user_id])
+
+    if estimated_time > 0:
+        tel_send_message(chat_id, f"Here are your selected hyperparameters:{user_hps}")
+        tel_send_message(chat_id,
+                         "Now, you have to choose where you want to train your model. GPU training is faster than CPU, but it costs more.\n"
+                         f'The faster you train, the more iterations you can test, the more {COIN} you will spend.\n'
+                         f'You your current balance is: *{user_balance} {COIN}* 🪙')
+        tel_send_message(chat_id, msg_gpu_comparison)
+        tel_send_inlinebutton(chat_id, "Select your training device:", list_dict_buttons)
+
+    else:
+        tel_send_message(chat_id, "😥 There was a problem submitting your model to the training queue. "
+                                  "Try again in a few minutes. "
+                                  "If the problem persists, notify the SIIM AI Playground organizers.")
+        tel_send_inlinebutton(chat_id, "Select your option:",
+                              [{"text": "Try new model", "callback_data": "new_model"},
+                               {"text": "Leaderboard", "callback_data": "show_leaderboard"}])
+
+
+def submit_training(dict_msg: dict = {}, dict_user_hp: dict = {}, request: Request = None,
+                    scheduler: BackgroundScheduler = None):
+    chat_id = dict_msg.get('chat_id', '')
+    user_id = dict_msg.get('user_id', '')
+    fullname = dict_msg.get('fullname', '')
+    gpu_model = dict_msg.get('txt', '')
+
+    estimated_time = db.estimate_train_time(dict_user_hp, user_id, chat_id)
+    user_balance = 0
+
+    # create messages with costs and time for each gpu
+    msg_gpu_comparison, list_dict_buttons, list_est_times, list_costs = create_msg_costs_gpu(estimated_time, gpu_model)
+    estimated_time = list_est_times[0]
+    cost = list_costs[0]
+
+    if user_balance < cost:
+        tel_send_message(chat_id, f"💔 Sorry. Your balance is insufficient.")
+        select_gpu(dict_msg, dict_user_hp)
+        return
+
+    datetime_results_available = db.make_submission(dict_user_hp, user_id, chat_id, estimated_time)
+
+    run_time = datetime_results_available
     scheduler.add_job(notify_finished_trainings, 'date', run_date=run_time, args=[str(request.base_url), user_id])
 
     if estimated_time > 0:
-        tel_send_message(chat_id, "📃 Your model was submitted to the training queue.")
-        tel_send_message(chat_id, f"🕐 The estimated training time is {convert_seconds(estimated_time)}")
+        tel_send_message(chat_id, f"🎉🎊 Nice work, {fullname}!")
+        tel_send_message(chat_id, "📃 Your model was submitted to the training queue.\n" \
+                                  f"🕐 The estimated training time is {convert_seconds(estimated_time)}")
         tel_send_message(chat_id, "🛎️ You'll receive an automatic message when your training is finished.")
         tel_send_inlinebutton(chat_id, "Select your option:",
                               [{"text": "Check Status", "callback_data": "show_status"},
@@ -259,8 +296,8 @@ def show_leaderboard(dict_msg: dict = {}):
     # Look for the user_id in the dataframe
     df_user = df[df['user_id'] == user_id]
 
-    df = df[['rank', 'fullname', 'score', 'entries', 'last_submission']]
-    df.columns = ['Pos', 'Name', 'Score', 'Entries', 'Last']
+    df = df[['rank', 'fullname', 'score', 'entries', 'last_submission', 'cash']]
+    df.columns = ['Pos', 'Name', 'Score', 'Entries', 'Last', 'Rem. $']
     leaderboard = df.to_string(index=False)
 
     if not df_user.empty:
@@ -354,7 +391,6 @@ def notify_finished_trainings(base_url: str = None, user_id: str = None):
 
             dice, jacloss, sample = db_schema.imgs_url(0, row.epochs, row.learning_rate, row.batch_norm, row.filters,
                                                        row.dropout, row.image_size, row.batch_size)
-
 
             tel_send_image(row.chat_id, dice)
             tel_send_image(row.chat_id, jacloss)
@@ -455,3 +491,35 @@ def create_url(url, route, parameters=None):
         url += '?' + parameter_string
 
     return url
+
+
+def create_msg_costs_gpu(estimated_time: str, gpu_model: str = ''):
+    df_costs = db.load_df_costs(gpu_model)
+
+    list_dict_buttons = []
+    list_est_times = []
+    list_costs = []
+    msg = ''
+    for idx, row in df_costs.iterrows():
+        gpu_model = row.gpu_model
+        gpu_cost_per_seconds = row.cost / 60 / 60
+        est_time = estimated_time * TRAIN_TIME_MULTIPLIER / row.cuda_cores
+        cost = gpu_cost_per_seconds * est_time
+
+        msg += f"*- {row.model}*: _Time:_ {convert_seconds(est_time)}  _Cost:_ {cost} {COIN}\n"
+
+        list_dict_buttons.append({"text": gpu_model, "callback_data": f"gpu_model_{gpu_model}"})
+        list_est_times.append(est_time)
+        list_costs.append(cost)
+
+    return msg, list_dict_buttons, list_est_times, list_costs
+
+
+def list_gpus_buttons() -> list:
+    df_costs = db.load_df_costs()
+
+    df_costs['button'] = 'gpu_model_' + df_costs['gpu_model']
+
+    return df_costs['button'].to_list()
+
+GPU_NAMES = list_gpus_buttons()

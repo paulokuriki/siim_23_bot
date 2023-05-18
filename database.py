@@ -10,7 +10,7 @@ from sqlalchemy import func
 
 import db_schema
 # import tables from the db_schema module
-from db_schema import tb_pretrained, tb_competitors, tb_submissions, DATABASE_URL
+from db_schema import tb_pretrained, tb_competitors, tb_submissions, tb_costs, DATABASE_URL, INITIAL_CASH
 
 # create a SQLAlchemy engine object using the DATABASE_URL
 engine = create_engine(DATABASE_URL)
@@ -20,9 +20,10 @@ def insert_competitor(dict_msg: dict = {}):
     user_id = dict_msg.get('user_id', '')
     username = dict_msg.get('username', '')
     fullname = dict_msg.get('fullname', '')
+    cash = dict_msg.get('cash', INITIAL_CASH)
 
     # create an insert statement for the tb_competitors table with the given username and fullname
-    stmt = insert(tb_competitors).values(user_id=user_id, username=username, fullname=fullname)
+    stmt = insert(tb_competitors).values(user_id=user_id, username=username, fullname=fullname, cash=cash)
 
     try:
         # execute the insert statement within a transaction and commit it
@@ -197,12 +198,25 @@ def load_dict(user_id: str):
     return loaded_dict
 
 
-def make_submission(dict_user_hp: dict, user_id: str, chat_id: str):
+def estimate_train_time(dict_user_hp: dict, user_id: str, chat_id: str):
     # searches for metrics from pretrained models
     metrics = return_metrics(dict_user_hp)
 
     avg_training_secs = metrics['avg_training_secs']
     stddev_training_secs = metrics['stddev_training_secs']
+
+    # adds or substract up to (random) 1 times the stddev_training_secs
+    perc_max = 1  # 100% +- stddev_training_secs
+    random_estimated_time = generate_random_number(avg_training_secs, stddev_training_secs, perc_max)
+
+    return random_estimated_time
+
+
+
+def make_submission(dict_user_hp: dict, user_id: str, chat_id: str, estimated_time: float):
+    # searches for metrics from pretrained models
+    metrics = return_metrics(dict_user_hp)
+
     avg_metrics_train_set = metrics['avg_metrics_train_set']
     stddev_metrics_train_set = metrics['stddev_metrics_train_set']
     avg_metrics_val_set = metrics['avg_metrics_val_set']
@@ -212,7 +226,7 @@ def make_submission(dict_user_hp: dict, user_id: str, chat_id: str):
 
     # adds or substract up to (random) 5 times the stddev_training_secs
     perc_max = 1  # 100% +- stddev_training_secs
-    random_estimated_time = generate_random_number(avg_training_secs, stddev_training_secs, perc_max)
+    random_estimated_time = estimated_time
     random_metrics_train_set = generate_random_number(avg_metrics_train_set, stddev_metrics_train_set, perc_max)
     random_metrics_val_set = generate_random_number(avg_metrics_val_set, stddev_metrics_val_set, perc_max)
     random_metrics_test_set = generate_random_number(avg_metrics_test_set, stddev_metrics_test_set, perc_max)
@@ -260,10 +274,10 @@ def make_submission(dict_user_hp: dict, user_id: str, chat_id: str):
             conn.execute(stmt)
             conn.commit()
 
-            return random_estimated_time, datetime_results_available
+            return datetime_results_available
     except Exception as e:
         print(f'Error making submission\e{e}')
-        return 0, 0
+        return 0
 
 
 def load_df_submissions(user_id: str) -> DataFrame:
@@ -271,6 +285,25 @@ def load_df_submissions(user_id: str) -> DataFrame:
     sql = select(tb_submissions). \
         where(tb_submissions.c.user_id == user_id). \
         order_by(tb_submissions.c.datetime_submission.desc())
+
+    # print(sql.compile(compile_kwargs={"literal_binds": True}))
+
+    df = pd.read_sql_query(sql=sql, con=engine)
+    # print(df)
+
+    return df
+
+
+def load_df_costs(gpu_model: str = '') -> DataFrame:
+    if gpu_model:
+        where = tb_costs.c.gpu_model == gpu_model
+    else:
+        where = True
+
+    # create a select statement from the tb_gpus
+    sql = select(tb_costs). \
+        where(where). \
+        order_by(tb_costs.c.order.desc())
 
     # print(sql.compile(compile_kwargs={"literal_binds": True}))
 
@@ -355,13 +388,14 @@ def get_leaderboard_df() -> DataFrame:
     # create a select statement from the tb_submissions
     sql = select(tb_submissions.c.user_id,
                  tb_competitors.c.fullname,
+                 tb_competitors.c.cash,
                  func.max(tb_submissions.c.metrics_test_set).label('score'),
                  func.count(tb_submissions.c.user_id).label('entries'),
                  func.max(tb_submissions.c.datetime_submission).label('last_submission')
-                 ).\
-        join(tb_competitors).\
+                 ). \
+        join(tb_competitors). \
         where(tb_submissions.c.training_status == db_schema.TRAINING_STATUS_NOTIFIED). \
-        group_by(tb_submissions.c.user_id, tb_competitors.c.fullname). \
+        group_by(tb_submissions.c.user_id, tb_competitors.c.fullname, tb_competitors.c.cash). \
         order_by(func.max(tb_submissions.c.metrics_test_set).desc())
 
     # print(sql.compile(compile_kwargs={"literal_binds": True}))
@@ -369,3 +403,16 @@ def get_leaderboard_df() -> DataFrame:
     df = pd.read_sql_query(sql=sql, con=engine)
 
     return df
+
+
+def gpu_buttons() -> list:
+    # create a select statement from the tb_costs
+    sql = select(tb_costs). \
+        order_by(tb_costs.c.order.desc())
+
+    # print(sql.compile(compile_kwargs={"literal_binds": True}))
+
+    df = pd.read_sql_query(sql=sql, con=engine)
+    # print(df)
+
+    return df.to_list()

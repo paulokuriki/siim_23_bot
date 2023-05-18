@@ -3,14 +3,18 @@
 import io
 
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
+from apscheduler.schedulers.background import BackgroundScheduler
 # Import necessary modules
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query, Request
 from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from image_lib import download_image, rotate_image
-from messages import *
+import messages as msgs
+import database as db
+import db_schema
+import hyperparameters as hp
 # Import functions from other modules
 from telegram_aux import *
 
@@ -29,17 +33,17 @@ templates = Jinja2Templates(directory="templates")
 @app.post("/", response_class=HTMLResponse)
 async def index(request: Request):
     # Get the message from the POST request
-    msg = await request.json()
+    req = await request.json()
 
     # Parse the message to a structured dictionary
-    dict_msg = tel_parse_message(msg)
+    dict_msg = tel_parse_message(req)
 
     user_id = dict_msg.get('user_id', '')
     txt = dict_msg.get('txt', '')
 
     # load dict from disk, update it and save it back to disk
     dict_user_hp = db.load_dict(user_id)
-    dict_user_hp = update_dict_user_hps(dict_user_hp, dict_msg)
+    dict_user_hp = msgs.update_dict_user_hps(dict_user_hp, dict_msg)
     db.save_dict(dict_user_hp, user_id)
 
     # register the competitor in the database, if necessary
@@ -47,49 +51,52 @@ async def index(request: Request):
         db.insert_competitor(dict_msg)
 
     # evaluate the user's message and respond accordingly
-    if txt in 'new_model':
-        dict_user_hp = {}
-        db.save_dict(dict_user_hp, user_id)
-        select_batch_size(dict_msg)
+    match txt:
+        case 'new_model':
+            dict_user_hp = {}
+            db.save_dict(dict_user_hp, user_id)
+            msgs.select_batch_size(dict_msg)
 
-    elif txt in hp.batch_sizes:
-        select_epochs(dict_msg)
+        case hp.batch_sizes:
+            msgs.select_epochs(dict_msg)
 
-    elif txt in hp.epochs:
-        select_lr(dict_msg)
+        case hp.epochs:
+            msgs.select_lr(dict_msg)
 
-    elif txt in hp.learning_rates:
-        select_batch_norm(dict_msg)
+        case hp.learning_rates:
+            msgs.select_batch_norm(dict_msg)
 
-    elif txt in hp.batch_norm:
-        select_filters(dict_msg)
+        case hp.batch_norm:
+            msgs.select_filters(dict_msg)
 
-    elif txt in hp.filters:
-        select_dropout(dict_msg)
+        case hp.filters:
+            msgs.select_dropout(dict_msg)
 
-    elif txt in hp.dropout:
-        select_image_size(dict_msg)
+        case hp.dropout:
+            msgs.select_image_size(dict_msg)
 
-    elif txt in hp.image_size:
-        confirm_training(dict_msg, dict_user_hp)
+        case hp.image_size:
+            msgs.select_gpu(dict_msg, dict_user_hp)
 
-    elif txt == "submit_training":
-        submit_model(dict_msg, dict_user_hp, request=request, scheduler=scheduler)
+        case msgs.GPU_NAMES:
+            msgs.submit_training(dict_msg, dict_user_hp, request=request, scheduler=scheduler)
 
-    elif txt == "list_competitors":
-        results = json.dumps(db.list_competitors(), indent=2, default=str)
-        msg = 'Users:\n' + results
-        tel_send_message(dict_msg, msg)
+        case "list_competitors":
+            results = json.dumps(db.list_competitors(), indent=2, default=str)
+            msg = 'Users:\n' + results
+            tel_send_message(dict_msg, msg)
 
-    elif txt == "show_leaderboard":
-        show_leaderboard(dict_msg)
+        case "show_leaderboard":
+            msgs.show_leaderboard(dict_msg)
 
-    elif txt == "show_status":
-        show_training_status(dict_msg, request=request)
-    else:
-        dict_user_hp = {}
-        db.save_dict(dict_user_hp, user_id)
-        welcome_message(dict_msg)
+        case "show_status":
+            msgs.show_training_status(dict_msg, request=request)
+
+        case _:
+            # clear dict user hyperparameters
+            dict_user_hp = {}
+            db.save_dict(dict_user_hp, user_id)
+            msgs.welcome_message(dict_msg)
 
     return JSONResponse('ok', status_code=200)
 
@@ -97,7 +104,7 @@ async def index(request: Request):
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
     df = db.get_leaderboard_df()
-    df['last_submission'] = df['last_submission'].apply(calculate_time_ago)
+    df['last_submission'] = df['last_submission'].apply(msgs.calculate_time_ago)
     df['rank'] = df.index + 1
     df = df[['rank', 'fullname', 'score', 'entries', 'last_submission']]
     df.columns = ['#', 'Team', 'Score', 'Entries', 'Last']
@@ -137,7 +144,7 @@ def list_pretrained_metrics():
 @app.head("/notify_results")  # https://uptimerobot.com/ calls the api through a HEAD request each 5 min
 def notify_results(request: Request):
     # Notify the competitors
-    results = notify_finished_trainings(base_url=str(request.base_url))
+    results = msgs.notify_finished_trainings(base_url=str(request.base_url))
 
     # Return the number of users notified
     return JSONResponse(f'{str(results)} users notified.', status_code=200)
@@ -156,7 +163,7 @@ def list_competitors():
 @app.get("/api/leaderboard", response_class=JSONResponse)
 async def get_leaderboard():
     df = db.get_leaderboard_df()
-    df['last_submission'] = await df['last_submission'].apply(calculate_time_ago)
+    df['last_submission'] = await df['last_submission'].apply(msgs.calculate_time_ago)
     df['rank'] = df.index + 1
     df = df[['rank', 'fullname', 'score', 'entries', 'last_submission']]
     df.columns = ['#', 'Team', 'Score', 'Entries', 'Last']
