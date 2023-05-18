@@ -51,52 +51,51 @@ async def index(request: Request):
         db.insert_competitor(dict_msg)
 
     # evaluate the user's message and respond accordingly
-    match txt:
-        case 'new_model':
-            dict_user_hp = {}
-            db.save_dict(dict_user_hp, user_id)
-            msgs.select_batch_size(dict_msg)
+    if txt == 'new_model':
+        dict_user_hp = {}
+        db.save_dict(dict_user_hp, user_id)
+        msgs.select_batch_size(dict_msg)
 
-        case hp.batch_sizes:
-            msgs.select_epochs(dict_msg)
+    elif txt in hp.batch_sizes:
+        msgs.select_epochs(dict_msg)
 
-        case hp.epochs:
-            msgs.select_lr(dict_msg)
+    elif txt in hp.epochs:
+        msgs.select_lr(dict_msg)
 
-        case hp.learning_rates:
-            msgs.select_batch_norm(dict_msg)
+    elif txt in hp.learning_rates:
+        msgs.select_batch_norm(dict_msg)
 
-        case hp.batch_norm:
-            msgs.select_filters(dict_msg)
+    elif txt in hp.batch_norm:
+        msgs.select_filters(dict_msg)
 
-        case hp.filters:
-            msgs.select_dropout(dict_msg)
+    elif txt in hp.filters:
+        msgs.select_dropout(dict_msg)
 
-        case hp.dropout:
-            msgs.select_image_size(dict_msg)
+    elif txt in hp.dropout:
+        msgs.select_image_size(dict_msg)
 
-        case hp.image_size:
-            msgs.select_gpu(dict_msg, dict_user_hp)
+    elif txt in hp.image_size:
+        msgs.select_gpu(dict_msg, dict_user_hp)
 
-        case msgs.GPU_NAMES:
-            msgs.submit_training(dict_msg, dict_user_hp, request=request, scheduler=scheduler)
+    elif txt in msgs.GPU_NAMES:
+        msgs.submit_training(dict_msg, dict_user_hp, request=request, scheduler=scheduler)
 
-        case "list_competitors":
-            results = json.dumps(db.list_competitors(), indent=2, default=str)
-            msg = 'Users:\n' + results
-            tel_send_message(dict_msg, msg)
+    elif txt == "list_competitors":
+        results = json.dumps(db.list_competitors(), indent=2, default=str)
+        msg = 'Users:\n' + results
+        tel_send_message(dict_msg, msg)
 
-        case "show_leaderboard":
-            msgs.show_leaderboard(dict_msg)
+    elif txt == "show_leaderboard":
+        msgs.show_leaderboard(dict_msg)
 
-        case "show_status":
-            msgs.show_training_status(dict_msg, request=request)
+    elif txt == "show_status":
+        msgs.show_training_status(dict_msg, request=request)
 
-        case _:
-            # clear dict user hyperparameters
-            dict_user_hp = {}
-            db.save_dict(dict_user_hp, user_id)
-            msgs.welcome_message(dict_msg)
+    else:
+        # clear dict user hyperparameters
+        dict_user_hp = {}
+        db.save_dict(dict_user_hp, user_id)
+        msgs.welcome_message(dict_msg)
 
     return JSONResponse('ok', status_code=200)
 
