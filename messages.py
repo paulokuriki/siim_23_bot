@@ -10,7 +10,7 @@ import db_schema
 import hyperparameters as hp
 from telegram_aux import tel_send_message, tel_send_inlinebutton, tel_send_image
 
-COIN = "SIIMCash"
+COIN = "Gems"
 TRAIN_TIME_MULTIPLIER = 4000
 
 
@@ -177,7 +177,7 @@ def select_gpu(dict_msg: dict = {}, dict_user_hp: dict = {}):
     # create messages with costs and time for each gpu
     msg_gpu_comparison, list_dict_buttons, list_est_times, list_costs = create_msg_costs_gpu(estimated_time)
 
-    list_dict_buttons += [{"text": "Cancel", "callback_data": "new_model"}]
+    list_dict_buttons += [{"text": "Cancel", "callback_data": "start"}]
 
     if estimated_time > 0:
         tel_send_message(chat_id, f"Here are your selected hyperparameters:{user_hps}")
@@ -193,7 +193,7 @@ def select_gpu(dict_msg: dict = {}, dict_user_hp: dict = {}):
                                   "Try again in a few minutes. "
                                   "If the problem persists, notify the SIIM AI Playground organizers.")
         tel_send_inlinebutton(chat_id, "Select your option:",
-                              [{"text": "Try new model", "callback_data": "new_model"},
+                              [{"text": "Try new model", "callback_data": "start"},
                                {"text": "Leaderboard", "callback_data": "show_leaderboard"}])
 
 
@@ -231,14 +231,14 @@ def submit_training(dict_msg: dict = {}, dict_user_hp: dict = {}, request: Reque
         tel_send_message(chat_id, "🛎️ You'll receive an automatic message when your training is finished.")
         tel_send_inlinebutton(chat_id, "Select your option:",
                               [{"text": "Check Status", "callback_data": "show_status"},
-                               {"text": "Cancel Training", "callback_data": "new_model"},
+                               {"text": "Cancel Training", "callback_data": "start"},
                                {"text": "Leaderboard", "callback_data": "show_leaderboard"}])
     else:
         tel_send_message(chat_id, "😥 There was a problem submitting your model to the training queue. "
                                   "Try again in a few minutes. "
                                   "If the problem persists, notify the SIIM AI Playground organizers.")
         tel_send_inlinebutton(chat_id, "Select your option:",
-                              [{"text": "Try new model", "callback_data": "new_model"},
+                              [{"text": "Try new model", "callback_data": "start"},
                                {"text": "Leaderboard", "callback_data": "show_leaderboard"}])
 
 
@@ -253,7 +253,7 @@ def show_training_status(dict_msg: dict = {}, request: Request = None):
         # If there is no submission
         tel_send_message(chat_id, "🤚 You didn't submit any model to training yet.")
         tel_send_inlinebutton(chat_id, "Select your option:",
-                              [{"text": "Create new model", "callback_data": "new_model"},
+                              [{"text": "Create new model", "callback_data": "start"},
                                {"text": "Leaderboard", "callback_data": "show_leaderboard"}])
     else:
         # Submission were found
@@ -277,7 +277,7 @@ def show_training_status(dict_msg: dict = {}, request: Request = None):
                 tel_send_message(chat_id, "🛎️ You'll receive an automatic message when your training is finished.")
                 tel_send_inlinebutton(chat_id, "Select your option:",
                                       [{"text": "Check Status", "callback_data": "show_status"},
-                                       {"text": "Cancel Training", "callback_data": "new_model"},
+                                       {"text": "Cancel Training", "callback_data": "start"},
                                        {"text": "Leaderboard", "callback_data": "show_leaderboard"}])
 
             else:
@@ -298,7 +298,7 @@ def show_leaderboard(dict_msg: dict = {}):
     df_user = df[df['user_id'] == user_id]
 
     df = df[['rank', 'fullname', 'score', 'entries', 'last_submission', 'sum_costs']]
-    df.columns = ['Pos', 'Name', 'Score', 'Entries', 'Last', 'Expenses']
+    df.columns = ['🏆', 'Team', '🎯', 'Entries', '🕰️ Last', '💰 Spent']
     leaderboard = df.to_string(index=False)
 
     if not df_user.empty:
@@ -313,7 +313,7 @@ def show_leaderboard(dict_msg: dict = {}):
         tel_send_message(chat_id, "🏆 *LEADERBOARD (Top 10)*")
         tel_send_message(chat_id, '```' + leaderboard + '```')
         tel_send_inlinebutton(chat_id, "Select your option:",
-                              [{"text": "Try new model", "callback_data": "new_model"},
+                              [{"text": "Try new model", "callback_data": "start"},
                                {"text": "Leaderboard", "callback_data": "show_leaderboard"}])
 
 
@@ -323,7 +323,7 @@ def show_leaderboard(dict_msg: dict = {}):
         tel_send_message(chat_id, f"You have not ranked yet. Create a new model or wait your model to finish training.")
         tel_send_inlinebutton(chat_id, "Select your option:",
                               [{"text": "Check Status", "callback_data": "show_status"},
-                               {"text": "Create new model", "callback_data": "new_model"}])
+                               {"text": "Create new model", "callback_data": "start"}])
 
     return
 
@@ -407,7 +407,7 @@ def notify_finished_trainings(base_url: str = None, user_id: str = None):
 
             tel_send_inlinebutton(row.chat_id, "Select your option:",
                                   [{"text": "Leaderboard", "callback_data": "show_leaderboard"},
-                                   {"text": "Try new model", "callback_data": "new_model"}])
+                                   {"text": "Try new model", "callback_data": "start"}])
 
             list_competitors_notified.append(row.user_id)
 
