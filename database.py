@@ -387,7 +387,12 @@ def mark_submissions_notified(list_competitors_notified: list):
         return False
 
 
-def get_leaderboard_df() -> DataFrame:
+def get_leaderboard_df(user_id: str = None) -> DataFrame:
+    if user_id:
+        where_user = tb_submissions.c.user_id == user_id
+    else:
+        where_user = True
+
     # create a select statement from the tb_submissions
     sql = select(tb_submissions.c.user_id,
                  tb_competitors.c.fullname,
@@ -396,10 +401,11 @@ def get_leaderboard_df() -> DataFrame:
                  func.count(tb_submissions.c.user_id).label('entries'),
                  func.max(tb_submissions.c.datetime_submission).label('last_submission'),
                  func.sum(tb_submissions.c.cost).label('sum_costs'),
-                 (tb_competitors.c.initial_balance - func.sum(tb_submissions.c.cost).label('sum_costs')).label('balance')
+                 (tb_competitors.c.initial_balance - func.sum(tb_submissions.c.cost)).label('balance')
                  ). \
         join(tb_competitors). \
-        where(tb_submissions.c.training_status == db_schema.TRAINING_STATUS_NOTIFIED). \
+        where(tb_submissions.c.training_status == db_schema.TRAINING_STATUS_NOTIFIED,
+              where_user). \
         group_by(tb_submissions.c.user_id, tb_competitors.c.fullname, tb_competitors.c.initial_balance). \
         order_by(func.max(tb_submissions.c.metrics_test_set).desc())
 

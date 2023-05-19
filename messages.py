@@ -297,8 +297,8 @@ def show_leaderboard(dict_msg: dict = {}):
     # Look for the user_id in the dataframe
     df_user = df[df['user_id'] == user_id]
 
-    df = df[['rank', 'fullname', 'score', 'entries', 'last_submission', 'balance']]
-    df.columns = ['Pos', 'Name', 'Score', 'Entries', 'Last', 'Balance']
+    df = df[['rank', 'fullname', 'score', 'entries', 'last_submission', 'sum_costs']]
+    df.columns = ['Pos', 'Name', 'Score', 'Entries', 'Last', 'Expenses']
     leaderboard = df.to_string(index=False)
 
     if not df_user.empty:
