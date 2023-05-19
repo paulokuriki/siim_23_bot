@@ -429,6 +429,8 @@ def return_balance_per_user(user_id: str = '') -> float:
 
     if len(df):
         expenses = df.iloc[0][0]
+        if expenses is None:
+            expenses = 0
     else:
         expenses = 0
 
