@@ -398,7 +398,7 @@ def notify_finished_trainings(base_url: str = None, user_id: str = None):
                                           f"*Validation set:* {row.metrics_val_set:.5f}\n"
                                           f"*Test set:* {row.metrics_test_set:.5f}\n"
                                           f"*Training Device:* {row.gpu_model}\n"
-                                          f"*Training Cost:* {row.cost:.2f}\n"
+                                          f"*Training Cost:* {row.cost:.2f} {COIN}\n"
                                           f'*Balance:* {user_balance:.2f} {COIN}')
 
             tel_send_image(row.chat_id, dice)
@@ -517,7 +517,7 @@ def create_msg_costs_gpu(estimated_time: str, gpu_model: str = ''):
         list_est_times.append(est_time)
         list_costs.append(cost)
 
-        msg += f"*- {row.gpu_model}*: _Cost:_ {formatted_cost} {COIN} _Time:_ {convert_seconds(est_time)}\n"
+        msg += f"*- {row.gpu_model}*: ⏱️ {convert_seconds(est_time)} / 💰 {formatted_cost}\n"
 
     return msg, list_dict_buttons, list_est_times, list_costs
 
