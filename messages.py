@@ -38,11 +38,11 @@ def welcome_message(dict_msg: dict = {}):
     tel_send_message(chat_id, f"Hello, {fullname}! Welcome to the SIIM 2023 AI Playground 🛝.")
     tel_send_message(chat_id,
                      "Today you will be developing a deep learning-based model to segment kidneys in MR images. The model is based on the U-Net architecture. There are many hyper-parameters that need to be adjusted to create a high performing model. We will walk through these parameters, and you will be able to learn about them, and specify their values in your model. You will then see how well your model was trained and its performance on a hold-out data set. Your performance will be compared with others, and you can see how well you did on the leaderboard 🏆📊.")
-    tel_send_message(chat_id, "*Some details:*📝\n"
-                              "*1. 💻 Deep Learning Model:* In this project, you'll be using a deep learning model, which is a type of artificial intelligence algorithm that can learn complex patterns from data. In this case, the data consists of MR images of kidneys.\n"
-                              "*2. 🎭 Segmentation:* The goal of this project is to segment kidneys in MR images, which means identifying the boundaries and regions of the kidneys in the images. You are creating an AI model that decides for every voxel (a 3D pixel) whether it is, or isn’t, a kidney voxel.\n"
-                              "*3. 🩻 U-Net Architecture:* U-Net is a popular convolutional neural network (CNN) architecture specifically designed for image segmentation tasks. Its unique U-shaped structure allows it to capture both local and global context in images, making it suitable for medical image segmentation.\n"
-                              f"*. 💵 {COIN}:* Training a model costs money. In this competition, we use a virtual coin 💰 called {COIN}. You will receive *{db.INITIAL_BALANCE} {COIN}* to train your models."
+    tel_send_message(chat_id, "*Some details:*\n"
+                              "*💻 Deep Learning Model:* In this project, you'll be using a deep learning model, which is a type of artificial intelligence algorithm that can learn complex patterns from data. In this case, the data consists of MR images of kidneys.\n"
+                              "*🎭 Segmentation:* The goal of this project is to segment kidneys in MR images, which means identifying the boundaries and regions of the kidneys in the images. You are creating an AI model that decides for every voxel (a 3D pixel) whether it is, or isn’t, a kidney voxel.\n"
+                              "*🩻 U-Net Architecture:* U-Net is a popular convolutional neural network (CNN) architecture specifically designed for image segmentation tasks. Its unique U-shaped structure allows it to capture both local and global context in images, making it suitable for medical image segmentation.\n"
+                              f"*💵 {COIN}:* Training a model costs money. In this competition, we use a virtual coin 💰 called {COIN}. You will receive *{db.INITIAL_BALANCE} {COIN}* to train your models."
                      )
     tel_send_inlinebutton(chat_id, "Let’s get started!",
                           [{"text": "Train new model", "callback_data": "new_model"},
