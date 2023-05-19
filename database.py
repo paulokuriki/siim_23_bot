@@ -422,8 +422,8 @@ def gpu_buttons() -> list:
 
 
 def return_balance_per_user(user_id: str = '') -> float:
-    sql = select(func.sum(tb_pretrained.c.cost).label('sum_cost')). \
-        where(tb_pretrained.c.user_id == user_id)
+    sql = select(func.sum(tb_submissions.c.cost).label('sum_cost')). \
+        where(tb_submissions.c.user_id == user_id)
     df = pd.read_sql_query(sql=sql, con=engine)
 
     if len(df):
