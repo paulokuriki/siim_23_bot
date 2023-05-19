@@ -161,10 +161,10 @@ def list_competitors():
 @app.get("/api/leaderboard", response_class=JSONResponse)
 async def get_leaderboard():
     df = db.get_leaderboard_df()
-    df['last_submission'] = await df['last_submission'].apply(msgs.calculate_time_ago)
+    df['last_submission'] = df['last_submission'].apply(msgs.calculate_time_ago)
     df['rank'] = df.index + 1
-    df = df[['rank', 'fullname', 'score', 'entries', 'last_submission']]
-    df.columns = ['#', 'Team', 'Score', 'Entries', 'Last']
+    df = df[['rank', 'fullname', 'score', 'entries', 'last_submission', 'sum_costs']]
+    df.columns = ['#', 'Team', 'Score', 'Entries', 'Last', 'Expenses']
 
     return JSONResponse(df.to_dict(orient="records"), status_code=200)
 
