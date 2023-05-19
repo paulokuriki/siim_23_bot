@@ -231,7 +231,7 @@ def make_submission(dict_user_hp: dict, user_id: str, chat_id: str, gpu_model: s
     random_metrics_test_set = generate_random_number(avg_metrics_test_set, stddev_metrics_test_set, perc_max)
 
     now = datetime.datetime.now()
-    time_delta = datetime.timedelta(seconds=avg_training_secs)
+    time_delta = datetime.timedelta(seconds=float(avg_training_secs))
     datetime_results_available = now + time_delta
 
     # convert string True/False to booleans

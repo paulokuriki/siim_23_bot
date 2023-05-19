@@ -41,7 +41,7 @@ def welcome_message(dict_msg: dict = {}):
                               "*1. 💻 Deep Learning Model:* In this project, you'll be using a deep learning model, which is a type of artificial intelligence algorithm that can learn complex patterns from data. In this case, the data consists of MR images of kidneys.\n"
                               "*2. 🎭 Segmentation:* The goal of this project is to segment kidneys in MR images, which means identifying the boundaries and regions of the kidneys in the images. You are creating an AI model that decides for every voxel (a 3D pixel) whether it is, or isn’t, a kidney voxel.\n"
                               "*3. 🩻 U-Net Architecture:* U-Net is a popular convolutional neural network (CNN) architecture specifically designed for image segmentation tasks. Its unique U-shaped structure allows it to capture both local and global context in images, making it suitable for medical image segmentation.\n"
-                              f"*. 💵 {COIN}:* Training a model costs money. In this competition, we use a virtual coin called {COIN}. You will receive *{db.INITIAL_BALANCE} {COIN}* to train your models."
+                              f"*. 💵 {COIN}:* Training a model costs money. In this competition, we use a virtual coin 💰 called {COIN}. You will receive *{db.INITIAL_BALANCE} {COIN}* to train your models."
                      )
     tel_send_inlinebutton(chat_id, "Let’s get started!",
                           [{"text": "Train new model", "callback_data": "new_model"},
@@ -171,6 +171,7 @@ def select_gpu(dict_msg: dict = {}, dict_user_hp: dict = {}):
     estimated_time = db.estimate_train_time(dict_user_hp, user_id, chat_id)
 
     user_balance = db.return_balance_per_user(user_id)
+    formatted_user_balance = "{:.2f}".format(user_balance)
 
     # create messages with costs and time for each gpu
     msg_gpu_comparison, list_dict_buttons, list_est_times, list_costs = create_msg_costs_gpu(estimated_time)
@@ -182,7 +183,7 @@ def select_gpu(dict_msg: dict = {}, dict_user_hp: dict = {}):
         tel_send_message(chat_id,
                          "Now, you have to choose where you want to train your model. GPU training is faster than CPU, but it costs more.\n"
                          f'The faster you train, the more iterations you can test, the more {COIN} you will spend.\n'
-                         f'You your current balance is: *{user_balance} {COIN}* 🪙')
+                         f'Your current balance is *{formatted_user_balance} {COIN}* 💰')
         tel_send_message(chat_id, msg_gpu_comparison)
         tel_send_inlinebutton(chat_id, "Select your training device:", list_dict_buttons)
 
