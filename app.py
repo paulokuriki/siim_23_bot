@@ -165,7 +165,7 @@ async def get_leaderboard():
     df['last_submission'] = df['last_submission'].apply(msgs.calculate_time_ago)
     df['rank'] = df.index + 1
     df = df[['rank', 'fullname', 'score', 'entries', 'last_submission', 'sum_costs']]
-    df.columns = ['#', 'Team', 'Score', 'Entries', 'Last', f'{messages.COIN} spent']
+    df.columns = ['#', 'Team', 'Score', 'Entries', 'Last', f'Spent {messages.COIN}']
 
     return JSONResponse(df.to_dict(orient="records"), status_code=200)
 

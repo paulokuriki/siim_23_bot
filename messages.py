@@ -298,7 +298,7 @@ def show_leaderboard(dict_msg: dict = {}):
     df_user = df[df['user_id'] == user_id]
 
     df = df[['rank', 'fullname', 'score', 'entries', 'last_submission', 'sum_costs']]
-    df.columns = ['🏆', 'Team', '🎯', 'Entries', '🕰️ Last', '💰 Spent']
+    df.columns = ['🏆', 'Team', '🎯', 'Entries', '🕰️ Last', 'Spent 💰']
     leaderboard = df.to_string(index=False)
 
     if not df_user.empty:
