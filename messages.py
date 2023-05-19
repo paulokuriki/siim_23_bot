@@ -382,7 +382,6 @@ def notify_finished_trainings(base_url: str = None, user_id: str = None):
     df = db.load_df_finished_trainings(user_id)
 
     user_balance = db.return_balance_per_user(user_id)
-    formatted_user_balance = "{:.2f}".format(user_balance)
 
     list_competitors_notified = []
 
@@ -398,7 +397,9 @@ def notify_finished_trainings(base_url: str = None, user_id: str = None):
                                           f"*Training set:* {row.metrics_train_set:.5f}\n"
                                           f"*Validation set:* {row.metrics_val_set:.5f}\n"
                                           f"*Test set:* {row.metrics_test_set:.5f}\n"
-                                          f'💰 Your current balance is *{formatted_user_balance} {COIN}*')
+                                          f"*Training Device:* {row.gpu_model}\n"
+                                          f"*Training Cost:* {row.cost:.2f}\n"
+                                          f'*Balance:* {user_balance:.2f} {COIN}')
 
             tel_send_image(row.chat_id, dice)
             tel_send_image(row.chat_id, jacloss)
