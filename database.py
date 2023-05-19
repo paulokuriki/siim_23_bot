@@ -332,6 +332,8 @@ def load_df_finished_trainings(user_id: str = None) -> DataFrame:
                  tb_submissions.c.dropout,
                  tb_submissions.c.image_size,
                  tb_submissions.c.batch_size,
+                 tb_submissions.c.gpu_model,
+                 tb_submissions.c.cost,
                  tb_submissions.c.metrics_train_set,
                  tb_submissions.c.metrics_val_set,
                  tb_submissions.c.metrics_test_set,
