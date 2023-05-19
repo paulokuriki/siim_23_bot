@@ -184,11 +184,11 @@ def select_gpu(dict_msg: dict = {}, dict_user_hp: dict = {}):
         tel_send_message(chat_id,
                          "Now, you have to choose where you want to train your model. GPU training is faster than CPU, but it costs more.\n"
                          f'The faster you train, the more iterations you can test, the more {COIN} you will spend.\n'
-                         f'💰 Your current balance is *{formatted_user_balance} {COIN}* )
+                         f'💰 Your current balance is *{formatted_user_balance} {COIN}*')
         tel_send_message(chat_id, msg_gpu_comparison)
         tel_send_inlinebutton(chat_id, "Select your training device:", list_dict_buttons)
 
-        else:
+    else:
         tel_send_message(chat_id, "😥 There was a problem submitting your model to the training queue. "
                                   "Try again in a few minutes. "
                                   "If the problem persists, notify the SIIM AI Playground organizers.")
@@ -388,23 +388,20 @@ def notify_finished_trainings(base_url: str = None, user_id: str = None):
 
     for idx, row in df.iterrows():
         if row.user_id not in list_competitors_notified:
-            tel_send_message(row.chat_id, "Your model training is *FINISHED*. Here are your results:\n"
-                                          f"*Training set:* {row.metrics_train_set:.5f}\n"
-                                          f"*Validation set:* {row.metrics_val_set:.5f}\n"
-                                          f"*Test set:* {row.metrics_test_set:.5f}\n"
-                                          f'💰 Your current balance is *{formatted_user_balance} {COIN}* )
-
-            )
-
             dice, jacloss, sample = db_schema.imgs_url(0, row.epochs, row.learning_rate, row.batch_norm, row.filters,
                                                        row.dropout, row.image_size, row.batch_size)
-
-            tel_send_image(row.chat_id, dice)
-            tel_send_image(row.chat_id, jacloss)
 
             # rotates the sample image as they as originally they were created rotated
             sample = create_url(base_url, "rotate_image", {"image_url": sample})
 
+            tel_send_message(row.chat_id, "Your model training is *FINISHED*. Here are your results:\n"
+                                          f"*Training set:* {row.metrics_train_set:.5f}\n"
+                                          f"*Validation set:* {row.metrics_val_set:.5f}\n"
+                                          f"*Test set:* {row.metrics_test_set:.5f}\n"
+                                          f'💰 Your current balance is *{formatted_user_balance} {COIN}*')
+
+            tel_send_image(row.chat_id, dice)
+            tel_send_image(row.chat_id, jacloss)
             tel_send_image(row.chat_id, sample)
 
             tel_send_inlinebutton(row.chat_id, "Select your option:",
@@ -519,7 +516,7 @@ def create_msg_costs_gpu(estimated_time: str, gpu_model: str = ''):
         list_est_times.append(est_time)
         list_costs.append(cost)
 
-        msg += f"*- {row.gpu_model}*: _Time:_ {convert_seconds(est_time)}  _Cost:_ {formatted_cost} {COIN}\n"
+        msg += f"*- {row.gpu_model}*: _Cost:_ {formatted_cost} {COIN} _Time:_ {convert_seconds(est_time)}\n"
 
     return msg, list_dict_buttons, list_est_times, list_costs
 
