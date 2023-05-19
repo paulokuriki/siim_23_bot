@@ -219,7 +219,7 @@ def submit_training(dict_msg: dict = {}, dict_user_hp: dict = {}, request: Reque
         select_gpu(dict_msg, dict_user_hp)
         return
 
-    datetime_results_available = db.make_submission(dict_user_hp, user_id, chat_id, gpu_model, cost)
+    datetime_results_available = db.make_submission(dict_user_hp, user_id, chat_id, gpu_model, cost, estimated_time)
 
     run_time = datetime_results_available
     scheduler.add_job(notify_finished_trainings, 'date', run_date=run_time, args=[str(request.base_url), user_id])

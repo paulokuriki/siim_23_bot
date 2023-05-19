@@ -211,11 +211,11 @@ def estimate_train_time(dict_user_hp: dict, user_id: str, chat_id: str):
     return avg_training_secs
 
 
-def make_submission(dict_user_hp: dict, user_id: str, chat_id: str, gpu_model: str, cost: float):
+def make_submission(dict_user_hp: dict, user_id: str, chat_id: str, gpu_model: str, cost: float, estimated_time: float):
     # searches for metrics from pretrained models
     metrics = return_metrics(dict_user_hp)
 
-    avg_training_secs = metrics['avg_training_secs']
+    #avg_training_secs = metrics['avg_training_secs']
 
     avg_metrics_train_set = metrics['avg_metrics_train_set']
     stddev_metrics_train_set = metrics['stddev_metrics_train_set']
@@ -230,9 +230,9 @@ def make_submission(dict_user_hp: dict, user_id: str, chat_id: str, gpu_model: s
     random_metrics_val_set = generate_random_number(avg_metrics_val_set, stddev_metrics_val_set, perc_max)
     random_metrics_test_set = generate_random_number(avg_metrics_test_set, stddev_metrics_test_set, perc_max)
 
-    now = datetime.datetime.now()
-    time_delta = datetime.timedelta(seconds=float(avg_training_secs))
-    datetime_results_available = now + time_delta
+    datetime_submission = datetime.datetime.now()
+    time_delta = datetime.timedelta(seconds=float(estimated_time))
+    datetime_results_available = datetime_submission + time_delta
 
     # convert string True/False to booleans
     if dict_user_hp.get('batch_norm', '') == 'True':
@@ -248,7 +248,7 @@ def make_submission(dict_user_hp: dict, user_id: str, chat_id: str, gpu_model: s
 
     # create an insert statement for the tb_submissions
     stmt = insert(tb_submissions).values(
-        datetime_submission=datetime.datetime.now(),
+        datetime_submission=datetime_submission,
         user_id=user_id,
         chat_id=chat_id,
         batch_size=dict_user_hp.get('batch_size', 0),
