@@ -10,7 +10,7 @@ import db_schema
 import hyperparameters as hp
 from telegram_aux import tel_send_message, tel_send_inlinebutton, tel_send_image
 
-COIN = "eSIIMCash"
+COIN = "SIIMCash"
 TRAIN_TIME_MULTIPLIER = 4000
 
 
