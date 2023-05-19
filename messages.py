@@ -503,7 +503,7 @@ def create_msg_costs_gpu(estimated_time: str, gpu_model: str = ''):
         gpu_model = row.gpu_model
         gpu_cost_per_seconds = row.cost / 60 / 60
         est_time = estimated_time * TRAIN_TIME_MULTIPLIER / row.cuda_cores
-        cost = gpu_cost_per_seconds * est_time
+        cost = gpu_cost_per_seconds * float(est_time)
         cost = round(cost, 2)
         formatted_cost = "{:.2f}".format(cost)
 

@@ -425,7 +425,6 @@ def return_balance_per_user(user_id: str = '') -> float:
     sql = select(func.sum(tb_submissions.c.cost).label('sum_cost')). \
         where(tb_submissions.c.user_id == user_id)
     df = pd.read_sql_query(sql=sql, con=engine)
-    print(df)
 
     if len(df):
         expenses = df.iloc[0][0]
@@ -437,14 +436,11 @@ def return_balance_per_user(user_id: str = '') -> float:
     sql = select(tb_competitors.c.initial_balance). \
         where(tb_competitors.c.user_id == user_id)
     df = pd.read_sql_query(sql=sql, con=engine)
-    print(df)
 
     if len(df):
         initial_balance = df.iloc[0][0]
     else:
         initial_balance = 0
-
-    print(initial_balance, expenses)
 
     balance = initial_balance - expenses
 
