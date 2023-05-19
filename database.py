@@ -10,20 +10,23 @@ from sqlalchemy import func
 
 import db_schema
 # import tables from the db_schema module
-from db_schema import tb_pretrained, tb_competitors, tb_submissions, tb_costs, DATABASE_URL, INITIAL_CASH
+from db_schema import tb_pretrained, tb_competitors, tb_submissions, tb_costs, DATABASE_URL
 
 # create a SQLAlchemy engine object using the DATABASE_URL
 engine = create_engine(DATABASE_URL)
+
+INITIAL_BALANCE = 10
 
 
 def insert_competitor(dict_msg: dict = {}):
     user_id = dict_msg.get('user_id', '')
     username = dict_msg.get('username', '')
     fullname = dict_msg.get('fullname', '')
-    cash = dict_msg.get('cash', INITIAL_CASH)
+    initial_balance = dict_msg.get('initial_balance', INITIAL_BALANCE)
 
     # create an insert statement for the tb_competitors table with the given username and fullname
-    stmt = insert(tb_competitors).values(user_id=user_id, username=username, fullname=fullname, cash=cash)
+    stmt = insert(tb_competitors).values(user_id=user_id, username=username, fullname=fullname,
+                                         initial_balance=initial_balance)
 
     try:
         # execute the insert statement within a transaction and commit it
@@ -50,7 +53,8 @@ def list_competitors(dict_msg: dict = {}):
         sql = select(tb_competitors)
     else:
         # create a select statement for the tb_competitors table that retrieves the row(s) with the given username
-        sql = select(tb_competitors).where(tb_competitors.c.user_id == dict_msg.get('user_id', ''))
+        user_id = dict_msg.get('user_id', '')
+        sql = select(tb_competitors).where(tb_competitors.c.user_id == user_id)
 
     # execute the select statement within a transaction and retrieve all results
     with engine.connect() as conn:
@@ -385,14 +389,16 @@ def get_leaderboard_df() -> DataFrame:
     # create a select statement from the tb_submissions
     sql = select(tb_submissions.c.user_id,
                  tb_competitors.c.fullname,
-                 tb_competitors.c.cash,
+                 tb_competitors.c.initial_balance,
                  func.max(tb_submissions.c.metrics_test_set).label('score'),
                  func.count(tb_submissions.c.user_id).label('entries'),
-                 func.max(tb_submissions.c.datetime_submission).label('last_submission')
+                 func.max(tb_submissions.c.datetime_submission).label('last_submission'),
+                 func.sum(tb_submissions.c.cost).label('sum_costs'),
+                 (tb_competitors.c.initial_balance - func.sum(tb_submissions.c.cost).label('sum_costs')).label('balance')
                  ). \
         join(tb_competitors). \
         where(tb_submissions.c.training_status == db_schema.TRAINING_STATUS_NOTIFIED). \
-        group_by(tb_submissions.c.user_id, tb_competitors.c.fullname, tb_competitors.c.cash). \
+        group_by(tb_submissions.c.user_id, tb_competitors.c.fullname, tb_competitors.c.initial_balance). \
         order_by(func.max(tb_submissions.c.metrics_test_set).desc())
 
     # print(sql.compile(compile_kwargs={"literal_binds": True}))

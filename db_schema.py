@@ -11,8 +11,6 @@ DATABASE_URL = os.environ.get('DATABASE_URL',
                                                                                                          "postgresql://")
 BUCKET_URL = 'https://storage.googleapis.com/siim_23_bot/'
 
-INITIAL_CASH = 100
-
 def imgs_url(experiment, epochs, learning_rate, batch_norm, filters, dropout, image_size, batch_size):
     if dropout == 0.0:
         dropout = 0
@@ -109,6 +107,5 @@ tb_costs = Table("training_costs", metadata_obj,
                        Column("cuda_cores", smallint)
                        )
 
-print('metadata_obj.create_all(engine)')
 # creates the tables in case they don't exist
 metadata_obj.create_all(engine)

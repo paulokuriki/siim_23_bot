@@ -10,10 +10,8 @@ import db_schema
 import hyperparameters as hp
 from telegram_aux import tel_send_message, tel_send_inlinebutton, tel_send_image
 
-INITIAL_BALANCE = 10
 COIN = "eSIIMCash"
 TRAIN_TIME_MULTIPLIER = 4000
-
 
 def update_dict_user_hps(dict_user_hp: dict = {}, dict_msg: dict = {}) -> dict:
     # Get the user_id and txt fields from the dict_msg dictionary, providing default values if the keys are not found
@@ -297,8 +295,8 @@ def show_leaderboard(dict_msg: dict = {}):
     # Look for the user_id in the dataframe
     df_user = df[df['user_id'] == user_id]
 
-    df = df[['rank', 'fullname', 'score', 'entries', 'last_submission', 'cash']]
-    df.columns = ['Pos', 'Name', 'Score', 'Entries', 'Last', 'Rem. $']
+    df = df[['rank', 'fullname', 'score', 'entries', 'last_submission', 'balance']]
+    df.columns = ['Pos', 'Name', 'Score', 'Entries', 'Last', 'Balance']
     leaderboard = df.to_string(index=False)
 
     if not df_user.empty:

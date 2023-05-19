@@ -28,7 +28,6 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 templates = Jinja2Templates(directory="templates")
 
-
 # Route for the root directory; handles Telegram messages
 @app.post("/", response_class=HTMLResponse)
 async def index(request: Request):
