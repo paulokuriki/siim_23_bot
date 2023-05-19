@@ -13,6 +13,7 @@ from telegram_aux import tel_send_message, tel_send_inlinebutton, tel_send_image
 COIN = "eSIIMCash"
 TRAIN_TIME_MULTIPLIER = 4000
 
+
 def update_dict_user_hps(dict_user_hp: dict = {}, dict_msg: dict = {}) -> dict:
     # Get the user_id and txt fields from the dict_msg dictionary, providing default values if the keys are not found
     txt = dict_msg.get('txt', '')
@@ -183,11 +184,11 @@ def select_gpu(dict_msg: dict = {}, dict_user_hp: dict = {}):
         tel_send_message(chat_id,
                          "Now, you have to choose where you want to train your model. GPU training is faster than CPU, but it costs more.\n"
                          f'The faster you train, the more iterations you can test, the more {COIN} you will spend.\n'
-                         f'Your current balance is *{formatted_user_balance} {COIN}* 💰')
+                         f'💰 Your current balance is *{formatted_user_balance} {COIN}* )
         tel_send_message(chat_id, msg_gpu_comparison)
         tel_send_inlinebutton(chat_id, "Select your training device:", list_dict_buttons)
 
-    else:
+        else:
         tel_send_message(chat_id, "😥 There was a problem submitting your model to the training queue. "
                                   "Try again in a few minutes. "
                                   "If the problem persists, notify the SIIM AI Playground organizers.")
@@ -380,6 +381,9 @@ def notify_finished_trainings(base_url: str = None, user_id: str = None):
 
     df = db.load_df_finished_trainings(user_id)
 
+    user_balance = db.return_balance_per_user(user_id)
+    formatted_user_balance = "{:.2f}".format(user_balance)
+
     list_competitors_notified = []
 
     for idx, row in df.iterrows():
@@ -387,7 +391,10 @@ def notify_finished_trainings(base_url: str = None, user_id: str = None):
             tel_send_message(row.chat_id, "Your model training is *FINISHED*. Here are your results:\n"
                                           f"*Training set:* {row.metrics_train_set:.5f}\n"
                                           f"*Validation set:* {row.metrics_val_set:.5f}\n"
-                                          f"*Test set:* {row.metrics_test_set:.5f}")
+                                          f"*Test set:* {row.metrics_test_set:.5f}\n"
+                                          f'💰 Your current balance is *{formatted_user_balance} {COIN}* )
+
+            )
 
             dice, jacloss, sample = db_schema.imgs_url(0, row.epochs, row.learning_rate, row.batch_norm, row.filters,
                                                        row.dropout, row.image_size, row.batch_size)
