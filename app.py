@@ -1,14 +1,26 @@
 # https://www.pragnakalp.com/create-telegram-bot-using-python-tutorial-with-examples/
 
-# Import necessary modules
-from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse, JSONResponse
-from fastapi.templating import Jinja2Templates
-from fastapi.staticfiles import StaticFiles
+import io
 
-from messages import *
+from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
+from apscheduler.schedulers.background import BackgroundScheduler
+# Import necessary modules
+from fastapi import FastAPI, Query, Request
+from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+
+import messages
+from image_lib import download_image, rotate_image
+import messages as msgs
+import database as db
+import db_schema
+import hyperparameters as hp
 # Import functions from other modules
 from telegram_aux import *
+
+scheduler = BackgroundScheduler(jobstores={'default': SQLAlchemyJobStore(url=db_schema.DATABASE_URL)})
+scheduler.start()
 
 # Create FastAPI app object
 app = FastAPI(docs_url=None, redoc_url=None)
@@ -21,17 +33,17 @@ templates = Jinja2Templates(directory="templates")
 @app.post("/", response_class=HTMLResponse)
 async def index(request: Request):
     # Get the message from the POST request
-    msg = await request.json()
+    req = await request.json()
 
     # Parse the message to a structured dictionary
-    dict_msg = tel_parse_message(msg)
+    dict_msg = tel_parse_message(req)
 
     user_id = dict_msg.get('user_id', '')
     txt = dict_msg.get('txt', '')
 
     # load dict from disk, update it and save it back to disk
     dict_user_hp = db.load_dict(user_id)
-    dict_user_hp = update_dict_user_hps(dict_user_hp, dict_msg)
+    dict_user_hp = msgs.update_dict_user_hps(dict_user_hp, dict_msg)
     db.save_dict(dict_user_hp, user_id)
 
     # register the competitor in the database, if necessary
@@ -39,34 +51,34 @@ async def index(request: Request):
         db.insert_competitor(dict_msg)
 
     # evaluate the user's message and respond accordingly
-    if txt in 'new_model':
+    if txt == 'new_model':
         dict_user_hp = {}
         db.save_dict(dict_user_hp, user_id)
-        select_batch_size(dict_msg)
+        msgs.select_batch_size(dict_msg)
 
     elif txt in hp.batch_sizes:
-        select_epochs(dict_msg)
+        msgs.select_epochs(dict_msg)
 
     elif txt in hp.epochs:
-        select_lr(dict_msg)
+        msgs.select_lr(dict_msg)
 
     elif txt in hp.learning_rates:
-        select_batch_norm(dict_msg)
+        msgs.select_batch_norm(dict_msg)
 
     elif txt in hp.batch_norm:
-        select_filters(dict_msg)
+        msgs.select_filters(dict_msg)
 
     elif txt in hp.filters:
-        select_dropout(dict_msg)
+        msgs.select_dropout(dict_msg)
 
     elif txt in hp.dropout:
-        select_image_size(dict_msg)
+        msgs.select_image_size(dict_msg)
 
     elif txt in hp.image_size:
-        confirm_training(dict_msg, dict_user_hp)
+        msgs.select_gpu(dict_msg, dict_user_hp)
 
-    elif txt == "submit_training":
-        submit_model(dict_msg, dict_user_hp)
+    elif txt in msgs.GPU_NAMES:
+        msgs.submit_training(dict_msg, dict_user_hp, request=request, scheduler=scheduler)
 
     elif txt == "list_competitors":
         results = json.dumps(db.list_competitors(), indent=2, default=str)
@@ -74,14 +86,16 @@ async def index(request: Request):
         tel_send_message(dict_msg, msg)
 
     elif txt == "show_leaderboard":
-        show_leaderboard(dict_msg)
+        msgs.show_leaderboard(dict_msg)
 
     elif txt == "show_status":
-        show_training_status(dict_msg)
+        msgs.show_training_status(dict_msg, request=request)
+
     else:
+        # clear dict user hyperparameters
         dict_user_hp = {}
         db.save_dict(dict_user_hp, user_id)
-        welcome_message(dict_msg)
+        msgs.welcome_message(dict_msg)
 
     return JSONResponse('ok', status_code=200)
 
@@ -89,7 +103,7 @@ async def index(request: Request):
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
     df = db.get_leaderboard_df()
-    df['last_submission'] = df['last_submission'].apply(calculate_time_ago)
+    df['last_submission'] = df['last_submission'].apply(msgs.calculate_time_ago)
     df['rank'] = df.index + 1
     df = df[['rank', 'fullname', 'score', 'entries', 'last_submission']]
     df.columns = ['#', 'Team', 'Score', 'Entries', 'Last']
@@ -127,9 +141,9 @@ def list_pretrained_metrics():
 # route for listing pretrained model metrics
 @app.get("/notify_results")
 @app.head("/notify_results")  # https://uptimerobot.com/ calls the api through a HEAD request each 5 min
-def notify_results():
+def notify_results(request: Request):
     # Notify the competitors
-    results = notify_finished_trainings()
+    results = msgs.notify_finished_trainings(base_url=str(request.base_url))
 
     # Return the number of users notified
     return JSONResponse(f'{str(results)} users notified.', status_code=200)
@@ -146,11 +160,19 @@ def list_competitors():
 
 # Route for listing pretrained model metrics
 @app.get("/api/leaderboard", response_class=JSONResponse)
-def get_leaderboard():
+async def get_leaderboard():
     df = db.get_leaderboard_df()
-    df['last_submission'] = df['last_submission'].apply(calculate_time_ago)
+    df['last_submission'] = df['last_submission'].apply(msgs.calculate_time_ago)
     df['rank'] = df.index + 1
-    df = df[['rank', 'fullname', 'score', 'entries', 'last_submission']]
-    df.columns = ['#', 'Team', 'Score', 'Entries', 'Last']
+    df = df[['rank', 'fullname', 'score', 'entries', 'last_submission', 'sum_costs']]
+    df.columns = ['#', 'Team', 'Score', 'Entries', 'Last', f'Spent {messages.COIN}']
 
     return JSONResponse(df.to_dict(orient="records"), status_code=200)
+
+
+@app.get("/rotate_image", tags=["images"], name="rotate_image")
+async def get_rotated_image(image_url: str = Query(...)):
+    image_bytes = await download_image(image_url)
+    rotated_image_bytes = await rotate_image(io.BytesIO(image_bytes))
+
+    return StreamingResponse(rotated_image_bytes, media_type="image/png")

@@ -1,6 +1,6 @@
 import os
 
-from sqlalchemy import DateTime as TimeStamp, SmallInteger as smallint, Text as text, REAL as real, BOOLEAN as boolean
+from sqlalchemy import DateTime as TimeStamp, SmallInteger as smallint, Text as text, REAL as real, BOOLEAN as boolean, Numeric
 from sqlalchemy import Table, Column
 from sqlalchemy import create_engine, MetaData, ForeignKey
 
@@ -9,6 +9,20 @@ from sqlalchemy import create_engine, MetaData, ForeignKey
 DATABASE_URL = os.environ.get('DATABASE_URL',
                               'postgresql+psycopg2://postgres:postgres@localhost:5432/postgres').replace("postgres://",
                                                                                                          "postgresql://")
+BUCKET_URL = 'https://storage.googleapis.com/siim_23_bot/'
+
+def imgs_url(experiment, epochs, learning_rate, batch_norm, filters, dropout, image_size, batch_size):
+    if dropout == 0.0:
+        dropout = 0
+
+    dice = f'{BUCKET_URL}{experiment}_{epochs}_{learning_rate}_{str(batch_norm)}_{filters}_{dropout}_{image_size}_{batch_size}_dice.png'
+    jacloss = f'{BUCKET_URL}{experiment}_{epochs}_{learning_rate}_{str(batch_norm)}_{filters}_{dropout}_{image_size}_{batch_size}_jacloss.png'
+    sample = f'{BUCKET_URL}{experiment}_{epochs}_{learning_rate}_{str(batch_norm)}_{filters}_{dropout}_{image_size}_{batch_size}_sample.png'
+
+    print(dice, jacloss, sample)
+
+    return dice, jacloss, sample
+
 
 TRAINING_STATUS_TRAINING = 'Training'
 TRAINING_STATUS_CANCELLED = 'Cancelled'
@@ -25,7 +39,9 @@ metadata_obj = MetaData()
 tb_competitors = Table("competitors", metadata_obj,
                        Column("user_id", text, primary_key=True),
                        Column("username", text),
-                       Column("fullname", text))
+                       Column("fullname", text),
+                       Column("initial_balance", Numeric(10, 2)),
+                       )
 
 # create a SQLAlchemy Table object for the pretrained_results table with columns for various model training parameters
 # and performance metrics, as well as URLs for figures generated during training and the ID of who trained the model
@@ -68,6 +84,8 @@ tb_submissions = Table("submissions", metadata_obj,
                        Column("filters", smallint),
                        Column("dropout", real),
                        Column("image_size", smallint),
+                       Column("gpu_model", text),
+                       Column("cost", Numeric(10, 2)),
                        Column("metrics_train_set", real),
                        Column("metrics_val_set", real),
                        Column("metrics_test_set", real),
@@ -77,6 +95,16 @@ tb_submissions = Table("submissions", metadata_obj,
                        Column("metrics_fig_url", text),
                        Column("sample_figs_urls", text),
                        Column("training_status", text),
+                       )
+
+
+# create a SQLAlchemy Table object for the competitors table with columns for the username and fullname
+tb_costs = Table("training_costs", metadata_obj,
+                       Column("cost_id", smallint, primary_key=True),
+                       Column("order", smallint),
+                       Column("gpu_model", text),
+                       Column("cost", Numeric(10, 2)),
+                       Column("cuda_cores", smallint)
                        )
 
 # creates the tables in case they don't exist

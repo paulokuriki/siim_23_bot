@@ -10,19 +10,23 @@ from sqlalchemy import func
 
 import db_schema
 # import tables from the db_schema module
-from db_schema import tb_pretrained, tb_competitors, tb_submissions, DATABASE_URL
+from db_schema import tb_pretrained, tb_competitors, tb_submissions, tb_costs, DATABASE_URL
 
 # create a SQLAlchemy engine object using the DATABASE_URL
 engine = create_engine(DATABASE_URL)
+
+INITIAL_BALANCE = 10
 
 
 def insert_competitor(dict_msg: dict = {}):
     user_id = dict_msg.get('user_id', '')
     username = dict_msg.get('username', '')
     fullname = dict_msg.get('fullname', '')
+    initial_balance = dict_msg.get('initial_balance', INITIAL_BALANCE)
 
     # create an insert statement for the tb_competitors table with the given username and fullname
-    stmt = insert(tb_competitors).values(user_id=user_id, username=username, fullname=fullname)
+    stmt = insert(tb_competitors).values(user_id=user_id, username=username, fullname=fullname,
+                                         initial_balance=initial_balance)
 
     try:
         # execute the insert statement within a transaction and commit it
@@ -49,7 +53,8 @@ def list_competitors(dict_msg: dict = {}):
         sql = select(tb_competitors)
     else:
         # create a select statement for the tb_competitors table that retrieves the row(s) with the given username
-        sql = select(tb_competitors).where(tb_competitors.c.user_id == dict_msg.get('user_id', ''))
+        user_id = dict_msg.get('user_id', '')
+        sql = select(tb_competitors).where(tb_competitors.c.user_id == user_id)
 
     # execute the select statement within a transaction and retrieve all results
     with engine.connect() as conn:
@@ -135,8 +140,6 @@ def return_metrics(dict_user_hp: dict = {}, user_id: str = '') -> dict:
     with engine.connect() as conn:
         results = conn.execute(sql).fetchall()
 
-    print(results)
-
     if results == [(None, None, None, None, None, None, None, None)]:
         result = [0, 0, 0, 0, 0, 0, 0, 0]
     elif len(results) == 1:
@@ -199,12 +202,21 @@ def load_dict(user_id: str):
     return loaded_dict
 
 
-def make_submission(dict_user_hp: dict, user_id: str, chat_id: str):
+def estimate_train_time(dict_user_hp: dict, user_id: str, chat_id: str):
     # searches for metrics from pretrained models
     metrics = return_metrics(dict_user_hp)
 
     avg_training_secs = metrics['avg_training_secs']
-    stddev_training_secs = metrics['stddev_training_secs']
+
+    return avg_training_secs
+
+
+def make_submission(dict_user_hp: dict, user_id: str, chat_id: str, gpu_model: str, cost: float, estimated_time: float):
+    # searches for metrics from pretrained models
+    metrics = return_metrics(dict_user_hp)
+
+    #avg_training_secs = metrics['avg_training_secs']
+
     avg_metrics_train_set = metrics['avg_metrics_train_set']
     stddev_metrics_train_set = metrics['stddev_metrics_train_set']
     avg_metrics_val_set = metrics['avg_metrics_val_set']
@@ -213,15 +225,14 @@ def make_submission(dict_user_hp: dict, user_id: str, chat_id: str):
     stddev_metrics_test_set = metrics['stddev_metrics_test_set']
 
     # adds or substract up to (random) 5 times the stddev_training_secs
-    perc_max = 5  # 500% +- stddev_training_secs
-    random_estimated_time = generate_random_number(avg_training_secs, stddev_training_secs, perc_max)
+    perc_max = 1  # 100% +- stddev_training_secs
     random_metrics_train_set = generate_random_number(avg_metrics_train_set, stddev_metrics_train_set, perc_max)
     random_metrics_val_set = generate_random_number(avg_metrics_val_set, stddev_metrics_val_set, perc_max)
     random_metrics_test_set = generate_random_number(avg_metrics_test_set, stddev_metrics_test_set, perc_max)
 
-    now = datetime.datetime.now()
-    time_delta = datetime.timedelta(seconds=random_estimated_time)
-    datetime_results_available = now + time_delta
+    datetime_submission = datetime.datetime.now()
+    time_delta = datetime.timedelta(seconds=float(estimated_time))
+    datetime_results_available = datetime_submission + time_delta
 
     # convert string True/False to booleans
     if dict_user_hp.get('batch_norm', '') == 'True':
@@ -237,7 +248,7 @@ def make_submission(dict_user_hp: dict, user_id: str, chat_id: str):
 
     # create an insert statement for the tb_submissions
     stmt = insert(tb_submissions).values(
-        datetime_submission=datetime.datetime.now(),
+        datetime_submission=datetime_submission,
         user_id=user_id,
         chat_id=chat_id,
         batch_size=dict_user_hp.get('batch_size', 0),
@@ -247,6 +258,8 @@ def make_submission(dict_user_hp: dict, user_id: str, chat_id: str):
         filters=dict_user_hp.get('filters', 0),
         dropout=dropout,
         image_size=dict_user_hp.get('image_size', 0),
+        gpu_model=gpu_model,
+        cost=cost,
         metrics_train_set=random_metrics_train_set,
         metrics_val_set=random_metrics_val_set,
         metrics_test_set=random_metrics_test_set,
@@ -262,7 +275,7 @@ def make_submission(dict_user_hp: dict, user_id: str, chat_id: str):
             conn.execute(stmt)
             conn.commit()
 
-            return random_estimated_time
+            return datetime_results_available
     except Exception as e:
         print(f'Error making submission\e{e}')
         return 0
@@ -273,6 +286,25 @@ def load_df_submissions(user_id: str) -> DataFrame:
     sql = select(tb_submissions). \
         where(tb_submissions.c.user_id == user_id). \
         order_by(tb_submissions.c.datetime_submission.desc())
+
+    # print(sql.compile(compile_kwargs={"literal_binds": True}))
+
+    df = pd.read_sql_query(sql=sql, con=engine)
+    # print(df)
+
+    return df
+
+
+def load_df_costs(gpu_model: str = '') -> DataFrame:
+    if gpu_model:
+        where = tb_costs.c.gpu_model == gpu_model
+    else:
+        where = True
+
+    # create a select statement from the tb_gpus
+    sql = select(tb_costs). \
+        where(where). \
+        order_by(tb_costs.c.order)
 
     # print(sql.compile(compile_kwargs={"literal_binds": True}))
 
@@ -293,6 +325,15 @@ def load_df_finished_trainings(user_id: str = None) -> DataFrame:
     sql = select(tb_submissions.c.id,
                  tb_submissions.c.user_id,
                  tb_submissions.c.chat_id,
+                 tb_submissions.c.epochs,
+                 tb_submissions.c.learning_rate,
+                 tb_submissions.c.batch_norm,
+                 tb_submissions.c.filters,
+                 tb_submissions.c.dropout,
+                 tb_submissions.c.image_size,
+                 tb_submissions.c.batch_size,
+                 tb_submissions.c.gpu_model,
+                 tb_submissions.c.cost,
                  tb_submissions.c.metrics_train_set,
                  tb_submissions.c.metrics_val_set,
                  tb_submissions.c.metrics_test_set,
@@ -304,6 +345,13 @@ def load_df_finished_trainings(user_id: str = None) -> DataFrame:
         group_by(tb_submissions.c.id,
                  tb_submissions.c.user_id,
                  tb_submissions.c.chat_id,
+                 tb_submissions.c.epochs,
+                 tb_submissions.c.learning_rate,
+                 tb_submissions.c.batch_norm,
+                 tb_submissions.c.filters,
+                 tb_submissions.c.dropout,
+                 tb_submissions.c.image_size,
+                 tb_submissions.c.batch_size,
                  tb_submissions.c.metrics_train_set,
                  tb_submissions.c.metrics_val_set,
                  tb_submissions.c.metrics_test_set). \
@@ -339,17 +387,26 @@ def mark_submissions_notified(list_competitors_notified: list):
         return False
 
 
-def get_leaderboard_df() -> DataFrame:
+def get_leaderboard_df(user_id: str = None) -> DataFrame:
+    if user_id:
+        where_user = tb_submissions.c.user_id == user_id
+    else:
+        where_user = True
+
     # create a select statement from the tb_submissions
     sql = select(tb_submissions.c.user_id,
                  tb_competitors.c.fullname,
+                 tb_competitors.c.initial_balance,
                  func.max(tb_submissions.c.metrics_test_set).label('score'),
                  func.count(tb_submissions.c.user_id).label('entries'),
-                 func.max(tb_submissions.c.datetime_submission).label('last_submission')
-                 ).\
-        join(tb_competitors).\
-        where(tb_submissions.c.training_status == db_schema.TRAINING_STATUS_NOTIFIED). \
-        group_by(tb_submissions.c.user_id, tb_competitors.c.fullname). \
+                 func.max(tb_submissions.c.datetime_submission).label('last_submission'),
+                 func.sum(tb_submissions.c.cost).label('sum_costs'),
+                 (tb_competitors.c.initial_balance - func.sum(tb_submissions.c.cost)).label('balance')
+                 ). \
+        join(tb_competitors). \
+        where(tb_submissions.c.training_status == db_schema.TRAINING_STATUS_NOTIFIED,
+              where_user). \
+        group_by(tb_submissions.c.user_id, tb_competitors.c.fullname, tb_competitors.c.initial_balance). \
         order_by(func.max(tb_submissions.c.metrics_test_set).desc())
 
     # print(sql.compile(compile_kwargs={"literal_binds": True}))
@@ -357,3 +414,42 @@ def get_leaderboard_df() -> DataFrame:
     df = pd.read_sql_query(sql=sql, con=engine)
 
     return df
+
+
+def gpu_buttons() -> list:
+    # create a select statement from the tb_costs
+    sql = select(tb_costs). \
+        order_by(tb_costs.c.order.desc())
+
+    # print(sql.compile(compile_kwargs={"literal_binds": True}))
+
+    df = pd.read_sql_query(sql=sql, con=engine)
+    # print(df)
+
+    return df.to_list()
+
+
+def return_balance_per_user(user_id: str = '') -> float:
+    sql = select(func.sum(tb_submissions.c.cost).label('sum_cost')). \
+        where(tb_submissions.c.user_id == user_id)
+    df = pd.read_sql_query(sql=sql, con=engine)
+
+    if len(df):
+        expenses = df.iloc[0][0]
+        if expenses is None:
+            expenses = 0
+    else:
+        expenses = 0
+
+    sql = select(tb_competitors.c.initial_balance). \
+        where(tb_competitors.c.user_id == user_id)
+    df = pd.read_sql_query(sql=sql, con=engine)
+
+    if len(df):
+        initial_balance = df.iloc[0][0]
+    else:
+        initial_balance = 0
+
+    balance = initial_balance - expenses
+
+    return round(balance, 2)
