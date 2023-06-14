@@ -299,6 +299,7 @@ def show_leaderboard(dict_msg: dict = {}):
 
     df = df[['rank', 'fullname', 'score', 'entries', 'last_submission', 'sum_costs']]
     df.columns = ['🏆', 'Team', '🎯', 'Entries', '🕰️ Last', 'Spent 💰']
+    df = df.head(3)
     leaderboard = df.to_string(index=False)
 
     if not df_user.empty:
@@ -310,8 +311,9 @@ def show_leaderboard(dict_msg: dict = {}):
 
         tel_send_message(chat_id,
                          f"👏 Your are in the *{number_to_ordinal(position)}* position. Your best score is *{row.score}*")
-        tel_send_message(chat_id, "🏆 *LEADERBOARD (Top 10)*")
+        tel_send_message(chat_id, "🏆 *LEADERBOARD (Top 3)*")
         tel_send_message(chat_id, '```' + leaderboard + '```')
+        tel_send_message(chat_id, 'Check the complete leaderboard at the SIIM AI Playground located at exposition hall, close to the food area.')
         tel_send_inlinebutton(chat_id, "Select your option:",
                               [{"text": "Try new model", "callback_data": "start"},
                                {"text": "Leaderboard", "callback_data": "show_leaderboard"}])

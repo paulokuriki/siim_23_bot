@@ -111,31 +111,31 @@ async def index(request: Request):
 
 
 # Route for uploading JSON records to the database
-@app.post("/upload_json")
-async def upload_json(request: Request):
-    try:
-        # Get the JSON record from the POST request
-        json_record = await request.json()
-        # insert the record into the database using a function from database.py
-        results = db.insert_json(json_record)
-        # return an appropriate response based on the result of the insertion
-        if results == 'JSON inserted successfully.':
-            return JSONResponse(results, status_code=200)
-        else:
-            return JSONResponse(results, status_code=500)
-
-    except Exception as e:
-        # return an error response if the insertion fails
-        return JSONResponse(e, status_code=500)
+#@app.post("/upload_json")
+#async def upload_json(request: Request):
+#    try:
+#        # Get the JSON record from the POST request
+#        json_record = await request.json()
+#        # insert the record into the database using a function from database.py
+#        results = db.insert_json(json_record)
+#        # return an appropriate response based on the result of the insertion
+#        if results == 'JSON inserted successfully.':
+#            return JSONResponse(results, status_code=200)
+#        else:
+#            return JSONResponse(results, status_code=500)
+#
+#    except Exception as e:
+#        # return an error response if the insertion fails
+#        return JSONResponse(e, status_code=500)
 
 
 # Route for listing pretrained model metrics
-@app.get("/list_pretrained_metrics", response_class=JSONResponse)
-def list_pretrained_metrics():
-    # get the pretrained metrics from the database using a function from database.py
-    results = json.dumps(db.list_pretrained(), indent=2, default=str)
-    # return the results as a JSON object
-    return JSONResponse(results, status_code=200)
+#@app.get("/list_pretrained_metrics", response_class=JSONResponse)
+#def list_pretrained_metrics():
+#    # get the pretrained metrics from the database using a function from database.py
+#    results = json.dumps(db.list_pretrained(), indent=2, default=str)
+#    # return the results as a JSON object
+#    return JSONResponse(results, status_code=200)
 
 
 # route for listing pretrained model metrics
@@ -150,12 +150,12 @@ def notify_results(request: Request):
 
 
 # route for listing pretrained model metrics
-@app.get("/list_competitors", response_class=JSONResponse)
-def list_competitors():
-    # get the pretrained metrics from the database using a function from database.py
-    results = json.dumps(db.list_competitors(), indent=2, default=str)
-    # return the results as a JSON object
-    return JSONResponse(results, status_code=200)
+#@app.get("/list_competitors", response_class=JSONResponse)
+#def list_competitors():
+#    # get the pretrained metrics from the database using a function from database.py
+#    results = json.dumps(db.list_competitors(), indent=2, default=str)
+#    # return the results as a JSON object
+#    return JSONResponse(results, status_code=200)
 
 
 # Route for listing pretrained model metrics
