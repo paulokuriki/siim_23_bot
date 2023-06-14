@@ -2,6 +2,7 @@ import datetime
 import json
 
 import pandas as pd
+import numpy as np
 import sqlalchemy
 from pandas import DataFrame
 from sqlalchemy import NUMERIC
@@ -173,7 +174,7 @@ def generate_random_number(base_number: float, std_dev: float, max_percentage_fr
     else:
         random_number = float(base_number) - new_std_dev
 
-    return random_number
+    return np.clip(random_number, 0, 0.99999)
 
 
 def save_dict(dict_user_hp: dict, user_id: str):
